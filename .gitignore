@@ -72,5 +72,8 @@ Thumbs.db
 # Sphinx documentation build
 docs/_build/
 
+# Generated version file (hatch-vcs)
+steplib/_version.py
+
 # Project-specific reference folder (not for public release)
 ref/
