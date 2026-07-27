@@ -69,5 +69,8 @@ venv.bak/
 .DS_Store
 Thumbs.db
 
+# Sphinx documentation build
+docs/_build/
+
 # Project-specific reference folder (not for public release)
 ref/
