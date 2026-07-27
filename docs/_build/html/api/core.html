@@ -1,0 +1,1274 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Modules API Reference" href="modules.html"><link rel="prev" title="Kafka Module" href="../modules/kafka.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Core API Reference - behave-steplib 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">behave-steplib 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <span class="sidebar-brand-text">behave-steplib 0.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoload.html">Autoload and Load</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../i18n.html">Internationalization (i18n)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../step_contract.html">Step Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/api.html">API Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/web.html">Web Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/db.html">DB Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/kafka.html">Kafka Module</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules API Reference</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/api/core.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="core-api-reference">
+<h1>Core API Reference<a class="headerlink" href="#core-api-reference" title="Link to this heading">¶</a></h1>
+<p>Complete auto-generated reference for every public module in <code class="docutils literal notranslate"><span class="pre">steplib.core</span></code>.</p>
+<section id="public-api">
+<h2>Public API<a class="headerlink" href="#public-api" title="Link to this heading">¶</a></h2>
+<p>The top-level <code class="xref py py-mod docutils literal notranslate"><span class="pre">steplib</span></code> package re-exports the most commonly used
+symbols for convenience. Each is documented in its respective section below.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="steplib.__version__">
+<span class="sig-prename descclassname"><span class="pre">steplib.</span></span><span class="sig-name descname"><span class="pre">__version__</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.0.1.dev2'</span></span><a class="headerlink" href="#steplib.__version__" title="Link to this definition">¶</a></dt>
+<dd><p>str(object=’’) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to ‘utf-8’.
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+<section id="module-steplib.core.decorators">
+<span id="decorators"></span><h3>Decorators<a class="headerlink" href="#module-steplib.core.decorators" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;step</span></code> decorator and related helpers.</p>
+<p>The decorator stores <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> metadata on the decorated function. When
+multiple decorators are stacked on the same function, each call appends a
+new <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> entry to <code class="docutils literal notranslate"><span class="pre">fn.__steplib_steps__</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.decorators.get_step_infos">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.decorators.</span></span><span class="sig-name descname"><span class="pre">get_step_infos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/decorators.html#get_step_infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.decorators.get_step_infos" title="Link to this definition">¶</a></dt>
+<dd><p>Return all <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> entries attached to a decorated function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fn</strong> – A function decorated with <code class="docutils literal notranslate"><span class="pre">&#64;step</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> objects (empty if the function is not a steplib step).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.decorators.step">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.decorators.</span></span><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Param</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">example</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deprecated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i18n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/decorators.html#step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.decorators.step" title="Link to this definition">¶</a></dt>
+<dd><p>Attach <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> metadata to a step function.</p>
+<p>Can be stacked to register multiple patterns (e.g. for i18n or
+alternative backends) on the same implementation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> – The behave matching pattern (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;I</span> <span class="pre">send</span> <span class="pre">a</span> <span class="pre">{method}</span> <span class="pre">request</span> <span class="pre">to</span> <span class="pre">{url}&quot;</span></code>).</p></li>
+<li><p><strong>category</strong> – Module/domain category (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;api&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;web&quot;</span></code>).</p></li>
+<li><p><strong>backend</strong> – Underlying technology (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;httpx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;requests&quot;</span></code>).</p></li>
+<li><p><strong>description</strong> – Human-readable description; defaults to the function docstring.</p></li>
+<li><p><strong>parameters</strong> – Typed parameter descriptors.</p></li>
+<li><p><strong>example</strong> – Example usage in Gherkin.</p></li>
+<li><p><strong>tags</strong> – Tags for grouping/filtering in the CLI.</p></li>
+<li><p><strong>version</strong> – Semver of the step.</p></li>
+<li><p><strong>deprecated</strong> – <code class="docutils literal notranslate"><span class="pre">True</span></code>, a deprecation message, or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>i18n</strong> – Translations of the pattern keyed by language code.</p></li>
+<li><p><strong>requires</strong> – Context attributes the step needs (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;steplib.api.client&quot;]</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A decorator that records the metadata and returns the function unchanged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.metadata">
+<span id="metadata"></span><h3>Metadata<a class="headerlink" href="#module-steplib.core.metadata" title="Link to this heading">¶</a></h3>
+<p>Step metadata dataclass.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.metadata.</span></span><span class="sig-name descname"><span class="pre">StepInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pattern:</span> <span class="pre">str,</span> <span class="pre">category:</span> <span class="pre">str,</span> <span class="pre">func:</span> <span class="pre">~collections.abc.Callable[[...],</span> <span class="pre">~typing.Any],</span> <span class="pre">backend:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">description:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">parameters:</span> <span class="pre">list[~steplib.core.params.Param]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">example:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">tags:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">version:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">deprecated:</span> <span class="pre">bool</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">i18n:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">requires:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/metadata.html#StepInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.metadata.StepInfo" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Immutable metadata describing a single step registration.</p>
+<p>A function decorated with <code class="docutils literal notranslate"><span class="pre">&#64;step</span></code> may produce multiple <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code>
+entries (one per stacked decorator call). Each entry is expanded into
+one or more patterns via i18n translations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.backend">
+<span class="sig-name descname"><span class="pre">backend</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.backend" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.category">
+<span class="sig-name descname"><span class="pre">category</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.category" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.deprecated">
+<span class="sig-name descname"><span class="pre">deprecated</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.deprecated" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.example">
+<span class="sig-name descname"><span class="pre">example</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.example" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.func">
+<span class="sig-name descname"><span class="pre">func</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.func" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.i18n">
+<span class="sig-name descname"><span class="pre">i18n</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.i18n" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.is_deprecated">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_deprecated</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.is_deprecated" title="Link to this definition">¶</a></dt>
+<dd><p>Whether this step is marked as deprecated.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.module">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">module</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.module" title="Link to this definition">¶</a></dt>
+<dd><p>Dotted module path of the step function.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Param</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.pattern" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.qualified_name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">qualified_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.qualified_name" title="Link to this definition">¶</a></dt>
+<dd><p>Fully qualified function name (<code class="docutils literal notranslate"><span class="pre">module.qualname</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.requires">
+<span class="sig-name descname"><span class="pre">requires</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.requires" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.tags">
+<span class="sig-name descname"><span class="pre">tags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.tags" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.metadata.StepInfo.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#steplib.core.metadata.StepInfo.version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
+<p>Parameter types and the <code class="docutils literal notranslate"><span class="pre">Param</span></code> dataclass for step metadata.</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.params.</span></span><span class="sig-name descname"><span class="pre">Param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'str'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/params.html#Param"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Describes a single step parameter extracted from the pattern.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">name</span></span></dt>
+<dd><p>Placeholder name as it appears in the pattern (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;method&quot;</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">type</span></span></dt>
+<dd><p>Python type or registered type name (e.g. <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Json&quot;</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)">type</a>[Any] | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">required</span></span></dt>
+<dd><p>Whether the parameter must be present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">default</span></span></dt>
+<dd><p>Default value when the parameter is not in the pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">description</span></span></dt>
+<dd><p>Human-readable description of the parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">choices</span></span></dt>
+<dd><p>Allowed values after conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">choices</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">required</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.params.</span></span><span class="sig-name descname"><span class="pre">TypeRegistry</span></span><a class="reference internal" href="../_modules/steplib/core/params.html#TypeRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Registry of custom types registered via <code class="docutils literal notranslate"><span class="pre">register_type</span></code>.</p>
+<p>Encapsulates mutable state that was previously a module-level dict,
+avoiding global mutable state.</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/params.html#TypeRegistry.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Return the registered type for <em>name</em>, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not registered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">py_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/params.html#TypeRegistry.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Register a custom type usable in patterns as <code class="docutils literal notranslate"><span class="pre">{value:Name}</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The type name to use in patterns.</p></li>
+<li><p><strong>py_type</strong> – The Python type the converter returns.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/params.html#TypeRegistry.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Resolve a type reference (type object or name) to a Python type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>type_ref</strong> – A type object or a registered type name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resolved Python type, falling back to <code class="docutils literal notranslate"><span class="pre">str</span></code> for unknown names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.params.</span></span><span class="sig-name descname"><span class="pre">register_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">py_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/params.html#register_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Register a custom type usable in patterns as <code class="docutils literal notranslate"><span class="pre">{value:Name}</span></code>.</p>
+<p>Delegates to the default <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeRegistry</span></code> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The type name to use in patterns.</p></li>
+<li><p><strong>py_type</strong> – The Python type the converter returns.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.params.</span></span><span class="sig-name descname"><span class="pre">resolve_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/params.html#resolve_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Resolve a type reference (type object or name) to a Python type.</p>
+<p>Delegates to the default <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeRegistry</span></code> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>type_ref</strong> – A type object or a registered type name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resolved Python type, falling back to <code class="docutils literal notranslate"><span class="pre">str</span></code> for unknown names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.registry">
+<span id="registry"></span><h3>Registry<a class="headerlink" href="#module-steplib.core.registry" title="Link to this heading">¶</a></h3>
+<p>Central registry for step metadata and behave integration.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="steplib.core.registry.BehaveLikeRegistry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.registry.</span></span><span class="sig-name descname"><span class="pre">BehaveLikeRegistry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/registry.html#BehaveLikeRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.BehaveLikeRegistry" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></a></p>
+<p>Minimal protocol for behave’s step registration API.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.BehaveLikeRegistry.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#BehaveLikeRegistry.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.BehaveLikeRegistry.step" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.registry.</span></span><span class="sig-name descname"><span class="pre">StepRegistry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_register_behave</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Stores <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> entries and optionally registers them with behave.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>auto_register_behave</strong> – When <code class="docutils literal notranslate"><span class="pre">True</span></code>, each pattern is also registered
+with behave’s global step registry via <code class="docutils literal notranslate"><span class="pre">behave.step</span></code>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.add" title="Link to this definition">¶</a></dt>
+<dd><p>Register all step metadata attached to <em>fn</em>.</p>
+<p>Extracts <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> entries from <code class="docutils literal notranslate"><span class="pre">fn.__steplib_steps__</span></code>, expands
+i18n translations, checks for duplicates, and optionally registers
+each pattern with behave.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fn</strong> – A function decorated with <code class="docutils literal notranslate"><span class="pre">&#64;step</span></code>.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#steplib.core.exceptions.StepContractError" title="steplib.core.exceptions.StepContractError"><strong>StepContractError</strong></a> – If <em>fn</em> has no steplib step metadata.</p></li>
+<li><p><a class="reference internal" href="#steplib.core.exceptions.DuplicateStepError" title="steplib.core.exceptions.DuplicateStepError"><strong>DuplicateStepError</strong></a> – If a pattern is already registered for the
+    same backend.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.available_backends">
+<span class="sig-name descname"><span class="pre">available_backends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.available_backends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.available_backends" title="Link to this definition">¶</a></dt>
+<dd><p>Return the set of backends present in the registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.available_categories">
+<span class="sig-name descname"><span class="pre">available_categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.available_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.available_categories" title="Link to this definition">¶</a></dt>
+<dd><p>Return the set of categories present in the registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.filter" title="Link to this definition">¶</a></dt>
+<dd><p>Return steps matching the given filters (all optional, AND-combined).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.find"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.find" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for <a class="reference internal" href="#steplib.core.registry.StepRegistry.get" title="steplib.core.registry.StepRegistry.get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.get" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> for <em>pattern</em> (optionally filtered by backend).</p>
+<p>When <em>backend</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, returns the first match regardless of backend.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.replace_steps">
+<span class="sig-name descname"><span class="pre">replace_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kept</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/registry.html#StepRegistry.replace_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.registry.StepRegistry.replace_steps" title="Link to this definition">¶</a></dt>
+<dd><p>Replace the registry’s contents with <em>kept</em> steps only.</p>
+<p>Used by discovery filters to narrow the registry after loading.
+Rebuilds the internal pattern index from the kept steps.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.core.registry.StepRegistry.steps">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">steps</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#steplib.core.registry.StepRegistry.steps" title="Link to this definition">¶</a></dt>
+<dd><p>All registered <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> entries (unfiltered).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.discovery">
+<span id="discovery"></span><h3>Discovery<a class="headerlink" href="#module-steplib.core.discovery" title="Link to this heading">¶</a></h3>
+<p>Discovery and loading of steplib plugins via entry points.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.discovery.autoload">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.discovery.</span></span><span class="sig-name descname"><span class="pre">autoload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backends</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.state.SteplibState" title="steplib.core.state.SteplibState"><span class="pre">SteplibState</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/discovery.html#autoload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.discovery.autoload" title="Link to this definition">¶</a></dt>
+<dd><p>Load all installed steplib plugins and attach state to <em>context</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – The behave context object.</p></li>
+<li><p><strong>categories</strong> – Optional list of categories to keep (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;api&quot;]</span></code>).
+When <code class="docutils literal notranslate"><span class="pre">None</span></code>, all categories are loaded.</p></li>
+<li><p><strong>backends</strong> – Optional mapping of category → backend to keep
+(e.g. <code class="docutils literal notranslate"><span class="pre">{&quot;api&quot;:</span> <span class="pre">&quot;httpx&quot;}</span></code>). When <code class="docutils literal notranslate"><span class="pre">None</span></code>, all backends are loaded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">SteplibState</span></code> holding the filtered registry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.discovery.get_registry">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.discovery.</span></span><span class="sig-name descname"><span class="pre">get_registry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.registry.StepRegistry" title="steplib.core.registry.StepRegistry"><span class="pre">StepRegistry</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/discovery.html#get_registry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.discovery.get_registry" title="Link to this definition">¶</a></dt>
+<dd><p>Build a registry from all installed plugins without behave registration.</p>
+<p>Used by the CLI to query step metadata outside of a behave run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.discovery.load">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.discovery.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.state.SteplibState" title="steplib.core.state.SteplibState"><span class="pre">SteplibState</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/discovery.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.discovery.load" title="Link to this definition">¶</a></dt>
+<dd><p>Load specific step modules by dotted path and attach state to <em>context</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – The behave context object.</p></li>
+<li><p><strong>*modules</strong> – Dotted module paths to import (e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;steplib.modules.api.steps&quot;</span></code>). Each module must expose a
+<code class="docutils literal notranslate"><span class="pre">register(registry)</span></code> function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">SteplibState</span></code> holding the registry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.state">
+<span id="state"></span><h3>State<a class="headerlink" href="#module-steplib.core.state" title="Link to this heading">¶</a></h3>
+<p>Per-run and per-scenario state attached to behave’s context.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="steplib.core.state.BehaveContext">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.state.</span></span><span class="sig-name descname"><span class="pre">BehaveContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/state.html#BehaveContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.state.BehaveContext" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></a></p>
+<p>Minimal protocol for behave’s <code class="docutils literal notranslate"><span class="pre">context</span></code> object.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.state.BehaveContext.config">
+<span class="sig-name descname"><span class="pre">config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><a class="headerlink" href="#steplib.core.state.BehaveContext.config" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.state.BehaveContext.steplib">
+<span class="sig-name descname"><span class="pre">steplib</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><a class="headerlink" href="#steplib.core.state.BehaveContext.steplib" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="steplib.core.state.SteplibState">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.state.</span></span><span class="sig-name descname"><span class="pre">SteplibState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#steplib.core.registry.StepRegistry" title="steplib.core.registry.StepRegistry"><span class="pre">StepRegistry</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/state.html#SteplibState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.state.SteplibState" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Holds the steplib state attached to <code class="docutils literal notranslate"><span class="pre">context.steplib</span></code>.</p>
+<p>Modules set their own namespaces as attributes on this object
+(e.g. <code class="docutils literal notranslate"><span class="pre">state.api</span> <span class="pre">=</span> <span class="pre">ApiContext(...)</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – The behave context object.</p></li>
+<li><p><strong>registry</strong> – The <code class="docutils literal notranslate"><span class="pre">StepRegistry</span></code> populated during autoload/load.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.state.SteplibState.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/state.html#SteplibState.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.state.SteplibState.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Close resources after a scenario.</p>
+<p>Called from <code class="docutils literal notranslate"><span class="pre">after_scenario</span></code>. Iterates over all module-level
+attributes (non-underscore) and calls <code class="docutils literal notranslate"><span class="pre">cleanup()</span></code> if available.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.core.state.SteplibState.context">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">context</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><a class="headerlink" href="#steplib.core.state.SteplibState.context" title="Link to this definition">¶</a></dt>
+<dd><p>The behave context.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.core.state.SteplibState.registry">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">registry</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#steplib.core.registry.StepRegistry" title="steplib.core.registry.StepRegistry"><span class="pre">StepRegistry</span></a></span><a class="headerlink" href="#steplib.core.state.SteplibState.registry" title="Link to this definition">¶</a></dt>
+<dd><p>The step registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.core.state.SteplibState.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/state.html#SteplibState.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.state.SteplibState.reset" title="Link to this definition">¶</a></dt>
+<dd><p>Reset per-scenario state.</p>
+<p>Called from <code class="docutils literal notranslate"><span class="pre">before_scenario</span></code>. Iterates over all module-level
+attributes (non-underscore) and calls <code class="docutils literal notranslate"><span class="pre">reset()</span></code> if available.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.i18n">
+<span id="i18n"></span><h3>i18n<a class="headerlink" href="#module-steplib.core.i18n" title="Link to this heading">¶</a></h3>
+<p>Internationalisation helpers for step patterns.</p>
+<p>The design mandates that <em>all</em> patterns (base + translations) are registered
+with behave. No language filtering is performed at registration time; behave
+matches the pattern that corresponds to the text in the feature file.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.i18n.expand_patterns">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.i18n.</span></span><span class="sig-name descname"><span class="pre">expand_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/i18n.html#expand_patterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.i18n.expand_patterns" title="Link to this definition">¶</a></dt>
+<dd><p>Expand a <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> into <code class="docutils literal notranslate"><span class="pre">(lang,</span> <span class="pre">pattern)</span></code> pairs.</p>
+<p>The base pattern is tagged <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>. Each entry in <code class="docutils literal notranslate"><span class="pre">info.i18n</span></code> adds
+a translated pattern tagged with its language code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info</strong> – The step metadata to expand.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <code class="docutils literal notranslate"><span class="pre">(language_code,</span> <span class="pre">pattern_text)</span></code> tuples, starting with
+the base English pattern.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.i18n.extract_placeholders">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.i18n.</span></span><span class="sig-name descname"><span class="pre">extract_placeholders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/i18n.html#extract_placeholders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.i18n.extract_placeholders" title="Link to this definition">¶</a></dt>
+<dd><p>Return the ordered list of placeholder names in a pattern.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.i18n.validate_i18n_consistency">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.i18n.</span></span><span class="sig-name descname"><span class="pre">validate_i18n_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#steplib.core.metadata.StepInfo" title="steplib.core.metadata.StepInfo"><span class="pre">StepInfo</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/i18n.html#validate_i18n_consistency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.i18n.validate_i18n_consistency" title="Link to this definition">¶</a></dt>
+<dd><p>Check that all patterns in a <code class="docutils literal notranslate"><span class="pre">StepInfo</span></code> share the same placeholders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info</strong> – The step metadata to validate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of human-readable error messages (empty if valid).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.validation">
+<span id="validation"></span><h3>Validation<a class="headerlink" href="#module-steplib.core.validation" title="Link to this heading">¶</a></h3>
+<p>Static validation of step contracts.</p>
+<p>Checks that every registered step satisfies the rules described in
+<code class="docutils literal notranslate"><span class="pre">design-03-step-contract.md</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Patterns are parseable by <code class="docutils literal notranslate"><span class="pre">parse</span></code>.</p></li>
+<li><p>Parameter names match pattern placeholders.</p></li>
+<li><p>No duplicate patterns within the same backend.</p></li>
+<li><p>i18n translations have the same placeholders as the base pattern.</p></li>
+<li><p>Stacked patterns share the same placeholders and order.</p></li>
+<li><p>Each step has a <code class="docutils literal notranslate"><span class="pre">category</span></code>.</p></li>
+</ol>
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.validation.validate_steps">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.validation.</span></span><span class="sig-name descname"><span class="pre">validate_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#steplib.core.registry.StepRegistry" title="steplib.core.registry.StepRegistry"><span class="pre">StepRegistry</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/steplib/core/validation.html#validate_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.validation.validate_steps" title="Link to this definition">¶</a></dt>
+<dd><p>Validate all steps in the registry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>registry</strong> – The registry to validate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of human-readable error messages (empty if all steps are valid).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.ecosystem">
+<span id="ecosystem"></span><h3>Ecosystem<a class="headerlink" href="#module-steplib.core.ecosystem" title="Link to this heading">¶</a></h3>
+<p>Ecosystem integration helpers for behave-kit, behave-tables and behave-data.</p>
+<p>These functions lazily import the corresponding libraries and raise
+<code class="docutils literal notranslate"><span class="pre">MissingDependencyError</span></code> with the appropriate extra name if the library
+is not installed.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.ecosystem.assert_soft">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.ecosystem.</span></span><span class="sig-name descname"><span class="pre">assert_soft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/ecosystem.html#assert_soft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.ecosystem.assert_soft" title="Link to this definition">¶</a></dt>
+<dd><p>Perform a soft assertion using <code class="docutils literal notranslate"><span class="pre">behave-kit</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to assert.</p></li>
+<li><p><strong>message</strong> – Optional message to display on failure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#steplib.core.exceptions.MissingDependencyError" title="steplib.core.exceptions.MissingDependencyError"><strong>MissingDependencyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">behave-kit</span></code> is not installed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.ecosystem.check_behave_doctor_available">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.ecosystem.</span></span><span class="sig-name descname"><span class="pre">check_behave_doctor_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/ecosystem.html#check_behave_doctor_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.ecosystem.check_behave_doctor_available" title="Link to this definition">¶</a></dt>
+<dd><p>Check if <code class="docutils literal notranslate"><span class="pre">behave-doctor</span></code> is installed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.ecosystem.check_behave_model_available">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.ecosystem.</span></span><span class="sig-name descname"><span class="pre">check_behave_model_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/ecosystem.html#check_behave_model_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.ecosystem.check_behave_model_available" title="Link to this definition">¶</a></dt>
+<dd><p>Check if <code class="docutils literal notranslate"><span class="pre">behave-model</span></code> is installed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.ecosystem.load_test_data">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.ecosystem.</span></span><span class="sig-name descname"><span class="pre">load_test_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/ecosystem.html#load_test_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.ecosystem.load_test_data" title="Link to this definition">¶</a></dt>
+<dd><p>Load test data from a file using <code class="docutils literal notranslate"><span class="pre">behave-data</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – Path or URL to the data file (CSV, JSON, YAML, Excel).</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments passed to <code class="docutils literal notranslate"><span class="pre">behave-data</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The loaded data.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#steplib.core.exceptions.MissingDependencyError" title="steplib.core.exceptions.MissingDependencyError"><strong>MissingDependencyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">behave-data</span></code> is not installed.</p></li>
+<li><p><a class="reference internal" href="#steplib.core.exceptions.StepContractError" title="steplib.core.exceptions.StepContractError"><strong>StepContractError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">behave-data</span></code> is installed but has no <code class="docutils literal notranslate"><span class="pre">load</span></code> function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.core.ecosystem.wrap_table">
+<span class="sig-prename descclassname"><span class="pre">steplib.core.ecosystem.</span></span><span class="sig-name descname"><span class="pre">wrap_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/ecosystem.html#wrap_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.ecosystem.wrap_table" title="Link to this definition">¶</a></dt>
+<dd><p>Wrap a behave table using <code class="docutils literal notranslate"><span class="pre">behave-tables</span></code> for easy conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table</strong> – The <code class="docutils literal notranslate"><span class="pre">context.table</span></code> object from behave.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A wrapped table object with methods like <code class="docutils literal notranslate"><span class="pre">as_dicts()</span></code>.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#steplib.core.exceptions.MissingDependencyError" title="steplib.core.exceptions.MissingDependencyError"><strong>MissingDependencyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">behave-tables</span></code> is not installed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-steplib.core.exceptions">
+<span id="exceptions"></span><h3>Exceptions<a class="headerlink" href="#module-steplib.core.exceptions" title="Link to this heading">¶</a></h3>
+<p>Custom exceptions for steplib.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="steplib.core.exceptions.DuplicateStepError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.exceptions.</span></span><span class="sig-name descname"><span class="pre">DuplicateStepError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/exceptions.html#DuplicateStepError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.exceptions.DuplicateStepError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#steplib.core.exceptions.SteplibError" title="steplib.core.exceptions.SteplibError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SteplibError</span></code></a></p>
+<p>Raised when two steps register the same pattern in the same backend.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="steplib.core.exceptions.MissingDependencyError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingDependencyError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/exceptions.html#MissingDependencyError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.exceptions.MissingDependencyError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#steplib.core.exceptions.SteplibError" title="steplib.core.exceptions.SteplibError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SteplibError</span></code></a></p>
+<p>Raised when an optional dependency (extra) is not installed.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.exceptions.MissingDependencyError.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><a class="headerlink" href="#steplib.core.exceptions.MissingDependencyError.extra" title="Link to this definition">¶</a></dt>
+<dd><p>The name of the missing extra (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;api&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;kit&quot;</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steplib.core.exceptions.MissingDependencyError.package">
+<span class="sig-name descname"><span class="pre">package</span></span><a class="headerlink" href="#steplib.core.exceptions.MissingDependencyError.package" title="Link to this definition">¶</a></dt>
+<dd><p>The import name of the missing package, if known.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="steplib.core.exceptions.StepContractError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.exceptions.</span></span><span class="sig-name descname"><span class="pre">StepContractError</span></span><a class="reference internal" href="../_modules/steplib/core/exceptions.html#StepContractError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.exceptions.StepContractError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#steplib.core.exceptions.SteplibError" title="steplib.core.exceptions.SteplibError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SteplibError</span></code></a></p>
+<p>Raised when a step function does not satisfy the step contract.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="steplib.core.exceptions.SteplibError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.core.exceptions.</span></span><span class="sig-name descname"><span class="pre">SteplibError</span></span><a class="reference internal" href="../_modules/steplib/core/exceptions.html#SteplibError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.core.exceptions.SteplibError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Base exception for all steplib errors.</p>
+</dd></dl>
+
+</section>
+<section id="module-steplib.behave">
+<span id="behave-integration"></span><h3>Behave integration<a class="headerlink" href="#module-steplib.behave" title="Link to this heading">¶</a></h3>
+<p>Integration helpers for behave’s <code class="docutils literal notranslate"><span class="pre">environment.py</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">before_all</span></code> and <code class="docutils literal notranslate"><span class="pre">after_scenario</span></code> can be imported directly as behave
+hooks. <code class="docutils literal notranslate"><span class="pre">before_scenario</span></code> must be written by the user (it calls
+<code class="docutils literal notranslate"><span class="pre">context.steplib.reset()</span></code>).</p>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># features/environment.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">steplib.behave</span><span class="w"> </span><span class="kn">import</span> <span class="n">after_scenario</span><span class="p">,</span> <span class="n">before_all</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">before_scenario</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">scenario</span><span class="p">):</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">steplib</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="steplib.behave.SteplibState">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">steplib.behave.</span></span><span class="sig-name descname"><span class="pre">SteplibState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#steplib.core.registry.StepRegistry" title="steplib.core.registry.StepRegistry"><span class="pre">StepRegistry</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/steplib/core/state.html#SteplibState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.SteplibState" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Holds the steplib state attached to <code class="docutils literal notranslate"><span class="pre">context.steplib</span></code>.</p>
+<p>Modules set their own namespaces as attributes on this object
+(e.g. <code class="docutils literal notranslate"><span class="pre">state.api</span> <span class="pre">=</span> <span class="pre">ApiContext(...)</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – The behave context object.</p></li>
+<li><p><strong>registry</strong> – The <code class="docutils literal notranslate"><span class="pre">StepRegistry</span></code> populated during autoload/load.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.behave.SteplibState.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/state.html#SteplibState.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.SteplibState.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Close resources after a scenario.</p>
+<p>Called from <code class="docutils literal notranslate"><span class="pre">after_scenario</span></code>. Iterates over all module-level
+attributes (non-underscore) and calls <code class="docutils literal notranslate"><span class="pre">cleanup()</span></code> if available.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.behave.SteplibState.context">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">context</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><a class="headerlink" href="#steplib.behave.SteplibState.context" title="Link to this definition">¶</a></dt>
+<dd><p>The behave context.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="steplib.behave.SteplibState.registry">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">registry</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#steplib.core.registry.StepRegistry" title="steplib.core.registry.StepRegistry"><span class="pre">StepRegistry</span></a></span><a class="headerlink" href="#steplib.behave.SteplibState.registry" title="Link to this definition">¶</a></dt>
+<dd><p>The step registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="steplib.behave.SteplibState.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/core/state.html#SteplibState.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.SteplibState.reset" title="Link to this definition">¶</a></dt>
+<dd><p>Reset per-scenario state.</p>
+<p>Called from <code class="docutils literal notranslate"><span class="pre">before_scenario</span></code>. Iterates over all module-level
+attributes (non-underscore) and calls <code class="docutils literal notranslate"><span class="pre">reset()</span></code> if available.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.behave.after_scenario">
+<span class="sig-prename descclassname"><span class="pre">steplib.behave.</span></span><span class="sig-name descname"><span class="pre">after_scenario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steplib/behave.html#after_scenario"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.after_scenario" title="Link to this definition">¶</a></dt>
+<dd><p>Clean up steplib resources after a scenario.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.behave.autoload">
+<span class="sig-prename descclassname"><span class="pre">steplib.behave.</span></span><span class="sig-name descname"><span class="pre">autoload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backends</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.state.SteplibState" title="steplib.core.state.SteplibState"><span class="pre">SteplibState</span></a></span></span><a class="reference internal" href="../_modules/steplib/behave.html#autoload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.autoload" title="Link to this definition">¶</a></dt>
+<dd><p>Load all installed steplib plugins and attach state to <em>context</em>.</p>
+<p>See <a class="reference internal" href="#steplib.core.discovery.autoload" title="steplib.core.discovery.autoload"><code class="xref py py-func docutils literal notranslate"><span class="pre">steplib.core.discovery.autoload()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.behave.before_all">
+<span class="sig-prename descclassname"><span class="pre">steplib.behave.</span></span><span class="sig-name descname"><span class="pre">before_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.state.SteplibState" title="steplib.core.state.SteplibState"><span class="pre">SteplibState</span></a></span></span><a class="reference internal" href="../_modules/steplib/behave.html#before_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.before_all" title="Link to this definition">¶</a></dt>
+<dd><p>Run autoload and attach steplib state to <em>context</em>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steplib.behave.load">
+<span class="sig-prename descclassname"><span class="pre">steplib.behave.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#steplib.core.state.SteplibState" title="steplib.core.state.SteplibState"><span class="pre">SteplibState</span></a></span></span><a class="reference internal" href="../_modules/steplib/behave.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steplib.behave.load" title="Link to this definition">¶</a></dt>
+<dd><p>Load specific step modules by dotted path.</p>
+<p>See <a class="reference internal" href="#steplib.core.discovery.load" title="steplib.core.discovery.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">steplib.core.discovery.load()</span></code></a> for details.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="modules.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Modules API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../modules/kafka.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Kafka Module</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Mathias Paulenko
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Core API Reference</a><ul>
+<li><a class="reference internal" href="#public-api">Public API</a><ul>
+<li><a class="reference internal" href="#steplib.__version__"><code class="docutils literal notranslate"><span class="pre">__version__</span></code></a></li>
+<li><a class="reference internal" href="#module-steplib.core.decorators">Decorators</a><ul>
+<li><a class="reference internal" href="#steplib.core.decorators.get_step_infos"><code class="docutils literal notranslate"><span class="pre">get_step_infos()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.decorators.step"><code class="docutils literal notranslate"><span class="pre">step()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.metadata">Metadata</a><ul>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo"><code class="docutils literal notranslate"><span class="pre">StepInfo</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.backend"><code class="docutils literal notranslate"><span class="pre">StepInfo.backend</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.category"><code class="docutils literal notranslate"><span class="pre">StepInfo.category</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.deprecated"><code class="docutils literal notranslate"><span class="pre">StepInfo.deprecated</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.description"><code class="docutils literal notranslate"><span class="pre">StepInfo.description</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.example"><code class="docutils literal notranslate"><span class="pre">StepInfo.example</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.func"><code class="docutils literal notranslate"><span class="pre">StepInfo.func</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.i18n"><code class="docutils literal notranslate"><span class="pre">StepInfo.i18n</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.is_deprecated"><code class="docutils literal notranslate"><span class="pre">StepInfo.is_deprecated</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.module"><code class="docutils literal notranslate"><span class="pre">StepInfo.module</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.parameters"><code class="docutils literal notranslate"><span class="pre">StepInfo.parameters</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.pattern"><code class="docutils literal notranslate"><span class="pre">StepInfo.pattern</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.qualified_name"><code class="docutils literal notranslate"><span class="pre">StepInfo.qualified_name</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.requires"><code class="docutils literal notranslate"><span class="pre">StepInfo.requires</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.tags"><code class="docutils literal notranslate"><span class="pre">StepInfo.tags</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.metadata.StepInfo.version"><code class="docutils literal notranslate"><span class="pre">StepInfo.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#module-steplib.core.registry">Registry</a><ul>
+<li><a class="reference internal" href="#steplib.core.registry.BehaveLikeRegistry"><code class="docutils literal notranslate"><span class="pre">BehaveLikeRegistry</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.core.registry.BehaveLikeRegistry.step"><code class="docutils literal notranslate"><span class="pre">BehaveLikeRegistry.step()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry"><code class="docutils literal notranslate"><span class="pre">StepRegistry</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.add"><code class="docutils literal notranslate"><span class="pre">StepRegistry.add()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.available_backends"><code class="docutils literal notranslate"><span class="pre">StepRegistry.available_backends()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.available_categories"><code class="docutils literal notranslate"><span class="pre">StepRegistry.available_categories()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.filter"><code class="docutils literal notranslate"><span class="pre">StepRegistry.filter()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.find"><code class="docutils literal notranslate"><span class="pre">StepRegistry.find()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.get"><code class="docutils literal notranslate"><span class="pre">StepRegistry.get()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.replace_steps"><code class="docutils literal notranslate"><span class="pre">StepRegistry.replace_steps()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.registry.StepRegistry.steps"><code class="docutils literal notranslate"><span class="pre">StepRegistry.steps</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.discovery">Discovery</a><ul>
+<li><a class="reference internal" href="#steplib.core.discovery.autoload"><code class="docutils literal notranslate"><span class="pre">autoload()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.discovery.get_registry"><code class="docutils literal notranslate"><span class="pre">get_registry()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.discovery.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.state">State</a><ul>
+<li><a class="reference internal" href="#steplib.core.state.BehaveContext"><code class="docutils literal notranslate"><span class="pre">BehaveContext</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.core.state.BehaveContext.config"><code class="docutils literal notranslate"><span class="pre">BehaveContext.config</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.state.BehaveContext.steplib"><code class="docutils literal notranslate"><span class="pre">BehaveContext.steplib</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#steplib.core.state.SteplibState"><code class="docutils literal notranslate"><span class="pre">SteplibState</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.core.state.SteplibState.cleanup"><code class="docutils literal notranslate"><span class="pre">SteplibState.cleanup()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.state.SteplibState.context"><code class="docutils literal notranslate"><span class="pre">SteplibState.context</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.state.SteplibState.registry"><code class="docutils literal notranslate"><span class="pre">SteplibState.registry</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.state.SteplibState.reset"><code class="docutils literal notranslate"><span class="pre">SteplibState.reset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.i18n">i18n</a><ul>
+<li><a class="reference internal" href="#steplib.core.i18n.expand_patterns"><code class="docutils literal notranslate"><span class="pre">expand_patterns()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.i18n.extract_placeholders"><code class="docutils literal notranslate"><span class="pre">extract_placeholders()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.i18n.validate_i18n_consistency"><code class="docutils literal notranslate"><span class="pre">validate_i18n_consistency()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.validation">Validation</a><ul>
+<li><a class="reference internal" href="#steplib.core.validation.validate_steps"><code class="docutils literal notranslate"><span class="pre">validate_steps()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.ecosystem">Ecosystem</a><ul>
+<li><a class="reference internal" href="#steplib.core.ecosystem.assert_soft"><code class="docutils literal notranslate"><span class="pre">assert_soft()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.ecosystem.check_behave_doctor_available"><code class="docutils literal notranslate"><span class="pre">check_behave_doctor_available()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.ecosystem.check_behave_model_available"><code class="docutils literal notranslate"><span class="pre">check_behave_model_available()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.ecosystem.load_test_data"><code class="docutils literal notranslate"><span class="pre">load_test_data()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.ecosystem.wrap_table"><code class="docutils literal notranslate"><span class="pre">wrap_table()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.core.exceptions">Exceptions</a><ul>
+<li><a class="reference internal" href="#steplib.core.exceptions.DuplicateStepError"><code class="docutils literal notranslate"><span class="pre">DuplicateStepError</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.exceptions.MissingDependencyError"><code class="docutils literal notranslate"><span class="pre">MissingDependencyError</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.core.exceptions.MissingDependencyError.extra"><code class="docutils literal notranslate"><span class="pre">MissingDependencyError.extra</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.exceptions.MissingDependencyError.package"><code class="docutils literal notranslate"><span class="pre">MissingDependencyError.package</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#steplib.core.exceptions.StepContractError"><code class="docutils literal notranslate"><span class="pre">StepContractError</span></code></a></li>
+<li><a class="reference internal" href="#steplib.core.exceptions.SteplibError"><code class="docutils literal notranslate"><span class="pre">SteplibError</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steplib.behave">Behave integration</a><ul>
+<li><a class="reference internal" href="#steplib.behave.SteplibState"><code class="docutils literal notranslate"><span class="pre">SteplibState</span></code></a><ul>
+<li><a class="reference internal" href="#steplib.behave.SteplibState.cleanup"><code class="docutils literal notranslate"><span class="pre">SteplibState.cleanup()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.behave.SteplibState.context"><code class="docutils literal notranslate"><span class="pre">SteplibState.context</span></code></a></li>
+<li><a class="reference internal" href="#steplib.behave.SteplibState.registry"><code class="docutils literal notranslate"><span class="pre">SteplibState.registry</span></code></a></li>
+<li><a class="reference internal" href="#steplib.behave.SteplibState.reset"><code class="docutils literal notranslate"><span class="pre">SteplibState.reset()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#steplib.behave.after_scenario"><code class="docutils literal notranslate"><span class="pre">after_scenario()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.behave.autoload"><code class="docutils literal notranslate"><span class="pre">autoload()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.behave.before_all"><code class="docutils literal notranslate"><span class="pre">before_all()</span></code></a></li>
+<li><a class="reference internal" href="#steplib.behave.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
