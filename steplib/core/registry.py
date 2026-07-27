@@ -17,10 +17,20 @@ _STEP_DECORATOR_NAME = "step"
 class BehaveLikeRegistry(Protocol):
     """Minimal protocol for behave's step registration API."""
 
-    def step(  # noqa: D102
+    def step(
         self,
         pattern: str,
-    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]: ...
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        """Register a step pattern with behave.
+
+        Args:
+            pattern: The behave matching pattern.
+
+        Returns:
+            A decorator that attaches the function to the pattern.
+
+        """
+        ...
 
 
 class StepRegistry:
@@ -71,7 +81,17 @@ class StepRegistry:
         backend: str | None = None,
         tag: str | None = None,
     ) -> list[StepInfo]:
-        """Return steps matching the given filters (all optional, AND-combined)."""
+        """Return steps matching the given filters (all optional, AND-combined).
+
+        Args:
+            category: Filter by category (e.g. ``"api"``).
+            backend: Filter by backend (e.g. ``"httpx"``).
+            tag: Filter by tag.
+
+        Returns:
+            A list of ``StepInfo`` entries matching all provided filters.
+
+        """
         result: list[StepInfo] = []
         for info in self._steps:
             if category is not None and info.category != category:
@@ -87,6 +107,14 @@ class StepRegistry:
         """Return the ``StepInfo`` for *pattern* (optionally filtered by backend).
 
         When *backend* is ``None``, returns the first match regardless of backend.
+
+        Args:
+            pattern: The step pattern to look up.
+            backend: Optional backend to narrow the search.
+
+        Returns:
+            The matching ``StepInfo`` or ``None`` if not found.
+
         """
         if backend is not None:
             return self._patterns.get((pattern, backend))
@@ -97,11 +125,28 @@ class StepRegistry:
         return None
 
     def find(self, pattern: str, backend: str | None = None) -> StepInfo | None:
-        """Alias for :meth:`get`."""
+        """Alias for :meth:`get`.
+
+        Args:
+            pattern: The step pattern to look up.
+            backend: Optional backend to narrow the search.
+
+        Returns:
+            The matching ``StepInfo`` or ``None`` if not found.
+
+        """
         return self.get(pattern, backend)
 
     def available_backends(self, category: str | None = None) -> set[str]:
-        """Return the set of backends present in the registry."""
+        """Return the set of backends present in the registry.
+
+        Args:
+            category: Optional category to narrow the search.
+
+        Returns:
+            A set of backend names.
+
+        """
         backends: set[str] = set()
         for info in self._steps:
             if info.backend is None:
@@ -112,7 +157,12 @@ class StepRegistry:
         return backends
 
     def available_categories(self) -> set[str]:
-        """Return the set of categories present in the registry."""
+        """Return the set of categories present in the registry.
+
+        Returns:
+            A set of category names.
+
+        """
         return {info.category for info in self._steps}
 
     @property
@@ -125,6 +175,10 @@ class StepRegistry:
 
         Used by discovery filters to narrow the registry after loading.
         Rebuilds the internal pattern index from the kept steps.
+
+        Args:
+            kept: The ``StepInfo`` entries to keep.
+
         """
         self._steps = list(kept)
         self._patterns = {}

@@ -11,6 +11,14 @@ class WebContext:
     """Holds all browser state for a scenario.
 
     Lives at ``context.steplib.web`` and is reset between scenarios.
+
+    Attributes:
+        driver: The browser driver instance (e.g. ``SeleniumDriver``).
+        base_url: The base URL for resolving relative navigations.
+        implicit_wait: Implicit wait time in seconds for element lookups.
+        variables: User-defined variables stored by steps.
+        backend: The backend name (e.g. ``"selenium"``).
+
     """
 
     driver: Any = None

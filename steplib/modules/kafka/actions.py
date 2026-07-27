@@ -9,7 +9,13 @@ from steplib.modules.kafka.context import KafkaContext
 
 
 def kafka_set_bootstrap_servers(kafka_ctx: KafkaContext, servers: str) -> None:
-    """Set the Kafka bootstrap servers."""
+    """Set the Kafka bootstrap servers.
+
+    Args:
+        kafka_ctx: The Kafka context to operate on.
+        servers: Comma-separated bootstrap server addresses.
+
+    """
     kafka_ctx.bootstrap_servers = servers
 
 
@@ -20,6 +26,12 @@ def kafka_produce(
     value: str = "",
 ) -> None:
     """Produce a message to a Kafka topic.
+
+    Args:
+        kafka_ctx: The Kafka context to operate on.
+        topic: The target Kafka topic.
+        key: Optional message key. ``None`` for no key.
+        value: The message value.
 
     Raises:
         MissingDependencyError: If kafka-python-ng is not installed.
@@ -52,8 +64,15 @@ def kafka_consume(
 ) -> list[dict[str, Any]]:
     """Consume messages from a Kafka topic.
 
-    Returns a list of dicts with ``key``, ``value``, ``topic``, ``partition``,
-    and ``offset`` keys.
+    Args:
+        kafka_ctx: The Kafka context to operate on.
+        topic: The Kafka topic to consume from.
+        timeout_ms: Poll timeout in milliseconds.
+        max_records: Maximum number of records to consume.
+
+    Returns:
+        A list of dicts with ``key``, ``value``, ``topic``, ``partition``,
+        and ``offset`` keys.
 
     Raises:
         MissingDependencyError: If kafka-python-ng is not installed.
@@ -96,7 +115,16 @@ def kafka_assert_message_count(
     messages: list[dict[str, Any]],
     expected: int,
 ) -> None:
-    """Assert that the number of messages equals *expected*."""
+    """Assert that the number of messages equals *expected*.
+
+    Args:
+        messages: The list of consumed messages.
+        expected: The expected number of messages.
+
+    Raises:
+        AssertionError: If the count does not match.
+
+    """
     actual = len(messages)
     if actual != expected:
         raise AssertionError(f"Expected {expected} messages, got {actual}.")
@@ -106,7 +134,16 @@ def kafka_assert_message_contains(
     messages: list[dict[str, Any]],
     text: str,
 ) -> None:
-    """Assert that at least one message value contains *text*."""
+    """Assert that at least one message value contains *text*.
+
+    Args:
+        messages: The list of consumed messages.
+        text: The substring to search for in message values.
+
+    Raises:
+        AssertionError: If no message value contains *text*.
+
+    """
     for msg in messages:
         if text in str(msg.get("value", "")):
             return

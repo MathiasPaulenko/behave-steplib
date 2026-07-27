@@ -95,7 +95,16 @@ def api_assert_status(api_ctx: ApiContext, expected: int) -> None:
 
 
 def api_assert_body_contains(api_ctx: ApiContext, text: str) -> None:
-    """Assert that the last response body contains *text*."""
+    """Assert that the last response body contains *text*.
+
+    Args:
+        api_ctx: The API context to operate on.
+        text: The substring to search for.
+
+    Raises:
+        AssertionError: If no response exists or the body does not contain *text*.
+
+    """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
     if text not in api_ctx.last_response.text:
@@ -106,7 +115,15 @@ def api_assert_body_contains(api_ctx: ApiContext, text: str) -> None:
 
 
 def api_assert_json_valid(api_ctx: ApiContext) -> None:
-    """Assert that the last response body is valid JSON."""
+    """Assert that the last response body is valid JSON.
+
+    Args:
+        api_ctx: The API context to operate on.
+
+    Raises:
+        AssertionError: If no response exists or the body is not valid JSON.
+
+    """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
     try:
@@ -116,7 +133,17 @@ def api_assert_json_valid(api_ctx: ApiContext) -> None:
 
 
 def api_assert_json_path_equals(api_ctx: ApiContext, path: str, expected: str) -> None:
-    """Assert that a JSON path in the last response equals *expected*."""
+    """Assert that a JSON path in the last response equals *expected*.
+
+    Args:
+        api_ctx: The API context to operate on.
+        path: A JSONPath expression starting with ``$``.
+        expected: The expected value (compared as string).
+
+    Raises:
+        AssertionError: If no response exists or the value does not match.
+
+    """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
     data = parse_json(api_ctx.last_response.text)
@@ -128,7 +155,18 @@ def api_assert_json_path_equals(api_ctx: ApiContext, path: str, expected: str) -
 
 
 def api_assert_header_equals(api_ctx: ApiContext, name: str, expected: str) -> None:
-    """Assert that a response header equals *expected*."""
+    """Assert that a response header equals *expected*.
+
+    Args:
+        api_ctx: The API context to operate on.
+        name: The header name.
+        expected: The expected header value.
+
+    Raises:
+        AssertionError: If no response exists, the header is missing, or the
+            value does not match.
+
+    """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
     actual = api_ctx.last_response.headers.get(name)
@@ -141,12 +179,28 @@ def api_assert_header_equals(api_ctx: ApiContext, name: str, expected: str) -> N
 
 
 def api_store(api_ctx: ApiContext, variable: str, value: Any) -> None:
-    """Store a *value* under *variable* name in the API context."""
+    """Store a *value* under *variable* name in the API context.
+
+    Args:
+        api_ctx: The API context to operate on.
+        variable: The variable name.
+        value: The value to store.
+
+    """
     api_ctx.variables[variable] = value
 
 
 def api_store_response_body(api_ctx: ApiContext, variable: str) -> None:
-    """Store the last response body as *variable*."""
+    """Store the last response body as *variable*.
+
+    Args:
+        api_ctx: The API context to operate on.
+        variable: The variable name to store the body under.
+
+    Raises:
+        AssertionError: If no response exists.
+
+    """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
     api_ctx.variables[variable] = api_ctx.last_response.text

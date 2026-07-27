@@ -32,6 +32,16 @@ def autoload(
     """Load all installed steplib plugins and attach state to *context*.
 
     See :func:`steplib.core.discovery.autoload` for details.
+
+    Args:
+        context: The behave context object.
+        categories: Optional list of categories to keep (e.g. ``["api"]``).
+        backends: Optional mapping of category to backend
+            (e.g. ``{"api": "httpx"}``).
+
+    Returns:
+        A ``SteplibState`` holding the filtered registry.
+
     """
     return _autoload(context, categories=categories, backends=backends)
 
@@ -40,19 +50,41 @@ def load(context: Any, *modules: str) -> SteplibState:
     """Load specific step modules by dotted path.
 
     See :func:`steplib.core.discovery.load` for details.
+
+    Args:
+        context: The behave context object.
+        *modules: Dotted module paths to import.
+
+    Returns:
+        A ``SteplibState`` holding the registry.
+
     """
     return _load(context, *modules)
 
 
 def before_all(context: Any) -> SteplibState:
-    """Run autoload and attach steplib state to *context*."""
+    """Run autoload and attach steplib state to *context*.
+
+    Args:
+        context: The behave context object.
+
+    Returns:
+        The ``SteplibState`` attached to ``context.steplib``.
+
+    """
     state = autoload(context)
     context.steplib = state
     return state
 
 
 def after_scenario(context: Any, scenario: Any) -> None:
-    """Clean up steplib resources after a scenario."""
+    """Clean up steplib resources after a scenario.
+
+    Args:
+        context: The behave context object.
+        scenario: The behave scenario object (unused but required by the hook).
+
+    """
     state = getattr(context, "steplib", None)
     if state is not None and hasattr(state, "cleanup"):
         state.cleanup()

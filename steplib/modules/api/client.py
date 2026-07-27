@@ -14,7 +14,15 @@ from steplib.core.exceptions import MissingDependencyError
 
 @dataclass(frozen=True, slots=True)
 class Request:
-    """Immutable HTTP request representation."""
+    """Immutable HTTP request representation.
+
+    Attributes:
+        method: The HTTP method (e.g. ``"GET"``, ``"POST"``).
+        url: The resolved URL.
+        headers: Request headers.
+        body: Optional request body as bytes.
+
+    """
 
     method: str
     url: str
@@ -24,7 +32,15 @@ class Request:
 
 @dataclass(frozen=True, slots=True)
 class Response:
-    """Immutable HTTP response representation."""
+    """Immutable HTTP response representation.
+
+    Attributes:
+        status: The HTTP status code.
+        headers: Response headers.
+        body: The raw response body as bytes.
+        elapsed_ms: The request duration in milliseconds.
+
+    """
 
     status: int
     headers: dict[str, str] = field(default_factory=dict)
@@ -37,14 +53,22 @@ class Response:
         return self.body.decode("utf-8", errors="replace")
 
     def json(self) -> Any:
-        """Parse the body as JSON."""
+        """Parse the body as JSON.
+
+        Returns:
+            The parsed JSON data.
+
+        Raises:
+            json.JSONDecodeError: If the body is not valid JSON.
+
+        """
         return _json.loads(self.text)
 
 
 class HTTPClient(Protocol):
     """Protocol for HTTP client implementations."""
 
-    def request(  # noqa: D102
+    def request(
         self,
         method: str,
         url: str,
@@ -52,7 +76,21 @@ class HTTPClient(Protocol):
         headers: dict[str, str] | None = None,
         body: bytes | None = None,
         timeout: float | None = None,
-    ) -> Response: ...
+    ) -> Response:
+        """Send an HTTP request and return the response.
+
+        Args:
+            method: The HTTP method (e.g. ``"GET"``).
+            url: The target URL.
+            headers: Optional request headers.
+            body: Optional request body as bytes.
+            timeout: Optional timeout in seconds.
+
+        Returns:
+            The ``Response`` object.
+
+        """
+        ...
 
 
 class UrllibHTTPClient:
@@ -67,7 +105,19 @@ class UrllibHTTPClient:
         body: bytes | None = None,
         timeout: float | None = None,
     ) -> Response:
-        """Send an HTTP request using urllib."""
+        """Send an HTTP request using urllib.
+
+        Args:
+            method: The HTTP method (e.g. ``"GET"``).
+            url: The target URL.
+            headers: Optional request headers.
+            body: Optional request body as bytes.
+            timeout: Optional timeout in seconds.
+
+        Returns:
+            The ``Response`` object.
+
+        """
         req_headers = dict(headers or {})
         req = urllib.request.Request(url, data=body, method=method, headers=req_headers)
         start = time.monotonic()
@@ -93,7 +143,12 @@ class HttpxHTTPClient:
     """HTTP client backed by httpx (requires the ``[api]`` extra)."""
 
     def __init__(self) -> None:
-        """Initialize the client, importing httpx lazily."""
+        """Initialize the client, importing httpx lazily.
+
+        Raises:
+            MissingDependencyError: If ``httpx`` is not installed.
+
+        """
         try:
             import httpx  # noqa: PLC0415
         except ImportError as exc:
@@ -109,7 +164,19 @@ class HttpxHTTPClient:
         body: bytes | None = None,
         timeout: float | None = None,
     ) -> Response:
-        """Send an HTTP request using httpx."""
+        """Send an HTTP request using httpx.
+
+        Args:
+            method: The HTTP method (e.g. ``"GET"``).
+            url: The target URL.
+            headers: Optional request headers.
+            body: Optional request body as bytes.
+            timeout: Optional timeout in seconds.
+
+        Returns:
+            The ``Response`` object.
+
+        """
         start = time.monotonic()
         with self._httpx.Client() as client:
             resp = client.request(
@@ -132,7 +199,12 @@ class RequestsHTTPClient:
     """HTTP client backed by requests (requires the ``requests`` package)."""
 
     def __init__(self) -> None:
-        """Initialize the client, importing requests lazily."""
+        """Initialize the client, importing requests lazily.
+
+        Raises:
+            MissingDependencyError: If ``requests`` is not installed.
+
+        """
         try:
             import requests  # noqa: PLC0415
         except ImportError as exc:
@@ -148,7 +220,19 @@ class RequestsHTTPClient:
         body: bytes | None = None,
         timeout: float | None = None,
     ) -> Response:
-        """Send an HTTP request using requests."""
+        """Send an HTTP request using requests.
+
+        Args:
+            method: The HTTP method (e.g. ``"GET"``).
+            url: The target URL.
+            headers: Optional request headers.
+            body: Optional request body as bytes.
+            timeout: Optional timeout in seconds.
+
+        Returns:
+            The ``Response`` object.
+
+        """
         start = time.monotonic()
         resp = self._requests.request(
             method,
@@ -171,6 +255,9 @@ def get_client(backend: str = "stdlib") -> HTTPClient:
 
     Args:
         backend: ``"stdlib"``, ``"httpx"``, or ``"requests"``.
+
+    Returns:
+        An ``HTTPClient`` instance for the requested backend.
 
     Raises:
         MissingDependencyError: If the backend's dependency is not installed.

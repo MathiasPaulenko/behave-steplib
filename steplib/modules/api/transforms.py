@@ -97,6 +97,12 @@ class JsonPath:
     def evaluate(self, data: Any) -> Any:
         """Evaluate the path against *data* and return the matched value.
 
+        Args:
+            data: The JSON data to traverse (typically a dict or list).
+
+        Returns:
+            The value at the matched path.
+
         Raises:
             KeyError: If the path does not exist in *data*.
 
@@ -157,5 +163,16 @@ class JsonPath:
 
 
 def parse_json(text: str) -> Any:
-    """Parse a JSON string, raising ValueError on invalid input."""
+    """Parse a JSON string, raising ValueError on invalid input.
+
+    Args:
+        text: A JSON string.
+
+    Returns:
+        The parsed JSON data.
+
+    Raises:
+        json.JSONDecodeError: If the text is not valid JSON.
+
+    """
     return json.loads(text)

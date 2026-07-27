@@ -81,7 +81,12 @@ def load_test_data(source: str, **kwargs: Any) -> Any:
 
 
 def check_behave_model_available() -> bool:
-    """Check if ``behave-model`` is installed."""
+    """Check if ``behave-model`` is installed.
+
+    Returns:
+        ``True`` if ``behave-model`` is importable, ``False`` otherwise.
+
+    """
     try:
         import behave_model  # noqa: F401, PLC0415
     except ImportError:
@@ -90,7 +95,12 @@ def check_behave_model_available() -> bool:
 
 
 def check_behave_doctor_available() -> bool:
-    """Check if ``behave-doctor`` is installed."""
+    """Check if ``behave-doctor`` is installed.
+
+    Returns:
+        ``True`` if ``behave-doctor`` is importable, ``False`` otherwise.
+
+    """
     try:
         import behave_doctor  # noqa: F401, PLC0415
     except ImportError:

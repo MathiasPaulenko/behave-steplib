@@ -8,10 +8,24 @@ from steplib.core.exceptions import MissingDependencyError
 
 
 class DatabaseClient:
-    """Database client backed by SQLAlchemy (requires the ``[db]`` extra)."""
+    """Database client backed by SQLAlchemy (requires the ``[db]`` extra).
+
+    Attributes:
+        engine: The SQLAlchemy engine instance.
+        connection: The active SQLAlchemy connection.
+
+    """
 
     def __init__(self, connection_string: str) -> None:
-        """Initialize the SQLAlchemy engine, importing lazily."""
+        """Initialize the SQLAlchemy engine, importing lazily.
+
+        Args:
+            connection_string: A SQLAlchemy-compatible connection string.
+
+        Raises:
+            MissingDependencyError: If SQLAlchemy is not installed.
+
+        """
         try:
             from sqlalchemy import create_engine, text  # noqa: PLC0415
         except ImportError as exc:
@@ -22,13 +36,31 @@ class DatabaseClient:
         self.connection = self.engine.connect()
 
     def execute(self, query: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        """Execute a SQL query and return rows as a list of dicts."""
+        """Execute a SQL query and return rows as a list of dicts.
+
+        Args:
+            query: The SQL query string.
+            params: Optional bind parameters.
+
+        Returns:
+            A list of dictionaries, one per row, keyed by column name.
+
+        """
         result = self.connection.execute(self._text(query), params or {})
         columns = list(result.keys())
         return [dict(zip(columns, row, strict=False)) for row in result.fetchall()]
 
     def execute_scalar(self, query: str, params: dict[str, Any] | None = None) -> Any:
-        """Execute a SQL query and return a single scalar value."""
+        """Execute a SQL query and return a single scalar value.
+
+        Args:
+            query: The SQL query string.
+            params: Optional bind parameters.
+
+        Returns:
+            The first column of the first row.
+
+        """
         result = self.connection.execute(self._text(query), params or {})
         return result.scalar()
 
@@ -43,6 +75,9 @@ def get_client(connection_string: str) -> DatabaseClient:
 
     Args:
         connection_string: A SQLAlchemy-compatible connection string.
+
+    Returns:
+        A ``DatabaseClient`` instance.
 
     Raises:
         MissingDependencyError: If SQLAlchemy is not installed.

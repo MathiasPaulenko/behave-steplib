@@ -11,6 +11,14 @@ class DbContext:
     """Holds all database state for a scenario.
 
     Lives at ``context.steplib.db`` and is reset between scenarios.
+
+    Attributes:
+        engine: The SQLAlchemy engine instance.
+        connection: The active SQLAlchemy connection.
+        connection_string: The SQLAlchemy connection string.
+        variables: User-defined variables stored by steps.
+        backend: The backend name (e.g. ``"sqlalchemy"``).
+
     """
 
     engine: Any = None

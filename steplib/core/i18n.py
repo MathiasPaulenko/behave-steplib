@@ -13,13 +13,23 @@ from steplib.core.metadata import StepInfo
 
 # Languages supported in the MVP.
 SUPPORTED_LANGS: frozenset[str] = frozenset({"en", "es", "pt"})
+"""Language codes supported by steplib's i18n system."""
 
 # Regex to extract ``{placeholder}`` or ``{placeholder:Type}`` from patterns.
 _PLACEHOLDER_RE = re.compile(r"\{([^}:]+)(?::[^}]*)?\}")
 
 
 def extract_placeholders(pattern: str) -> list[str]:
-    """Return the ordered list of placeholder names in a pattern."""
+    """Return the ordered list of placeholder names in a pattern.
+
+    Args:
+        pattern: A behave step pattern containing ``{name}`` or ``{name:Type}``
+            placeholders.
+
+    Returns:
+        The placeholder names in the order they appear in the pattern.
+
+    """
     return _PLACEHOLDER_RE.findall(pattern)
 
 

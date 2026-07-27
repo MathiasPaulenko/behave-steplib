@@ -17,9 +17,11 @@ API module
 
 .. automodule:: steplib.modules.api.context
    :members:
+   :no-index:
 
 .. automodule:: steplib.modules.api.client
    :members:
+   :no-index:
 
 .. automodule:: steplib.modules.api.transforms
    :members:
@@ -38,6 +40,7 @@ Web module
 
 .. automodule:: steplib.modules.web.context
    :members:
+   :no-index:
 
 .. automodule:: steplib.modules.web.client
    :members:
@@ -56,9 +59,11 @@ DB module
 
 .. automodule:: steplib.modules.db.context
    :members:
+   :no-index:
 
 .. automodule:: steplib.modules.db.client
    :members:
+   :no-index:
 
 Kafka module
 ~~~~~~~~~~~~
@@ -74,3 +79,4 @@ Kafka module
 
 .. automodule:: steplib.modules.kafka.context
    :members:
+   :no-index:

@@ -13,6 +13,17 @@ class ApiContext:
     """Holds all HTTP state for a scenario.
 
     Lives at ``context.steplib.api`` and is reset between scenarios.
+
+    Attributes:
+        client: The HTTP client implementation (defaults to ``UrllibHTTPClient``).
+        base_url: The base URL for resolving relative URLs.
+        default_headers: Headers sent with every request.
+        timeout: Request timeout in seconds (``None`` = no timeout).
+        last_request: The most recent ``Request`` sent.
+        last_response: The most recent ``Response`` received.
+        variables: User-defined variables stored by steps.
+        backend: The backend name (e.g. ``"stdlib"``, ``"httpx"``).
+
     """
 
     client: HTTPClient | None = None

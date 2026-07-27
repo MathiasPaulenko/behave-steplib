@@ -21,7 +21,15 @@ from steplib.core.registry import StepRegistry
 
 
 def _check_pattern_parseable(pattern: str) -> str | None:
-    """Return an error message if the pattern cannot be compiled by parse."""
+    """Return an error message if the pattern cannot be compiled by parse.
+
+    Args:
+        pattern: The step pattern to validate.
+
+    Returns:
+        An error message string if the pattern is invalid, ``None`` otherwise.
+
+    """
     try:
         _parse.compile(pattern)
     except Exception as exc:
@@ -30,7 +38,15 @@ def _check_pattern_parseable(pattern: str) -> str | None:
 
 
 def _check_param_names_match(info: StepInfo) -> list[str]:
-    """Check that declared Param names match the pattern placeholders."""
+    """Check that declared Param names match the pattern placeholders.
+
+    Args:
+        info: The step metadata to validate.
+
+    Returns:
+        A list of error messages (empty if valid).
+
+    """
     errors: list[str] = []
     if not info.parameters:
         return errors
@@ -46,7 +62,15 @@ def _check_param_names_match(info: StepInfo) -> list[str]:
 
 
 def _check_stacked_consistency(infos: list[StepInfo]) -> list[str]:
-    """Check that stacked patterns share the same placeholders and order."""
+    """Check that stacked patterns share the same placeholders and order.
+
+    Args:
+        infos: The ``StepInfo`` entries attached to a single function.
+
+    Returns:
+        A list of error messages (empty if consistent).
+
+    """
     if len(infos) <= 1:
         return []
     errors: list[str] = []

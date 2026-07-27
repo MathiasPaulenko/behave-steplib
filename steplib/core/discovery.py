@@ -15,12 +15,25 @@ _ENTRY_POINT_GROUP = "steplib.plugins"
 
 
 def _create_registry(auto_register_behave: bool = True) -> StepRegistry:
-    """Create a fresh ``StepRegistry``."""
+    """Create a fresh ``StepRegistry``.
+
+    Args:
+        auto_register_behave: Whether to register steps with behave automatically.
+
+    Returns:
+        A new empty ``StepRegistry`` instance.
+
+    """
     return StepRegistry(auto_register_behave=auto_register_behave)
 
 
 def _load_entry_points(registry: StepRegistry) -> None:
-    """Discover and invoke ``register(registry)`` for all steplib plugins."""
+    """Discover and invoke ``register(registry)`` for all steplib plugins.
+
+    Args:
+        registry: The registry to pass to each plugin's ``register`` function.
+
+    """
     for ep in entry_points(group=_ENTRY_POINT_GROUP):
         register_fn: Callable[[StepRegistry], None] = ep.load()
         register_fn(registry)

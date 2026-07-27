@@ -8,7 +8,13 @@ from steplib.core.registry import StepRegistry
 
 
 class BehaveContext(Protocol):
-    """Minimal protocol for behave's ``context`` object."""
+    """Minimal protocol for behave's ``context`` object.
+
+    Attributes:
+        config: The behave configuration object.
+        steplib: The ``SteplibState`` attached by steplib's autoload/load.
+
+    """
 
     config: Any
     steplib: Any
