@@ -1,0 +1,141 @@
+[build-system]
+requires = ["hatchling>=1.21", "hatch-vcs>=0.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "behave-steplib"
+dynamic = ["version"]
+description = "Librería de steps reusable para behave con soporte multitecnología e i18n."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Mathias Paulenko" }]
+keywords = ["behave", "bdd", "steps", "api", "web", "db", "kafka", "i18n"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "behave>=1.3.0",
+    "parse>=1.19",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+api = ["httpx>=0.27"]
+web = ["selenium>=4.0"]
+db = ["sqlalchemy>=2.0"]
+kafka = ["kafka-python-ng>=2.0"]
+kit = ["behave-kit>=1.3.1"]
+data = ["behave-data>=1.0.2"]
+tables = ["behave-tables>=1.3.1"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-asyncio>=0.23",
+    "responses>=0.25",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "build>=1.2",
+    "twine>=5.0",
+]
+docs = [
+    "sphinx>=7.0",
+    "furo>=2024.0",
+    "myst-parser>=3.0",
+    "sphinx-autodoc-typehints>=2.0",
+]
+all = ["behave-steplib[api,web,db,kafka,kit,data,tables]"]
+
+[project.scripts]
+steplib = "steplib.cli.main:main"
+
+[project.entry-points."steplib.plugins"]
+api = "steplib.modules.api.steps:register"
+web = "steplib.modules.web.steps:register"
+db = "steplib.modules.db.steps:register"
+kafka = "steplib.modules.kafka.steps:register"
+
+[project.urls]
+Homepage = "https://github.com/MathiasPaulenko/behave-steplib"
+Documentation = "https://mathiaspaulenko.github.io/behave-steplib"
+Repository = "https://github.com/MathiasPaulenko/behave-steplib"
+Issues = "https://github.com/MathiasPaulenko/behave-steplib/issues"
+Changelog = "https://github.com/MathiasPaulenko/behave-steplib/blob/main/CHANGELOG.md"
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+fallback_version = "0.0.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "steplib/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["steplib"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "steplib",
+    "tests",
+    "examples",
+    "docs",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "PL", "RUF", "D"]
+ignore = ["D203", "D213", "D415"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "PLR2004"]
+"examples/**" = ["S101", "D"]
+"steplib/_version.py" = ["ALL"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+exclude = ["tests", "examples"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
+markers = [
+    "integration: integration tests with real or faked external dependencies",
+    "e2e: end-to-end behave tests",
+    "slow: tests that take more than 1 second",
+]
+
+[tool.coverage.run]
+source = ["steplib"]
+omit = ["*/tests/*", "*/examples/*"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
