@@ -57,6 +57,7 @@ docs = [
     "furo>=2024.0",
     "myst-parser>=3.0,<5.0",
     "sphinx-autodoc-typehints>=2.0",
+    "docutils<0.22",
 ]
 all = ["behave-steplib[api,requests,web,db,kafka,kit,data,tables]"]
 
