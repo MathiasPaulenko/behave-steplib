@@ -28,7 +28,6 @@ from steplib.modules.kafka.steps import (
     step_store_message_value,
 )
 
-
 _DEFAULT_MESSAGES: list[dict[str, Any]] = [
     {"value": "hello world", "key": "id", "topic": "events", "partition": 0, "offset": 0},
 ]

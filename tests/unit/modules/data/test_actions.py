@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -37,7 +36,6 @@ from steplib.modules.data.actions import (
     data_store_env_var,
 )
 from steplib.modules.data.context import DataContext
-
 
 # --- Variable actions ---
 
@@ -128,7 +126,7 @@ class TestLoadJsonFile:
 
 class TestLoadYamlFile:
     def test_load_yaml(self, tmp_path: Path) -> None:
-        yaml = pytest.importorskip("yaml")
+        pytest.importorskip("yaml")
         f = tmp_path / "config.yaml"
         f.write_text("server:\n  host: localhost\n  port: 8080\n", encoding="utf-8")
 
