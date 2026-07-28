@@ -151,11 +151,15 @@ def step_produce_json(context: Any, topic: str, key: str, payload: str) -> None:
     """Produce a JSON message."""
     import json
 
+    try:
+        parsed = json.loads(payload.strip("'").strip('"'))
+    except json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON payload: {exc}") from exc
     kafka_produce_json(
         _get_kafka(context),
         topic.strip('"'),
         key=key.strip('"'),
-        value=json.loads(payload.strip("'").strip('"')),
+        value=parsed,
     )
 
 
@@ -390,7 +394,11 @@ def step_set_producer_config(context: Any, config: str) -> None:
     """Set producer config from JSON string."""
     import json
 
-    kafka_set_producer_config(_get_kafka(context), json.loads(config.strip("'").strip('"')))
+    try:
+        parsed = json.loads(config.strip("'").strip('"'))
+    except json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON config: {exc}") from exc
+    kafka_set_producer_config(_get_kafka(context), parsed)
 
 
 @step(
@@ -407,7 +415,11 @@ def step_set_consumer_config(context: Any, config: str) -> None:
     """Set consumer config from JSON string."""
     import json
 
-    kafka_set_consumer_config(_get_kafka(context), json.loads(config.strip("'").strip('"')))
+    try:
+        parsed = json.loads(config.strip("'").strip('"'))
+    except json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON config: {exc}") from exc
+    kafka_set_consumer_config(_get_kafka(context), parsed)
 
 
 _ALL_STEPS = [

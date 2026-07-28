@@ -207,8 +207,11 @@ def cli_assert_output_matches(
     """
     if cli_ctx.exit_code is None:
         raise RuntimeError("No command has been executed.")
-    if not re.search(pattern, cli_ctx.stdout):
-        raise AssertionError(
-            f"Expected stdout to match pattern '{pattern}', "
-            f"got: {cli_ctx.stdout!r}"
-        )
+    try:
+        if not re.search(pattern, cli_ctx.stdout):
+            raise AssertionError(
+                f"Expected stdout to match pattern '{pattern}', "
+                f"got: {cli_ctx.stdout!r}"
+            )
+    except re.error as exc:
+        raise AssertionError(f"Invalid regex pattern '{pattern}': {exc}") from exc

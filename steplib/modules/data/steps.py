@@ -440,7 +440,14 @@ def step_clear_variables(context: Any) -> None:
 )
 def step_set_variable_json(context: Any, name: str, json_str: str) -> None:
     """Set a variable from a JSON string."""
-    data_set_variable_json(_get_data(context), name.strip('"'), json_str.strip("'").strip('"'))
+    import json as _json
+
+    cleaned = json_str.strip("'").strip('"')
+    try:
+        _json.loads(cleaned)
+    except _json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON value: {exc}") from exc
+    data_set_variable_json(_get_data(context), name.strip('"'), cleaned)
 
 
 @step(

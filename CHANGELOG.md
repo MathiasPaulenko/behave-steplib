@@ -5,7 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-07-28
+## [1.4.0] - 2026-07-28
+
+### Fixed
+
+- Normalized boolean and `None` value comparisons across all assertion
+  functions. Replaced direct `str()` conversions in step/action functions
+  with `_normalize_value` / `_normalize_json_value` helpers so Python
+  booleans (`True`/`False`) and `None` compare against their JSON-style
+  string representations (`"true"`, `"false"`, `"null"`) consistently.
+  Affected modules: `api`, `db`, `kafka`, `io` and `data`.
+- Fixed `api_assert_json_path_contains` to normalize the looked-up value
+  before checking list membership.
+- Fixed `kafka_assert_message_order` to normalize expected keys before
+  comparison.
+
+### Changed
+
+- Added `pyyaml>=6.0` to the `data` optional dependency group to support
+  YAML file loading.
+
+### Tests
+
+- Added regression tests for boolean/`None` normalization in `api`, `db`,
+  `kafka`, `io` and `data` modules.
+- Full test suite: 1027 passing tests.
+
+## [1.3.0] - 2026-07-28
 
 ### Added
 

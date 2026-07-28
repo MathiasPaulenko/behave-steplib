@@ -7,6 +7,7 @@ import pytest
 from steplib.modules.kafka.actions import (
     kafka_assert_message_contains,
     kafka_assert_message_count,
+    kafka_assert_message_value_matches_regex,
     kafka_set_bootstrap_servers,
 )
 from steplib.modules.kafka.context import KafkaContext
@@ -75,3 +76,13 @@ class TestKafkaContextLifecycle:
         ctx.cleanup()
         assert ctx.producer is None
         assert ctx.consumer is None
+
+
+class TestBug18InvalidRegexPattern:
+    """Regression tests for Bug 18: kafka_assert_message_value_matches_regex
+    should raise AssertionError, not re.error, when the regex pattern is invalid."""
+
+    def test_invalid_regex_raises_assertion_error(self) -> None:
+        messages = [{"value": "hello"}]
+        with pytest.raises(AssertionError, match="Invalid regex pattern"):
+            kafka_assert_message_value_matches_regex(messages, "[invalid(")

@@ -212,11 +212,11 @@ class UrllibHTTPClient:
         try:
             with opener.open(req, timeout=timeout) as resp:
                 resp_body = resp.read()
-                resp_headers = dict(resp.headers)
+                resp_headers = _build_headers_dict(resp.headers)
                 status = resp.status
         except urllib.error.HTTPError as exc:
             resp_body = exc.read() if hasattr(exc, "read") else b""
-            resp_headers = dict(exc.headers) if exc.headers else {}
+            resp_headers = _build_headers_dict(exc.headers) if exc.headers else {}
             status = exc.code
         elapsed = (time.monotonic() - start) * 1000
         return Response(
@@ -281,16 +281,18 @@ class HttpxHTTPClient:
         client_kwargs: dict[str, Any] = {
             "verify": verify,
             "cookies": cookies,
+            "timeout": timeout,
         }
         if proxies:
             # httpx 0.28+ uses `proxy` for a single proxy URL.
             # For multiple proxies, use mounts with HTTPTransport.
+            # Mount keys must include the "://" suffix (e.g. "http://").
             if len(proxies) == 1:
                 client_kwargs["proxy"] = next(iter(proxies.values()))
             else:
                 mounts: dict[str, Any] = {}
                 for scheme, proxy_url in proxies.items():
-                    mounts[scheme] = self._httpx.HTTPTransport(proxy=proxy_url)
+                    mounts[f"{scheme}://"] = self._httpx.HTTPTransport(proxy=proxy_url)
                 client_kwargs["mounts"] = mounts
         with self._httpx.Client(**client_kwargs) as client:
             resp = client.request(
@@ -298,7 +300,6 @@ class HttpxHTTPClient:
                 url,
                 headers=headers or {},
                 content=body,
-                timeout=timeout,
                 params=params,
                 auth=auth,
                 follow_redirects=allow_redirects,
@@ -306,7 +307,7 @@ class HttpxHTTPClient:
             elapsed = (time.monotonic() - start) * 1000
             return Response(
                 status=resp.status_code,
-                headers=dict(resp.headers),
+                headers=_build_headers_dict(resp.headers),
                 body=resp.content,
                 elapsed_ms=elapsed,
             )
@@ -325,7 +326,7 @@ class RequestsHTTPClient:
         try:
             import requests
         except ImportError as exc:
-            raise MissingDependencyError("api", "requests") from exc
+            raise MissingDependencyError("requests", "requests") from exc
         self._requests = requests
 
     def request(
@@ -379,10 +380,34 @@ class RequestsHTTPClient:
         elapsed = (time.monotonic() - start) * 1000
         return Response(
             status=resp.status_code,
-            headers=dict(resp.headers),
+            headers=_build_headers_dict(resp.headers),
             body=resp.content,
             elapsed_ms=elapsed,
         )
+
+
+def _build_headers_dict(headers_obj: Any) -> dict[str, str]:
+    """Build a ``dict[str, str]`` from a headers object, preserving duplicates.
+
+    Multiple values for the same header name (notably ``Set-Cookie``) are
+    joined with ``\n`` so that callers can split them back apart.
+    """
+    result: dict[str, str] = {}
+    for key in headers_obj:
+        if key in result:
+            continue
+        get_all = getattr(headers_obj, "get_all", None)
+        if get_all is not None:
+            values = get_all(key)
+        else:
+            get_list = getattr(headers_obj, "get_list", None)
+            if get_list is not None:
+                values = get_list(key)
+            else:
+                values = [headers_obj[key]]
+        if values:
+            result[key] = "\n".join(values) if len(values) > 1 else values[0]
+    return result
 
 
 def get_client(backend: str = "stdlib") -> HTTPClient:

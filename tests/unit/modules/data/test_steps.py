@@ -400,7 +400,7 @@ def test_step_set_variable_json() -> None:
 
 def test_step_set_variable_json_invalid() -> None:
     context = _make_context()
-    with pytest.raises(json.JSONDecodeError):
+    with pytest.raises(AssertionError, match="Invalid JSON value"):
         step_set_variable_json(context, '"x"', "'{invalid}'")
 
 
@@ -504,3 +504,13 @@ def test_step_variable_less_than_fail() -> None:
 
 def test_step_wait() -> None:
     step_wait(_make_context(), 0.01)
+
+
+class TestBug16StepSetVariableJsonInvalidJson:
+    """Regression tests for Bug 16: step_set_variable_json should raise
+    AssertionError, not json.JSONDecodeError, when json_str is invalid JSON."""
+
+    def test_invalid_json_raises_assertion_error(self) -> None:
+        context = _make_context()
+        with pytest.raises(AssertionError, match="Invalid JSON value"):
+            step_set_variable_json(context, '"data"', "'{invalid json}'")

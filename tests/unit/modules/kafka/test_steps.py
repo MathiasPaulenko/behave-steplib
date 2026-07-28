@@ -11,7 +11,9 @@ from steplib.modules.kafka.context import KafkaContext
 from steplib.modules.kafka.steps import (
     step_message_contains,
     step_message_count,
+    step_set_consumer_config,
     step_set_kafka_servers,
+    step_set_producer_config,
 )
 
 
@@ -58,3 +60,18 @@ def test_step_message_contains_not_found() -> None:
     context = _make_context()
     with pytest.raises(AssertionError, match="No message contains"):
         step_message_contains(context, '"nonexistent"')
+
+
+class TestBug14KafkaStepsInvalidJson:
+    """Regression tests for Bug 14: kafka step functions should raise
+    AssertionError, not json.JSONDecodeError, when JSON input is invalid."""
+
+    def test_set_producer_config_invalid_json_raises_assertion(self) -> None:
+        context = _make_context()
+        with pytest.raises(AssertionError, match="Invalid JSON config"):
+            step_set_producer_config(context, "'{invalid json}'")
+
+    def test_set_consumer_config_invalid_json_raises_assertion(self) -> None:
+        context = _make_context()
+        with pytest.raises(AssertionError, match="Invalid JSON config"):
+            step_set_consumer_config(context, "'{invalid json}'")

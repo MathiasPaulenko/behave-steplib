@@ -481,7 +481,12 @@ def step_clear_request_data(context: Any) -> None:
 )
 def step_response_status_in(context: Any, statuses: str) -> None:
     """Assert response status is in a list."""
-    codes = [int(s.strip()) for s in statuses.split(",")]
+    try:
+        codes = [int(s.strip()) for s in statuses.split(",")]
+    except ValueError as exc:
+        raise AssertionError(
+            f"Invalid status code list '{statuses}': {exc}"
+        ) from exc
     api_assert_status_in(_get_api(context), codes)
 
 
@@ -984,7 +989,10 @@ def step_response_matches_schema(context: Any) -> None:
     import json as _json
 
     schema_text = context.text or ""
-    schema = _json.loads(schema_text)
+    try:
+        schema = _json.loads(schema_text)
+    except _json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON schema in step text: {exc}") from exc
     api_assert_json_schema(_get_api(context), schema)
 
 

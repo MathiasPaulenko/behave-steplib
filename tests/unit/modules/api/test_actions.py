@@ -222,6 +222,36 @@ class TestApiAssertJsonPath:
         with pytest.raises(AssertionError, match="JSON path"):
             api_assert_json_path_equals(api_ctx, "$.name", "Bob")
 
+    def test_json_path_boolean_true(self, api_ctx: ApiContext) -> None:
+        """Boolean true should match string 'true' (not 'True')."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"active": true}',
+            elapsed_ms=1.0,
+        )
+        api_assert_json_path_equals(api_ctx, "$.active", "true")
+
+    def test_json_path_boolean_false(self, api_ctx: ApiContext) -> None:
+        """Boolean false should match string 'false' (not 'False')."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"active": false}',
+            elapsed_ms=1.0,
+        )
+        api_assert_json_path_equals(api_ctx, "$.active", "false")
+
+    def test_json_path_null(self, api_ctx: ApiContext) -> None:
+        """None should match string 'null' (not 'None')."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"data": null}',
+            elapsed_ms=1.0,
+        )
+        api_assert_json_path_equals(api_ctx, "$.data", "null")
+
 
 class TestApiAssertHeader:
     """Tests for api_assert_header_equals."""
@@ -548,6 +578,23 @@ class TestApiSaveCookies:
         with pytest.raises(AssertionError, match="No response"):
             api_save_cookies(api_ctx)
 
+    def test_save_multiple_cookies(self, api_ctx: ApiContext) -> None:
+        """Saving cookies should handle multiple Set-Cookie headers."""
+        api_ctx.client = MockHTTPClient()  # type: ignore[attr-defined]
+        api_ctx.client.response = Response(  # type: ignore[attr-defined]
+            status=200,
+            headers={
+                "Content-Type": "application/json",
+                "Set-Cookie": "session=abc123; Path=/\ncsrf=xyz789; Path=/",
+            },
+            body=b'{"ok": true}',
+            elapsed_ms=1.0,
+        )
+        api_send(api_ctx, "GET", "/users")
+        api_save_cookies(api_ctx)
+        assert api_ctx.cookies.get("session") == "abc123"
+        assert api_ctx.cookies.get("csrf") == "xyz789"
+
 
 class TestApiRemoveHeader:
     """Tests for api_remove_header."""
@@ -673,6 +720,47 @@ class TestApiAssertJsonPathContains:
         with pytest.raises(AssertionError, match="No response"):
             api_assert_json_path_contains(api_ctx, "$.tags", "a")
 
+    def test_list_contains_boolean_true(self, api_ctx: ApiContext) -> None:
+        """List with boolean true should match string 'true'."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"flags": [true, false]}',
+            elapsed_ms=1.0,
+        )
+        api_assert_json_path_contains(api_ctx, "$.flags", "true")
+
+    def test_list_contains_boolean_false(self, api_ctx: ApiContext) -> None:
+        """List with boolean false should match string 'false'."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"flags": [true, false]}',
+            elapsed_ms=1.0,
+        )
+        api_assert_json_path_contains(api_ctx, "$.flags", "false")
+
+    def test_list_contains_null(self, api_ctx: ApiContext) -> None:
+        """List with None should match string 'null'."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"values": [null, "x"]}',
+            elapsed_ms=1.0,
+        )
+        api_assert_json_path_contains(api_ctx, "$.values", "null")
+
+    def test_list_not_contains_value_raises(self, api_ctx: ApiContext) -> None:
+        """List without value should raise."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"items": ["a", "b"]}',
+            elapsed_ms=1.0,
+        )
+        with pytest.raises(AssertionError, match="does not contain"):
+            api_assert_json_path_contains(api_ctx, "$.items", "c")
+
 
 class TestApiAssertJsonPathNotEquals:
     """Tests for api_assert_json_path_not_equals."""
@@ -697,6 +785,17 @@ class TestApiAssertJsonPathNotEquals:
         )
         with pytest.raises(AssertionError, match="should not equal"):
             api_assert_json_path_not_equals(api_ctx, "$.status", "ok")
+
+    def test_not_equals_boolean_true(self, api_ctx: ApiContext) -> None:
+        """Boolean true should match string 'true' and raise."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={},
+            body=b'{"active": true}',
+            elapsed_ms=1.0,
+        )
+        with pytest.raises(AssertionError, match="should not equal"):
+            api_assert_json_path_not_equals(api_ctx, "$.active", "true")
 
 
 class TestApiAssertJsonPathIsNull:
@@ -998,6 +1097,18 @@ class TestApiUseVariableAsHeader:
         with pytest.raises(KeyError, match="not found"):
             api_use_variable_as_header(api_ctx, "Authorization", "missing")
 
+    def test_use_boolean_as_header(self, api_ctx: ApiContext) -> None:
+        """Boolean variable is normalized to JSON representation."""
+        api_ctx.variables["flag"] = True
+        api_use_variable_as_header(api_ctx, "X-Flag", "flag")
+        assert api_ctx.default_headers["X-Flag"] == "true"
+
+    def test_use_none_as_header(self, api_ctx: ApiContext) -> None:
+        """None variable is normalized to JSON representation."""
+        api_ctx.variables["flag"] = None
+        api_use_variable_as_header(api_ctx, "X-Flag", "flag")
+        assert api_ctx.default_headers["X-Flag"] == "null"
+
 
 class TestApiUseVariableAsQueryParam:
     """Tests for api_use_variable_as_query_param."""
@@ -1012,6 +1123,12 @@ class TestApiUseVariableAsQueryParam:
         """Missing variable raises KeyError."""
         with pytest.raises(KeyError, match="not found"):
             api_use_variable_as_query_param(api_ctx, "p", "missing")
+
+    def test_use_boolean_as_param(self, api_ctx: ApiContext) -> None:
+        """Boolean variable is normalized to JSON representation."""
+        api_ctx.variables["active"] = True
+        api_use_variable_as_query_param(api_ctx, "active", "active")
+        assert api_ctx.query_params["active"] == "true"
 
 
 class TestApiAssertVariableEquals:
@@ -1032,6 +1149,21 @@ class TestApiAssertVariableEquals:
         """Missing variable raises."""
         with pytest.raises(AssertionError, match="not found"):
             api_assert_variable_equals(api_ctx, "missing", "1")
+
+    def test_boolean_true_equals(self, api_ctx: ApiContext) -> None:
+        """Boolean True should match string 'true'."""
+        api_ctx.variables["active"] = True
+        api_assert_variable_equals(api_ctx, "active", "true")
+
+    def test_boolean_false_equals(self, api_ctx: ApiContext) -> None:
+        """Boolean False should match string 'false'."""
+        api_ctx.variables["active"] = False
+        api_assert_variable_equals(api_ctx, "active", "false")
+
+    def test_none_equals(self, api_ctx: ApiContext) -> None:
+        """None should match string 'null'."""
+        api_ctx.variables["data"] = None
+        api_assert_variable_equals(api_ctx, "data", "null")
 
 
 class TestApiStoreResponseTime:
@@ -1367,3 +1499,261 @@ class TestApiHeaderCaseInsensitive:
             elapsed_ms=1.0,
         )
         api_assert_content_type_contains(api_ctx, "application/json")
+
+
+class TestJsonPathMissingKeyRaisesAssertionError:
+    """Regression: API functions using JsonPath must raise AssertionError for missing paths."""
+
+    @pytest.fixture()
+    def ctx_with_json(self, api_ctx: ApiContext) -> ApiContext:
+        """Context with a JSON response containing nested data."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={"Content-Type": "application/json"},
+            body=b'{"name": "Ada", "age": 30, "items": [1, 2]}',
+            elapsed_ms=1.0,
+        )
+        return api_ctx
+
+    def test_json_path_equals_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_equals(ctx_with_json, "$.nonexistent", "x")
+
+    def test_json_path_type_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_type(ctx_with_json, "$.nonexistent", "str")
+
+    def test_json_path_exists_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_exists(ctx_with_json, "$.nonexistent")
+
+    def test_store_json_path_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_store_json_path(ctx_with_json, "$.nonexistent", "var")
+
+    def test_json_path_contains_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_contains(ctx_with_json, "$.nonexistent", "x")
+
+    def test_json_path_not_equals_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_not_equals(ctx_with_json, "$.nonexistent", "x")
+
+    def test_json_path_is_null_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_is_null(ctx_with_json, "$.nonexistent")
+
+    def test_json_path_is_not_null_missing_raises_assertion(
+        self, ctx_with_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_is_not_null(ctx_with_json, "$.nonexistent")
+
+    def test_json_path_has_length_missing_raises_assertion(self, ctx_with_json: ApiContext) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_has_length(ctx_with_json, "$.nonexistent", 3)
+
+    def test_json_path_matches_regex_missing_raises_assertion(
+        self, ctx_with_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="does not exist"):
+            api_assert_json_path_matches_regex(ctx_with_json, "$.nonexistent", ".*")
+
+
+class TestInvalidJsonBodyRaisesAssertionError:
+    """Regression: API functions should raise AssertionError for invalid JSON bodies."""
+
+    @pytest.fixture()
+    def ctx_with_invalid_json(self, api_ctx: ApiContext) -> ApiContext:
+        """Context with a non-JSON response body."""
+        api_ctx.last_response = Response(
+            status=200,
+            headers={"Content-Type": "text/plain"},
+            body=b"not valid json {{{",
+            elapsed_ms=1.0,
+        )
+        return api_ctx
+
+    def test_assert_json_valid_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_valid(ctx_with_invalid_json)
+
+    def test_json_path_equals_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_equals(ctx_with_invalid_json, "$.name", "x")
+
+    def test_json_path_exists_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_exists(ctx_with_invalid_json, "$.name")
+
+    def test_json_path_type_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_type(ctx_with_invalid_json, "$.name", "str")
+
+    def test_store_json_path_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_store_json_path(ctx_with_invalid_json, "$.name", "var")
+
+    def test_json_path_contains_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_contains(ctx_with_invalid_json, "$.name", "x")
+
+    def test_json_path_not_equals_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_not_equals(ctx_with_invalid_json, "$.name", "x")
+
+    def test_json_path_is_null_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_is_null(ctx_with_invalid_json, "$.name")
+
+    def test_json_path_is_not_null_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_is_not_null(ctx_with_invalid_json, "$.name")
+
+    def test_json_path_has_length_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_has_length(ctx_with_invalid_json, "$.name", 3)
+
+    def test_json_path_matches_regex_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_path_matches_regex(ctx_with_invalid_json, "$.name", ".*")
+
+    def test_json_schema_invalid_body_raises_assertion(
+        self, ctx_with_invalid_json: ApiContext,
+    ) -> None:
+        with pytest.raises(AssertionError, match="not valid JSON"):
+            api_assert_json_schema(ctx_with_invalid_json, {"type": "object"})
+
+
+class TestBug10StepResponseMatchesSchemaInvalidJson:
+    """Regression tests for Bug 10: step_response_matches_schema should raise
+    AssertionError, not json.JSONDecodeError, when schema text is invalid JSON."""
+
+    def test_invalid_schema_text_raises_assertion_error(self) -> None:
+        from types import SimpleNamespace
+
+        from steplib.modules.api.steps import step_response_matches_schema
+
+        ctx = SimpleNamespace()
+        ctx.steplib = SimpleNamespace()
+        ctx.text = "{invalid json"
+        with pytest.raises(AssertionError, match="Invalid JSON schema in step text"):
+            step_response_matches_schema(ctx)
+
+
+class TestBug18InvalidRegexPattern:
+    """Regression tests for Bug 18: api_assert_json_path_matches_regex should
+    raise AssertionError, not re.error, when the regex pattern is invalid."""
+
+    def test_invalid_regex_raises_assertion_error(self) -> None:
+        from steplib.modules.api.actions import api_assert_json_path_matches_regex
+        from steplib.modules.api.client import Response
+
+        ctx = ApiContext()
+        ctx.last_response = Response(status=200, headers={}, body=b'{"name": "test"}')
+        with pytest.raises(AssertionError, match="Invalid regex pattern"):
+            api_assert_json_path_matches_regex(ctx, "$.name", "[invalid(")
+
+
+class TestBug19NonNumericStatusCodes:
+    """Regression tests for Bug 19: step_response_status_in should raise
+    AssertionError, not ValueError, when status codes are non-numeric."""
+
+    def test_non_numeric_status_raises_assertion_error(self) -> None:
+        from types import SimpleNamespace
+
+        from steplib.modules.api.steps import step_response_status_in
+
+        ctx = SimpleNamespace()
+        ctx.steplib = SimpleNamespace()
+        with pytest.raises(AssertionError, match="Invalid status code list"):
+            step_response_status_in(ctx, "ok, 200")
+
+
+class TestBug20InvalidSchemaPattern:
+    """Regression tests for Bug 20: api_assert_json_schema should raise
+    AssertionError, not re.error, when the schema contains an invalid regex
+    pattern in the 'pattern' field."""
+
+    def test_invalid_schema_pattern_raises_assertion_error(self) -> None:
+        from steplib.modules.api.actions import api_assert_json_schema
+        from steplib.modules.api.client import Response
+
+        ctx = ApiContext()
+        ctx.last_response = Response(
+            status=200, headers={}, body=b'{"name": "test"}'
+        )
+        schema = {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "pattern": "[invalid("}
+            },
+        }
+        with pytest.raises(AssertionError, match="Invalid regex pattern"):
+            api_assert_json_schema(ctx, schema)
+
+
+class TestBug36ApiExpectedNormalization:
+    """Regression tests for Bug 36: api_assert_json_path_equals,
+    api_assert_json_path_not_equals, and api_assert_variable_equals should
+    normalize the expected/value parameter using _normalize_json_value so
+    that non-string inputs (bool, None) are compared using JSON-style
+    lowercase representation."""
+
+    def test_json_path_equals_expected_as_bool_true(self, api_ctx: ApiContext) -> None:
+        api_ctx.last_response = Response(
+            status=200, headers={}, body=b'{"active": true}', elapsed_ms=1.0
+        )
+        api_assert_json_path_equals(api_ctx, "$.active", True)  # type: ignore[arg-type]
+
+    def test_json_path_equals_expected_as_bool_false(self, api_ctx: ApiContext) -> None:
+        api_ctx.last_response = Response(
+            status=200, headers={}, body=b'{"active": false}', elapsed_ms=1.0
+        )
+        api_assert_json_path_equals(api_ctx, "$.active", False)  # type: ignore[arg-type]
+
+    def test_json_path_equals_expected_as_none(self, api_ctx: ApiContext) -> None:
+        api_ctx.last_response = Response(
+            status=200, headers={}, body=b'{"data": null}', elapsed_ms=1.0
+        )
+        api_assert_json_path_equals(api_ctx, "$.data", None)  # type: ignore[arg-type]
+
+    def test_json_path_not_equals_expected_as_bool_false(self, api_ctx: ApiContext) -> None:
+        api_ctx.last_response = Response(
+            status=200, headers={}, body=b'{"active": true}', elapsed_ms=1.0
+        )
+        api_assert_json_path_not_equals(api_ctx, "$.active", False)  # type: ignore[arg-type]
+
+    def test_variable_equals_expected_as_bool_true(self, api_ctx: ApiContext) -> None:
+        api_ctx.variables["active"] = True
+        api_assert_variable_equals(api_ctx, "active", True)  # type: ignore[arg-type]
+
+    def test_variable_equals_expected_as_bool_false(self, api_ctx: ApiContext) -> None:
+        api_ctx.variables["active"] = False
+        api_assert_variable_equals(api_ctx, "active", False)  # type: ignore[arg-type]
+
+    def test_variable_equals_expected_as_none(self, api_ctx: ApiContext) -> None:
+        api_ctx.variables["data"] = None
+        api_assert_variable_equals(api_ctx, "data", None)  # type: ignore[arg-type]

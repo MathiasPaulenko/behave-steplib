@@ -7,7 +7,25 @@ import json
 from pathlib import Path
 from typing import Any
 
+from steplib.core.exceptions import MissingDependencyError
 from steplib.modules.io.context import IOContext
+
+
+def _normalize_value(value: Any) -> str:
+    """Normalize a value to its string representation for comparison.
+
+    Python's ``str(True)`` returns ``"True"``, but JSON uses lowercase
+    ``"true"``.  This helper ensures booleans and ``None`` are compared
+    using their JSON representation.
+    """
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if value is None:
+        return "null"
+    return str(value)
+
 
 # ---------------------------------------------------------------------------
 # File actions
@@ -331,7 +349,7 @@ def io_assert_json_path_equals(io_ctx: IOContext, key_path: str, value: str) -> 
         actual = _navigate_key_path(io_ctx._last_json, key_path)
     except KeyError as exc:
         raise AssertionError(str(exc)) from exc
-    if actual != value:
+    if _normalize_value(actual) != _normalize_value(value):
         raise AssertionError(
             f"JSON path '{key_path}': expected '{value}', got '{actual}'."
         )
@@ -374,7 +392,17 @@ def io_update_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
     current: Any = io_ctx._last_json
     for part in parts[:-1]:
         if isinstance(current, list):
-            current = current[int(part)]
+            try:
+                idx = int(part)
+            except ValueError as exc:
+                raise KeyError(
+                    f"Cannot index list with non-integer '{part}' in path '{key_path}'."
+                ) from exc
+            if idx < 0 or idx >= len(current):
+                raise KeyError(
+                    f"Index {idx} out of range for list of length {len(current)}."
+                )
+            current = current[idx]
         elif isinstance(current, dict):
             if part not in current:
                 raise KeyError(f"Key '{part}' not found in path '{key_path}'.")
@@ -383,7 +411,17 @@ def io_update_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
             raise KeyError(f"Cannot navigate into non-container at '{part}'.")
     last = parts[-1]
     if isinstance(current, list):
-        current[int(last)] = value
+        try:
+            idx = int(last)
+        except ValueError as exc:
+            raise KeyError(
+                f"Cannot index list with non-integer '{last}' in path '{key_path}'."
+            ) from exc
+        if idx < 0 or idx >= len(current):
+            raise KeyError(
+                f"Index {idx} out of range for list of length {len(current)}."
+            )
+        current[idx] = value
     elif isinstance(current, dict):
         current[last] = value
     else:
@@ -410,8 +448,12 @@ def io_create_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
     parts = key_path.split(".")
     current: dict[str, Any] = io_ctx._last_json
     for part in parts[:-1]:
-        if part not in current or not isinstance(current[part], dict):
+        if part not in current:
             current[part] = {}
+        elif not isinstance(current[part], dict):
+            raise KeyError(
+                f"Key '{part}' exists with non-dict value in path '{key_path}'."
+            )
         current = current[part]
     current[parts[-1]] = value
 
@@ -434,7 +476,17 @@ def io_delete_json_path(io_ctx: IOContext, key_path: str) -> None:
     current: Any = io_ctx._last_json
     for part in parts[:-1]:
         if isinstance(current, list):
-            current = current[int(part)]
+            try:
+                idx = int(part)
+            except ValueError as exc:
+                raise KeyError(
+                    f"Cannot index list with non-integer '{part}' in path '{key_path}'."
+                ) from exc
+            if idx < 0 or idx >= len(current):
+                raise KeyError(
+                    f"Index {idx} out of range for list of length {len(current)}."
+                )
+            current = current[idx]
         elif isinstance(current, dict):
             if part not in current:
                 raise KeyError(f"Key '{part}' not found in path '{key_path}'.")
@@ -443,7 +495,17 @@ def io_delete_json_path(io_ctx: IOContext, key_path: str) -> None:
             raise KeyError(f"Cannot navigate into non-container at '{part}'.")
     last = parts[-1]
     if isinstance(current, list):
-        del current[int(last)]
+        try:
+            idx = int(last)
+        except ValueError as exc:
+            raise KeyError(
+                f"Cannot index list with non-integer '{last}' in path '{key_path}'."
+            ) from exc
+        if idx < 0 or idx >= len(current):
+            raise KeyError(
+                f"Index {idx} out of range for list of length {len(current)}."
+            )
+        del current[idx]
     elif isinstance(current, dict):
         if last not in current:
             raise KeyError(f"Key '{last}' not found in path '{key_path}'.")
@@ -479,6 +541,7 @@ def io_assert_json_matches_schema(io_ctx: IOContext, schema_path: str) -> None:
     Raises:
         FileNotFoundError: If the schema file does not exist.
         RuntimeError: If no JSON is loaded.
+        MissingDependencyError: If jsonschema is not installed.
         AssertionError: If validation fails.
 
     """
@@ -487,14 +550,14 @@ def io_assert_json_matches_schema(io_ctx: IOContext, schema_path: str) -> None:
     p = Path(schema_path)
     if not p.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    schema = json.loads(p.read_text(encoding="utf-8"))
+    try:
+        schema = json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise AssertionError(f"Schema file is not valid JSON: {exc}") from exc
     try:
         import jsonschema
     except ImportError as exc:
-        raise RuntimeError(
-            "jsonschema is required for schema validation. "
-            "Install with: pip install behave-steplib[io]"
-        ) from exc
+        raise MissingDependencyError("io", "jsonschema") from exc
     try:
         jsonschema.validate(instance=io_ctx._last_json, schema=schema)
     except jsonschema.ValidationError as exc:

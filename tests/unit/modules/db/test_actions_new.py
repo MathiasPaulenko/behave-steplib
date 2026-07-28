@@ -8,6 +8,7 @@ import pytest
 
 from steplib.modules.db.actions import (
     db_assert_column_contains,
+    db_assert_column_equals,
     db_assert_column_is_not_null,
     db_assert_column_is_null,
     db_assert_column_not_equals,
@@ -180,6 +181,18 @@ class TestDbAssertScalarEquals:
         with pytest.raises(AssertionError, match="Scalar"):
             db_assert_scalar_equals(ctx, "SELECT COUNT(*)", "99")
 
+    def test_scalar_boolean_true(self) -> None:
+        ctx = DbContext(connection=MockConnection(scalar_value=True))
+        db_assert_scalar_equals(ctx, "SELECT active", "true")
+
+    def test_scalar_boolean_false(self) -> None:
+        ctx = DbContext(connection=MockConnection(scalar_value=False))
+        db_assert_scalar_equals(ctx, "SELECT active", "false")
+
+    def test_scalar_none(self) -> None:
+        ctx = DbContext(connection=MockConnection(scalar_value=None))
+        db_assert_scalar_equals(ctx, "SELECT optional", "null")
+
 
 # --- Extended assertions ---
 
@@ -223,6 +236,22 @@ class TestDbAssertColumnNotEquals:
     def test_not_equals_fails(self, db_ctx: DbContext) -> None:
         with pytest.raises(AssertionError, match="should not equal"):
             db_assert_column_not_equals(db_ctx, "SELECT * FROM users", "name", "Ada")
+
+    def test_column_boolean_true(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"active": True}]))
+        db_assert_column_equals(ctx, "SELECT active", "active", "true")
+
+    def test_column_boolean_false(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"active": False}]))
+        db_assert_column_equals(ctx, "SELECT active", "active", "false")
+
+    def test_column_none(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"data": None}]))
+        db_assert_column_equals(ctx, "SELECT data", "data", "null")
+
+    def test_column_not_equals_boolean(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"active": True}]))
+        db_assert_column_not_equals(ctx, "SELECT active", "active", "false")
 
 
 class TestDbAssertColumnIsNull:
@@ -462,3 +491,38 @@ class TestSqlIdentifierValidation:
         )
         with pytest.raises(ValueError, match="Invalid SQL identifier"):
             db_assert_table_row_count(ctx, "users; DROP TABLE users", 5)
+
+
+class TestBug36DbExpectedNormalization:
+    """Regression tests for Bug 36: db_assert_column_equals,
+    db_assert_scalar_equals, and db_assert_column_not_equals should normalize
+    the expected parameter using _normalize_value so that non-string inputs
+    (bool, None) are compared using JSON-style lowercase representation."""
+
+    def test_column_equals_expected_as_bool_true(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"active": True}]))
+        db_assert_column_equals(ctx, "SELECT active", "active", True)  # type: ignore[arg-type]
+
+    def test_column_equals_expected_as_bool_false(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"active": False}]))
+        db_assert_column_equals(ctx, "SELECT active", "active", False)  # type: ignore[arg-type]
+
+    def test_column_equals_expected_as_none(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"data": None}]))
+        db_assert_column_equals(ctx, "SELECT data", "data", None)  # type: ignore[arg-type]
+
+    def test_scalar_equals_expected_as_bool_true(self) -> None:
+        ctx = DbContext(connection=MockConnection(scalar_value=True))
+        db_assert_scalar_equals(ctx, "SELECT active", True)  # type: ignore[arg-type]
+
+    def test_scalar_equals_expected_as_bool_false(self) -> None:
+        ctx = DbContext(connection=MockConnection(scalar_value=False))
+        db_assert_scalar_equals(ctx, "SELECT active", False)  # type: ignore[arg-type]
+
+    def test_scalar_equals_expected_as_none(self) -> None:
+        ctx = DbContext(connection=MockConnection(scalar_value=None))
+        db_assert_scalar_equals(ctx, "SELECT optional", None)  # type: ignore[arg-type]
+
+    def test_column_not_equals_expected_as_bool_false(self) -> None:
+        ctx = DbContext(connection=MockConnection(rows=[{"active": True}]))
+        db_assert_column_not_equals(ctx, "SELECT active", "active", False)  # type: ignore[arg-type]

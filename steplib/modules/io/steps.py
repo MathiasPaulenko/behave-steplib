@@ -517,7 +517,10 @@ def step_create_csv(context: Any, path: str, data: str) -> None:
     """Create a CSV file from JSON data."""
     import json as _json
 
-    rows = _json.loads(_strip_quotes(data))
+    try:
+        rows = _json.loads(_strip_quotes(data))
+    except _json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON data for CSV: {exc}") from exc
     io_create_csv(_get_io(context), _strip_quotes(path), rows)
 
 
@@ -551,7 +554,10 @@ def step_write_csv_row(context: Any, row: str) -> None:
     """Write a row to the active CSV writer."""
     import json as _json
 
-    data = _json.loads(_strip_quotes(row))
+    try:
+        data = _json.loads(_strip_quotes(row))
+    except _json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON row for CSV: {exc}") from exc
     io_write_csv_row(_get_io(context), data)
 
 

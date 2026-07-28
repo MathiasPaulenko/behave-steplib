@@ -298,6 +298,35 @@ class TestUpdateJsonPath:
         io_update_json_path(ctx, "user.name", "Bob")
         assert ctx._last_json["user"]["name"] == "Bob"
 
+    def test_update_list_index(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"items": ["a", "b", "c"]}
+        io_update_json_path(ctx, "items.1", "B")
+        assert ctx._last_json["items"][1] == "B"
+
+    def test_update_list_index_out_of_range(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"items": ["a", "b"]}
+        with pytest.raises(KeyError, match="Index 5 out of range"):
+            io_update_json_path(ctx, "items.5", "x")
+
+    def test_update_list_non_integer_index(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"items": ["a", "b"]}
+        with pytest.raises(KeyError, match="Cannot index list with non-integer"):
+            io_update_json_path(ctx, "items.foo", "x")
+
+    def test_update_missing_intermediate_key(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"user": {"name": "Alice"}}
+        with pytest.raises(KeyError, match="Key 'profile' not found"):
+            io_update_json_path(ctx, "user.profile.age", 30)
+
+    def test_update_no_json_loaded(self) -> None:
+        ctx = IOContext()
+        with pytest.raises(RuntimeError, match="No JSON loaded"):
+            io_update_json_path(ctx, "key", "value")
+
 
 class TestCreateJsonPath:
     def test_create_nested_path(self) -> None:
@@ -306,6 +335,35 @@ class TestCreateJsonPath:
         io_create_json_path(ctx, "user.address.city", "Madrid")
         assert ctx._last_json["user"]["address"]["city"] == "Madrid"
 
+    def test_create_overwrites_missing_intermediate(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {}
+        io_create_json_path(ctx, "a.b.c", "value")
+        assert ctx._last_json == {"a": {"b": {"c": "value"}}}
+
+    def test_create_conflict_with_non_dict_value(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"user": "scalar"}
+        with pytest.raises(KeyError, match="exists with non-dict value"):
+            io_create_json_path(ctx, "user.name", "Alice")
+
+    def test_create_conflict_with_nested_non_dict_value(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"user": {"name": "Alice"}}
+        with pytest.raises(KeyError, match="exists with non-dict value"):
+            io_create_json_path(ctx, "user.name.first", "Alice")
+
+    def test_create_no_json_loaded(self) -> None:
+        ctx = IOContext()
+        with pytest.raises(RuntimeError, match="No JSON loaded"):
+            io_create_json_path(ctx, "key", "value")
+
+    def test_create_on_non_dict_json(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = [1, 2, 3]
+        with pytest.raises(RuntimeError, match="not a dict"):
+            io_create_json_path(ctx, "key", "value")
+
 
 class TestDeleteJsonPath:
     def test_delete_path(self) -> None:
@@ -313,6 +371,35 @@ class TestDeleteJsonPath:
         ctx._last_json = {"user": {"name": "Alice", "password": "secret"}}
         io_delete_json_path(ctx, "user.password")
         assert "password" not in ctx._last_json["user"]
+
+    def test_delete_list_index(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"items": ["a", "b", "c"]}
+        io_delete_json_path(ctx, "items.1")
+        assert ctx._last_json["items"] == ["a", "c"]
+
+    def test_delete_list_index_out_of_range(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"items": ["a", "b"]}
+        with pytest.raises(KeyError, match="Index 5 out of range"):
+            io_delete_json_path(ctx, "items.5")
+
+    def test_delete_list_non_integer_index(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"items": ["a", "b"]}
+        with pytest.raises(KeyError, match="Cannot index list with non-integer"):
+            io_delete_json_path(ctx, "items.foo")
+
+    def test_delete_missing_key(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"user": {"name": "Alice"}}
+        with pytest.raises(KeyError, match="Key 'age' not found"):
+            io_delete_json_path(ctx, "user.age")
+
+    def test_delete_no_json_loaded(self) -> None:
+        ctx = IOContext()
+        with pytest.raises(RuntimeError, match="No JSON loaded"):
+            io_delete_json_path(ctx, "key")
 
 
 class TestAssertJsonValid:
@@ -364,6 +451,28 @@ class TestAssertJsonMatchesSchema:
         ctx._last_json = {"a": 1}
         with pytest.raises(FileNotFoundError, match="Schema file not found"):
             io_assert_json_matches_schema(ctx, "missing.json")
+
+    def test_missing_dependency(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """If jsonschema is not installed, MissingDependencyError is raised (not RuntimeError)."""
+        import builtins
+
+        real_import = builtins.__import__
+
+        def _block_jsonschema(name: str, *args: object, **kwargs: object) -> object:
+            if name == "jsonschema":
+                raise ImportError("No module named 'jsonschema'")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", _block_jsonschema)
+        schema_file = tmp_path / "schema.json"
+        schema_file.write_text("{}", encoding="utf-8")
+        ctx = IOContext()
+        ctx._last_json = {"a": 1}
+
+        from steplib.core.exceptions import MissingDependencyError
+
+        with pytest.raises(MissingDependencyError):
+            io_assert_json_matches_schema(ctx, str(schema_file))
 
 
 class TestAssertLastJsonValid:
@@ -589,3 +698,88 @@ class TestReadFileAsLines:
         ctx = IOContext()
         with pytest.raises(FileNotFoundError, match="File not found"):
             io_read_file_as_lines(ctx, "missing.txt", "lines")
+
+
+class TestBug9JsonPathEqualsTypeComparison:
+    """Regression tests for Bug 9: io_assert_json_path_equals should compare
+    values as strings, not directly, to avoid false failures when JSON values
+    are non-string types (int, bool, float)."""
+
+    def test_int_value_matches_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"count": 42}
+        io_assert_json_path_equals(ctx, "count", "42")
+
+    def test_bool_value_matches_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"active": True}
+        io_assert_json_path_equals(ctx, "active", "true")
+
+    def test_bool_false_matches_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"active": False}
+        io_assert_json_path_equals(ctx, "active", "false")
+
+    def test_null_matches_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"data": None}
+        io_assert_json_path_equals(ctx, "data", "null")
+
+    def test_float_value_matches_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"price": 3.14}
+        io_assert_json_path_equals(ctx, "price", "3.14")
+
+    def test_nested_int_value_matches_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"user": {"id": 100}}
+        io_assert_json_path_equals(ctx, "user.id", "100")
+
+    def test_int_value_does_not_match_wrong_string(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"count": 42}
+        with pytest.raises(AssertionError, match="expected '99'"):
+            io_assert_json_path_equals(ctx, "count", "99")
+
+
+class TestBug11SchemaFileInvalidJson:
+    """Regression tests for Bug 11: io_assert_json_matches_schema should raise
+    AssertionError, not json.JSONDecodeError, when the schema file contains
+    invalid JSON."""
+
+    def test_invalid_schema_file_raises_assertion_error(self, tmp_path: Path) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"key": "value"}
+        schema_file = tmp_path / "bad_schema.json"
+        schema_file.write_text("{invalid json", encoding="utf-8")
+        with pytest.raises(AssertionError, match="Schema file is not valid JSON"):
+            io_assert_json_matches_schema(ctx, str(schema_file))
+
+
+class TestBug36JsonPathEqualsNormalization:
+    """Regression tests for Bug 36: io_assert_json_path_equals should
+    normalize the expected value using _normalize_value so that non-string
+    inputs (bool, None) are compared using JSON-style lowercase
+    representation instead of Python's str() which produces "True"/"False"/"None".
+    """
+
+    def test_bool_true_expected_as_bool(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"active": True}
+        io_assert_json_path_equals(ctx, "active", True)  # type: ignore[arg-type]
+
+    def test_bool_false_expected_as_bool(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"active": False}
+        io_assert_json_path_equals(ctx, "active", False)  # type: ignore[arg-type]
+
+    def test_none_expected_as_none(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"data": None}
+        io_assert_json_path_equals(ctx, "data", None)  # type: ignore[arg-type]
+
+    def test_bool_true_does_not_match_false(self) -> None:
+        ctx = IOContext()
+        ctx._last_json = {"active": True}
+        with pytest.raises(AssertionError, match="expected"):
+            io_assert_json_path_equals(ctx, "active", False)  # type: ignore[arg-type]

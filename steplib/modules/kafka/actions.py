@@ -8,6 +8,23 @@ from steplib.core.exceptions import MissingDependencyError
 from steplib.modules.kafka.context import KafkaContext
 
 
+def _normalize_value(value: Any) -> str:
+    """Normalize a value to its string representation for comparison.
+
+    Python's ``str(True)`` returns ``"True"``, but JSON/Kafka messages
+    naturally use ``"true"`` / ``"false"`` / ``"null"``.  This helper
+    ensures booleans and ``None`` use their JSON-style lowercase
+    representation.
+    """
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if value is None:
+        return "null"
+    return str(value)
+
+
 def kafka_set_bootstrap_servers(kafka_ctx: KafkaContext, servers: str) -> None:
     """Set the Kafka bootstrap servers.
 
@@ -151,7 +168,7 @@ def kafka_assert_message_contains(
 
     """
     for msg in messages:
-        if text in str(msg.get("value", "")):
+        if text in _normalize_value(msg.get("value", "")):
             return
     raise AssertionError(f"No message contains '{text}'.")
 
@@ -232,8 +249,8 @@ def kafka_assert_message_key_equals(
             if messages
             else f"Message index {index} out of range (empty message list)."
         )
-    actual = str(messages[index].get("key", ""))
-    if actual != str(expected):
+    actual = _normalize_value(messages[index].get("key", ""))
+    if actual != _normalize_value(expected):
         raise AssertionError(f"Message {index} key: expected '{expected}', got '{actual}'.")
 
 
@@ -259,8 +276,8 @@ def kafka_assert_message_value_equals(
             if messages
             else f"Message index {index} out of range (empty message list)."
         )
-    actual = str(messages[index].get("value", ""))
-    if actual != str(expected):
+    actual = _normalize_value(messages[index].get("value", ""))
+    if actual != _normalize_value(expected):
         raise AssertionError(f"Message {index} value: expected '{expected}', got '{actual}'.")
 
 
@@ -280,9 +297,12 @@ def kafka_assert_message_value_matches_regex(
     """
     import re
 
-    regex = re.compile(pattern)
+    try:
+        regex = re.compile(pattern)
+    except re.error as exc:
+        raise AssertionError(f"Invalid regex pattern '{pattern}': {exc}") from exc
     for msg in messages:
-        if regex.search(str(msg.get("value", ""))):
+        if regex.search(_normalize_value(msg.get("value", ""))):
             return
     raise AssertionError(f"No message value matches pattern '{pattern}'.")
 
@@ -320,8 +340,9 @@ def kafka_assert_message_order(
         AssertionError: If the message keys do not match the expected order.
 
     """
-    actual_keys = [str(msg.get("key", "")) for msg in messages]
-    if actual_keys != expected_keys:
+    actual_keys = [_normalize_value(msg.get("key", "")) for msg in messages]
+    normalized_expected = [_normalize_value(k) for k in expected_keys]
+    if actual_keys != normalized_expected:
         raise AssertionError(f"Message order: expected {expected_keys}, got {actual_keys}.")
 
 

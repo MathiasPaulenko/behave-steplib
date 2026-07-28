@@ -77,6 +77,21 @@ class TestAssertVariableEquals:
         with pytest.raises(AssertionError, match="does not exist"):
             data_assert_variable_equals(ctx, "missing", "x")
 
+    def test_boolean_true_equals(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        data_assert_variable_equals(ctx, "flag", "true")
+
+    def test_boolean_false_equals(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = False
+        data_assert_variable_equals(ctx, "flag", "false")
+
+    def test_none_equals(self) -> None:
+        ctx = DataContext()
+        ctx.variables["data"] = None
+        data_assert_variable_equals(ctx, "data", "null")
+
 
 class TestAssertVariableExists:
     def test_exists(self) -> None:
@@ -146,6 +161,27 @@ class TestLoadYamlFile:
         ctx = DataContext()
         with pytest.raises(FileNotFoundError, match="YAML file not found"):
             data_load_yaml_file(ctx, "missing.yaml", "x")
+
+    def test_missing_dependency(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """If PyYAML is not installed, MissingDependencyError is raised (not ImportError)."""
+        import builtins
+
+        real_import = builtins.__import__
+
+        def _block_yaml(name: str, *args: object, **kwargs: object) -> object:
+            if name == "yaml":
+                raise ImportError("No module named 'yaml'")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", _block_yaml)
+        f = tmp_path / "config.yaml"
+        f.write_text("key: value\n", encoding="utf-8")
+
+        from steplib.core.exceptions import MissingDependencyError
+
+        ctx = DataContext()
+        with pytest.raises(MissingDependencyError):
+            data_load_yaml_file(ctx, str(f), "config")
 
 
 class TestExtractKeyPath:
@@ -328,6 +364,12 @@ class TestAssertVariableNotEquals:
         ctx = DataContext()
         with pytest.raises(AssertionError, match="does not exist"):
             data_assert_variable_not_equals(ctx, "missing", "1")
+
+    def test_boolean_not_equals_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        with pytest.raises(AssertionError, match="should not equal"):
+            data_assert_variable_not_equals(ctx, "flag", "true")
 
 
 class TestAssertVariableContains:
@@ -513,6 +555,22 @@ class TestSetEnvFromVariable:
         with pytest.raises(KeyError, match="does not exist"):
             data_set_env_from_variable(ctx, "missing", "KEY")
 
+    def test_set_env_from_boolean(self) -> None:
+        ctx = DataContext()
+        key = "STEPLIB_TEST_ENV_FROM_BOOL"
+        data_set_variable(ctx, "flag", True)
+        data_set_env_from_variable(ctx, "flag", key)
+        assert os.environ[key] == "true"
+        ctx.cleanup()
+
+    def test_set_env_from_none(self) -> None:
+        ctx = DataContext()
+        key = "STEPLIB_TEST_ENV_FROM_NONE"
+        data_set_variable(ctx, "flag", None)
+        data_set_env_from_variable(ctx, "flag", key)
+        assert os.environ[key] == "null"
+        ctx.cleanup()
+
 
 # --- Extended env assertion actions ---
 
@@ -571,8 +629,13 @@ class TestAssertVariableMatches:
 
     def test_variable_not_found(self) -> None:
         ctx = DataContext()
-        with pytest.raises(KeyError, match="does not exist"):
+        with pytest.raises(AssertionError, match="does not exist"):
             data_assert_variable_matches(ctx, "missing", r".*")
+
+    def test_matches_boolean_true(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        data_assert_variable_matches(ctx, "flag", r"true")
 
 
 class TestAssertVariableStartsWith:
@@ -587,6 +650,16 @@ class TestAssertVariableStartsWith:
         with pytest.raises(AssertionError, match="does not start with"):
             data_assert_variable_starts_with(ctx, "greeting", "World")
 
+    def test_starts_with_boolean_true(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        data_assert_variable_starts_with(ctx, "flag", "true")
+
+    def test_starts_with_boolean_false(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = False
+        data_assert_variable_starts_with(ctx, "flag", "false")
+
 
 class TestAssertVariableEndsWith:
     def test_ends_with(self) -> None:
@@ -599,6 +672,16 @@ class TestAssertVariableEndsWith:
         ctx.variables["filename"] = "data.csv"
         with pytest.raises(AssertionError, match="does not end with"):
             data_assert_variable_ends_with(ctx, "filename", ".txt")
+
+    def test_ends_with_boolean_true(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        data_assert_variable_ends_with(ctx, "flag", "true")
+
+    def test_ends_with_none(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = None
+        data_assert_variable_ends_with(ctx, "flag", "null")
 
 
 class TestIncrementVariable:
@@ -620,6 +703,37 @@ class TestIncrementVariable:
         with pytest.raises(ValueError, match="is not numeric"):
             data_increment_variable(ctx, "text")
 
+    def test_increment_float_preserves_type(self) -> None:
+        ctx = DataContext()
+        ctx.variables["price"] = 3.5
+        data_increment_variable(ctx, "price", 1)
+        assert ctx.variables["price"] == 4.5
+        assert isinstance(ctx.variables["price"], float)
+
+    def test_increment_float_by_amount(self) -> None:
+        ctx = DataContext()
+        ctx.variables["price"] = 10.25
+        data_increment_variable(ctx, "price", 5)
+        assert ctx.variables["price"] == 15.25
+
+    def test_increment_string_float(self) -> None:
+        ctx = DataContext()
+        ctx.variables["price"] = "3.5"
+        data_increment_variable(ctx, "price", 1)
+        assert ctx.variables["price"] == 4.5
+
+    def test_increment_non_numeric_list_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["items"] = [1, 2]
+        with pytest.raises(ValueError, match="is not numeric"):
+            data_increment_variable(ctx, "items")
+
+    def test_increment_boolean_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        with pytest.raises(ValueError, match="boolean"):
+            data_increment_variable(ctx, "flag")
+
 
 class TestAssertVariableGreaterThan:
     def test_greater(self) -> None:
@@ -632,6 +746,12 @@ class TestAssertVariableGreaterThan:
         ctx.variables["count"] = 5
         with pytest.raises(AssertionError, match="is not greater than"):
             data_assert_variable_greater_than(ctx, "count", "10")
+
+    def test_boolean_rejected(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        with pytest.raises(AssertionError, match="boolean"):
+            data_assert_variable_greater_than(ctx, "flag", "0")
 
 
 class TestAssertVariableLessThan:
@@ -646,7 +766,153 @@ class TestAssertVariableLessThan:
         with pytest.raises(AssertionError, match="is not less than"):
             data_assert_variable_less_than(ctx, "count", "10")
 
+    def test_boolean_rejected(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = False
+        with pytest.raises(AssertionError, match="boolean"):
+            data_assert_variable_less_than(ctx, "flag", "1")
+
 
 class TestWait:
     def test_wait_returns(self) -> None:
         data_wait(0.01)
+
+
+class TestBug12GreaterThanNonNumeric:
+    """Regression tests for Bug 12: data_assert_variable_greater_than should
+    raise AssertionError, not ValueError/TypeError, when the variable or
+    threshold is not numeric."""
+
+    def test_non_numeric_variable_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["text"] = "hello"
+        with pytest.raises(AssertionError, match="not numeric"):
+            data_assert_variable_greater_than(ctx, "text", "10")
+
+    def test_non_numeric_threshold_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["count"] = 5
+        with pytest.raises(AssertionError, match="not numeric"):
+            data_assert_variable_greater_than(ctx, "count", "abc")
+
+    def test_none_variable_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["nothing"] = None
+        with pytest.raises(AssertionError, match="not numeric"):
+            data_assert_variable_greater_than(ctx, "nothing", "10")
+
+
+class TestBug12LessThanNonNumeric:
+    """Regression tests for Bug 12: data_assert_variable_less_than should
+    raise AssertionError, not ValueError/TypeError, when the variable or
+    threshold is not numeric."""
+
+    def test_non_numeric_variable_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["text"] = "hello"
+        with pytest.raises(AssertionError, match="not numeric"):
+            data_assert_variable_less_than(ctx, "text", "10")
+
+    def test_non_numeric_threshold_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["count"] = 5
+        with pytest.raises(AssertionError, match="not numeric"):
+            data_assert_variable_less_than(ctx, "count", "abc")
+
+    def test_none_variable_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["nothing"] = None
+        with pytest.raises(AssertionError, match="not numeric"):
+            data_assert_variable_less_than(ctx, "nothing", "10")
+
+
+class TestBug17MissingVariableRaisesAssertionError:
+    """Regression tests for Bug 17: data_assert_variable_* functions should
+    raise AssertionError, not KeyError, when the variable does not exist,
+    consistent with all other assertion functions in the module."""
+
+    def test_greater_than_missing_raises_assertion(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_greater_than(ctx, "missing", "10")
+
+    def test_less_than_missing_raises_assertion(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_less_than(ctx, "missing", "10")
+
+    def test_matches_missing_raises_assertion(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_matches(ctx, "missing", r".*")
+
+    def test_starts_with_missing_raises_assertion(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_starts_with(ctx, "missing", "prefix")
+
+    def test_ends_with_missing_raises_assertion(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_ends_with(ctx, "missing", "suffix")
+
+
+class TestBug18InvalidRegexPattern:
+    """Regression tests for Bug 18: data_assert_variable_matches should raise
+    AssertionError, not re.error, when the regex pattern is invalid."""
+
+    def test_invalid_regex_raises_assertion_error(self) -> None:
+        ctx = DataContext()
+        ctx.variables["text"] = "hello"
+        with pytest.raises(AssertionError, match="Invalid regex pattern"):
+            data_assert_variable_matches(ctx, "text", "[invalid(")
+
+
+class TestBug21PyyamlInDataExtra:
+    """Regression test for Bug 21: pyyaml must be in the [data] extra."""
+
+    def test_pyyaml_listed_in_data_extra(self) -> None:
+        """The [data] optional dependency must include pyyaml."""
+        import tomllib
+        from pathlib import Path
+
+        pyproject = Path(__file__).resolve().parents[4] / "pyproject.toml"
+        with pyproject.open("rb") as f:
+            data = tomllib.load(f)
+        extras = data["project"]["optional-dependencies"]
+        data_deps = extras.get("data", [])
+        assert any("pyyaml" in dep.lower() for dep in data_deps), (
+            f"pyyaml must be listed in [data] extra, got: {data_deps}"
+        )
+
+
+class TestBug36DataExpectedNormalization:
+    """Regression tests for Bug 36: data_assert_variable_equals and
+    data_assert_variable_not_equals should normalize the expected parameter
+    using _normalize_value so that non-string inputs (bool, None) are compared
+    using JSON-style lowercase representation."""
+
+    def test_equals_expected_as_bool_true(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        data_assert_variable_equals(ctx, "flag", True)  # type: ignore[arg-type]
+
+    def test_equals_expected_as_bool_false(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = False
+        data_assert_variable_equals(ctx, "flag", False)  # type: ignore[arg-type]
+
+    def test_equals_expected_as_none(self) -> None:
+        ctx = DataContext()
+        ctx.variables["data"] = None
+        data_assert_variable_equals(ctx, "data", None)  # type: ignore[arg-type]
+
+    def test_not_equals_expected_as_bool_false(self) -> None:
+        ctx = DataContext()
+        ctx.variables["flag"] = True
+        data_assert_variable_not_equals(ctx, "flag", False)  # type: ignore[arg-type]
+
+    def test_not_equals_expected_as_none(self) -> None:
+        ctx = DataContext()
+        ctx.variables["data"] = "value"
+        data_assert_variable_not_equals(ctx, "data", None)  # type: ignore[arg-type]

@@ -10,6 +10,23 @@ from steplib.modules.db.context import DbContext
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$")
 
 
+def _normalize_value(value: Any) -> str:
+    """Normalize a value to its string representation for comparison.
+
+    Python's ``str(True)`` returns ``"True"``, but database queries and
+    users naturally write ``"true"`` / ``"false"`` / ``"null"``.  This
+    helper ensures booleans and ``None`` use their JSON-style lowercase
+    representation.
+    """
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if value is None:
+        return "null"
+    return str(value)
+
+
 def _validate_identifier(name: str) -> str:
     """Validate that *name* is a safe SQL identifier.
 
@@ -118,8 +135,8 @@ def db_assert_column_equals(
         raise AssertionError("Query returned no rows.")
     if column not in rows[0]:
         raise AssertionError(f"Column '{column}' not found in result.")
-    actual = str(rows[0][column])
-    if actual != str(expected):
+    actual = _normalize_value(rows[0][column])
+    if actual != _normalize_value(expected):
         raise AssertionError(f"Column '{column}': expected '{expected}', got '{actual}'.")
 
 
@@ -267,7 +284,7 @@ def db_assert_scalar_equals(
 
     """
     actual = db_query_scalar(db_ctx, query, params)
-    if str(actual) != str(expected):
+    if _normalize_value(actual) != _normalize_value(expected):
         raise AssertionError(f"Scalar: expected '{expected}', got '{actual}'.")
 
 
@@ -342,7 +359,7 @@ def db_assert_column_contains(
         raise AssertionError("Query returned no rows.")
     if column not in rows[0]:
         raise AssertionError(f"Column '{column}' not found in result.")
-    actual = str(rows[0][column])
+    actual = _normalize_value(rows[0][column])
     if substring not in actual:
         raise AssertionError(
             f"Column '{column}': expected to contain '{substring}', got '{actual}'."
@@ -373,8 +390,8 @@ def db_assert_column_not_equals(
         raise AssertionError("Query returned no rows.")
     if column not in rows[0]:
         raise AssertionError(f"Column '{column}' not found in result.")
-    actual = str(rows[0][column])
-    if actual == str(expected):
+    actual = _normalize_value(rows[0][column])
+    if actual == _normalize_value(expected):
         raise AssertionError(f"Column '{column}': should not equal '{expected}'.")
 
 

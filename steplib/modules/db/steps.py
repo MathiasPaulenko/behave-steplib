@@ -7,6 +7,7 @@ from typing import Any
 from steplib.core.decorators import step
 from steplib.core.registry import StepRegistry
 from steplib.modules.db.actions import (
+    _normalize_value,
     db_assert_scalar_equals,
     db_assert_table_exists,
     db_assert_table_row_count,
@@ -108,9 +109,9 @@ def step_column_equals(context: Any, column: str, value: str) -> None:
     col = column.strip('"')
     if col not in result[0]:
         raise AssertionError(f"Column '{col}' not found in result.")
-    actual = str(result[0][col])
+    actual = _normalize_value(result[0][col])
     expected = value.strip('"')
-    if actual != expected:
+    if actual != _normalize_value(expected):
         raise AssertionError(f"Column '{col}': expected '{expected}', got '{actual}'.")
 
 
@@ -207,7 +208,7 @@ def step_column_contains(context: Any, column: str, value: str) -> None:
     col = column.strip('"')
     if col not in result[0]:
         raise AssertionError(f"Column '{col}' not found in result.")
-    actual = str(result[0][col])
+    actual = _normalize_value(result[0][col])
     expected = value.strip('"')
     if expected not in actual:
         raise AssertionError(f"Column '{col}': expected to contain '{expected}', got '{actual}'.")
@@ -232,9 +233,9 @@ def step_column_not_equals(context: Any, column: str, value: str) -> None:
     col = column.strip('"')
     if col not in result[0]:
         raise AssertionError(f"Column '{col}' not found in result.")
-    actual = str(result[0][col])
+    actual = _normalize_value(result[0][col])
     expected = value.strip('"')
-    if actual == expected:
+    if actual == _normalize_value(expected):
         raise AssertionError(f"Column '{col}': should not equal '{expected}'.")
 
 
@@ -443,7 +444,10 @@ def step_execute_query_with_params(context: Any, query: str, params: str) -> Non
     import json
 
     db_ctx = _get_db(context)
-    parsed = json.loads(params.strip("'").strip('"'))
+    try:
+        parsed = json.loads(params.strip("'").strip('"'))
+    except json.JSONDecodeError as exc:
+        raise AssertionError(f"Invalid JSON params: {exc}") from exc
     result = db_query_with_params(db_ctx, query.strip('"'), parsed)
     db_ctx.variables["_last_result"] = result
 

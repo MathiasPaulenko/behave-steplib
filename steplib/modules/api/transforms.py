@@ -163,7 +163,21 @@ class JsonPath:
                 raise ValueError(
                     f"JsonPath has non-numeric index '{idx_str}' in token: '{token}'"
                 ) from exc
+            if not isinstance(current, (list, tuple)):
+                raise KeyError(
+                    f"Cannot index non-list value with '{token}'."
+                )
+            if idx < 0 or idx >= len(current):
+                raise KeyError(
+                    f"Index {idx} out of range for list of length {len(current)}."
+                )
             return current[idx]
+        if not isinstance(current, dict):
+            raise KeyError(
+                f"Cannot access key '{token}' on non-dict value."
+            )
+        if token not in current:
+            raise KeyError(f"Key '{token}' not found.")
         return current[token]
 
     def __str__(self) -> str:

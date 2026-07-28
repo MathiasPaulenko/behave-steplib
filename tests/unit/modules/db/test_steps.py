@@ -9,8 +9,11 @@ import pytest
 from steplib.core.state import SteplibState
 from steplib.modules.db.context import DbContext
 from steplib.modules.db.steps import (
+    step_column_contains,
     step_column_equals,
+    step_column_not_equals,
     step_execute_query,
+    step_execute_query_with_params,
     step_query_row_count,
     step_set_db_connection,
 )
@@ -94,3 +97,49 @@ def test_step_column_equals_mismatch() -> None:
     step_execute_query(context, '"SELECT * FROM users"')
     with pytest.raises(AssertionError, match="expected"):
         step_column_equals(context, '"name"', '"Bob"')
+
+
+class TestBug37StepNormalization:
+    """Regression tests for Bug 37: step_column_equals, step_column_contains,
+    and step_column_not_equals must normalize boolean/None values using
+    _normalize_value instead of str()."""
+
+    def test_step_column_equals_boolean_true(self) -> None:
+        context = _make_context(rows=[{"id": "1", "active": True}])
+        step_execute_query(context, '"SELECT * FROM t"')
+        step_column_equals(context, '"active"', '"true"')
+
+    def test_step_column_equals_boolean_false(self) -> None:
+        context = _make_context(rows=[{"id": "1", "active": False}])
+        step_execute_query(context, '"SELECT * FROM t"')
+        step_column_equals(context, '"active"', '"false"')
+
+    def test_step_column_equals_none(self) -> None:
+        context = _make_context(rows=[{"id": "1", "deleted_at": None}])
+        step_execute_query(context, '"SELECT * FROM t"')
+        step_column_equals(context, '"deleted_at"', '"null"')
+
+    def test_step_column_not_equals_boolean(self) -> None:
+        context = _make_context(rows=[{"id": "1", "active": True}])
+        step_execute_query(context, '"SELECT * FROM t"')
+        step_column_not_equals(context, '"active"', '"false"')
+
+    def test_step_column_not_equals_none(self) -> None:
+        context = _make_context(rows=[{"id": "1", "active": True}])
+        step_execute_query(context, '"SELECT * FROM t"')
+        step_column_not_equals(context, '"active"', '"null"')
+
+    def test_step_column_contains_boolean(self) -> None:
+        context = _make_context(rows=[{"id": "1", "active": True}])
+        step_execute_query(context, '"SELECT * FROM t"')
+        step_column_contains(context, '"active"', '"tru"')
+
+
+class TestBug15ExecuteQueryWithParamsInvalidJson:
+    """Regression tests for Bug 15: step_execute_query_with_params should
+    raise AssertionError, not json.JSONDecodeError, when params is invalid JSON."""
+
+    def test_invalid_params_raises_assertion_error(self) -> None:
+        context = _make_context()
+        with pytest.raises(AssertionError, match="Invalid JSON params"):
+            step_execute_query_with_params(context, '"SELECT 1"', "'{invalid json}'")

@@ -13,6 +13,19 @@ from steplib.modules.api.context import ApiContext
 from steplib.modules.api.transforms import JsonPath, Url, parse_json
 
 
+def _parse_response_json(api_ctx: ApiContext) -> Any:
+    """Parse the last response body as JSON, raising AssertionError on failure.
+
+    Raises:
+        AssertionError: If the response body is not valid JSON.
+
+    """
+    try:
+        return parse_json(api_ctx.last_response.text)  # type: ignore[union-attr]
+    except Exception as exc:
+        raise AssertionError(f"Response body is not valid JSON: {exc}") from exc
+
+
 def _get_header_ci(headers: dict[str, str], name: str) -> str | None:
     """Case-insensitive header lookup.
 
@@ -32,6 +45,23 @@ def _header_exists_ci(headers: dict[str, str], name: str) -> bool:
     """
     lower_name = name.lower()
     return any(key.lower() == lower_name for key in headers)
+
+
+def _normalize_json_value(value: Any) -> str:
+    """Normalize a value to its JSON string representation for comparison.
+
+    Python's ``str(True)`` returns ``"True"``, but JSON uses lowercase
+    ``"true"``.  This helper ensures booleans and ``None`` are compared
+    using their JSON representation so that user-provided string values
+    like ``"true"`` or ``"false"`` match correctly.
+    """
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if value is None:
+        return "null"
+    return str(value)
 
 
 def api_set_base_url(api_ctx: ApiContext, url: str) -> None:
@@ -159,10 +189,7 @@ def api_assert_json_valid(api_ctx: ApiContext) -> None:
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    try:
-        parse_json(api_ctx.last_response.text)
-    except Exception as exc:
-        raise AssertionError(f"Response body is not valid JSON: {exc}") from exc
+    _parse_response_json(api_ctx)
 
 
 def api_assert_json_path_equals(api_ctx: ApiContext, path: str, expected: str) -> None:
@@ -179,9 +206,12 @@ def api_assert_json_path_equals(api_ctx: ApiContext, path: str, expected: str) -
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
-    if str(actual) != str(expected):
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
+    if _normalize_json_value(actual) != _normalize_json_value(expected):
         raise AssertionError(f"JSON path '{path}': expected '{expected}', got '{actual}'.")
 
 
@@ -334,9 +364,10 @@ def api_save_cookies(api_ctx: ApiContext) -> None:
         raise AssertionError("No response available. Send a request first.")
     for name, value in api_ctx.last_response.headers.items():
         if name.lower() == "set-cookie":
-            parts = value.split(";")[0].split("=", 1)
-            if len(parts) == 2:
-                api_ctx.cookies[parts[0].strip()] = parts[1].strip()
+            for cookie_value in value.split("\n"):
+                parts = cookie_value.split(";")[0].split("=", 1)
+                if len(parts) == 2:
+                    api_ctx.cookies[parts[0].strip()] = parts[1].strip()
 
 
 # --- Header management ---
@@ -436,10 +467,10 @@ def api_assert_json_path_exists(api_ctx: ApiContext, path: str) -> None:
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
+    data = _parse_response_json(api_ctx)
     try:
         JsonPath(path).evaluate(data)
-    except (KeyError, IndexError, TypeError) as exc:
+    except KeyError as exc:
         raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
 
 
@@ -470,8 +501,11 @@ def api_assert_json_path_type(api_ctx: ApiContext, path: str, expected_type: str
     }
     if expected_type not in type_map:
         raise ValueError(f"Unsupported type '{expected_type}'. Valid types: {sorted(type_map)}")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
     # In Python, bool is a subclass of int, so we must explicitly
     # exclude bool when checking for int or float types.
     if expected_type in ("int", "float") and isinstance(actual, bool):
@@ -592,8 +626,11 @@ def api_store_json_path(api_ctx: ApiContext, path: str, variable: str) -> None:
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    api_ctx.variables[variable] = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        api_ctx.variables[variable] = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
 
 
 def api_store_header(api_ctx: ApiContext, name: str, variable: str) -> None:
@@ -649,10 +686,14 @@ def api_assert_json_path_contains(api_ctx: ApiContext, path: str, value: str) ->
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
     if isinstance(actual, list):
-        if value not in [str(v) for v in actual]:
+        normalized_value = _normalize_json_value(value)
+        if normalized_value not in [_normalize_json_value(v) for v in actual]:
             raise AssertionError(
                 f"JSON path '{path}': list does not contain '{value}'. Items: {actual}"
             )
@@ -682,9 +723,12 @@ def api_assert_json_path_not_equals(api_ctx: ApiContext, path: str, value: str) 
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
-    if str(actual) == str(value):
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
+    if _normalize_json_value(actual) == _normalize_json_value(value):
         raise AssertionError(f"JSON path '{path}': value should not equal '{value}'.")
 
 
@@ -701,8 +745,11 @@ def api_assert_json_path_is_null(api_ctx: ApiContext, path: str) -> None:
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
     if actual is not None:
         raise AssertionError(f"JSON path '{path}': expected null, got '{actual}'.")
 
@@ -720,8 +767,11 @@ def api_assert_json_path_is_not_null(api_ctx: ApiContext, path: str) -> None:
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
     if actual is None:
         raise AssertionError(f"JSON path '{path}': expected non-null value.")
 
@@ -740,8 +790,11 @@ def api_assert_json_path_has_length(api_ctx: ApiContext, path: str, expected: in
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
     try:
         actual_len = len(actual)
     except TypeError as exc:
@@ -768,17 +821,23 @@ def api_assert_json_path_matches_regex(api_ctx: ApiContext, path: str, pattern: 
 
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
-    actual = JsonPath(path).evaluate(data)
+    data = _parse_response_json(api_ctx)
+    try:
+        actual = JsonPath(path).evaluate(data)
+    except KeyError as exc:
+        raise AssertionError(f"JSON path '{path}' does not exist: {exc}.") from exc
     if not isinstance(actual, str):
         raise AssertionError(
             f"JSON path '{path}': value of type '{type(actual).__name__}' "
             f"is not a string, cannot match regex."
         )
-    if not re.search(pattern, actual):
-        raise AssertionError(
-            f"JSON path '{path}': value '{actual}' does not match pattern '{pattern}'."
-        )
+    try:
+        if not re.search(pattern, actual):
+            raise AssertionError(
+                f"JSON path '{path}': value '{actual}' does not match pattern '{pattern}'."
+            )
+    except re.error as exc:
+        raise AssertionError(f"Invalid regex pattern '{pattern}': {exc}") from exc
 
 
 # --- Extended header assertions ---
@@ -951,7 +1010,7 @@ def api_use_variable_as_header(api_ctx: ApiContext, name: str, variable: str) ->
     """
     if variable not in api_ctx.variables:
         raise KeyError(f"Variable '{variable}' not found.")
-    api_ctx.default_headers[name] = str(api_ctx.variables[variable])
+    api_ctx.default_headers[name] = _normalize_json_value(api_ctx.variables[variable])
 
 
 def api_use_variable_as_query_param(api_ctx: ApiContext, name: str, variable: str) -> None:
@@ -968,7 +1027,7 @@ def api_use_variable_as_query_param(api_ctx: ApiContext, name: str, variable: st
     """
     if variable not in api_ctx.variables:
         raise KeyError(f"Variable '{variable}' not found.")
-    api_ctx.query_params[name] = str(api_ctx.variables[variable])
+    api_ctx.query_params[name] = _normalize_json_value(api_ctx.variables[variable])
 
 
 def api_assert_variable_equals(api_ctx: ApiContext, variable: str, expected: str) -> None:
@@ -985,8 +1044,8 @@ def api_assert_variable_equals(api_ctx: ApiContext, variable: str, expected: str
     """
     if variable not in api_ctx.variables:
         raise AssertionError(f"Variable '{variable}' not found.")
-    actual = str(api_ctx.variables[variable])
-    if actual != str(expected):
+    actual = _normalize_json_value(api_ctx.variables[variable])
+    if actual != _normalize_json_value(expected):
         raise AssertionError(f"Variable '{variable}': expected '{expected}', got '{actual}'.")
 
 
@@ -1039,7 +1098,7 @@ def api_assert_json_schema(api_ctx: ApiContext, schema: dict[str, Any]) -> None:
     """
     if api_ctx.last_response is None:
         raise AssertionError("No response available. Send a request first.")
-    data = parse_json(api_ctx.last_response.text)
+    data = _parse_response_json(api_ctx)
     errors = _validate_schema(data, schema, "$")
     if errors:
         raise AssertionError("JSON schema validation failed:\n  " + "\n  ".join(errors))
@@ -1100,8 +1159,16 @@ def _validate_schema(
             errors.append(
                 f"{path}: string length {len(data)} is greater than maxLength {schema['maxLength']}"
             )
-        if "pattern" in schema and not re.search(schema["pattern"], data):
-            errors.append(f"{path}: string '{data}' does not match pattern '{schema['pattern']}'")
+        if "pattern" in schema:
+            try:
+                if not re.search(schema["pattern"], data):
+                    errors.append(
+                        f"{path}: string '{data}' does not match pattern '{schema['pattern']}'"
+                    )
+            except re.error as exc:
+                raise AssertionError(
+                    f"Invalid regex pattern '{schema['pattern']}' in schema: {exc}"
+                ) from exc
 
     # properties (for objects)
     if isinstance(data, dict) and "properties" in schema:

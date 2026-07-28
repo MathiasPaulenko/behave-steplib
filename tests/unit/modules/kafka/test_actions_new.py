@@ -49,6 +49,18 @@ class TestKafkaAssertMessageKeyEquals:
         with pytest.raises(AssertionError, match="out of range"):
             kafka_assert_message_key_equals(messages, 5, "user1")
 
+    def test_key_boolean_true(self) -> None:
+        messages = [{"key": True, "value": "hello"}]
+        kafka_assert_message_key_equals(messages, 0, "true")
+
+    def test_key_boolean_false(self) -> None:
+        messages = [{"key": False, "value": "hello"}]
+        kafka_assert_message_key_equals(messages, 0, "false")
+
+    def test_key_none(self) -> None:
+        messages = [{"key": None, "value": "hello"}]
+        kafka_assert_message_key_equals(messages, 0, "null")
+
 
 class TestKafkaAssertMessageValueEquals:
     def test_value_matches(self) -> None:
@@ -64,6 +76,18 @@ class TestKafkaAssertMessageValueEquals:
         messages = [{"key": "user1", "value": "hello"}]
         with pytest.raises(AssertionError, match="out of range"):
             kafka_assert_message_value_equals(messages, 5, "hello")
+
+    def test_value_boolean_true(self) -> None:
+        messages = [{"key": "user1", "value": True}]
+        kafka_assert_message_value_equals(messages, 0, "true")
+
+    def test_value_boolean_false(self) -> None:
+        messages = [{"key": "user1", "value": False}]
+        kafka_assert_message_value_equals(messages, 0, "false")
+
+    def test_value_none(self) -> None:
+        messages = [{"key": "user1", "value": None}]
+        kafka_assert_message_value_equals(messages, 0, "null")
 
 
 class TestKafkaAssertMessageValueMatchesRegex:
@@ -108,6 +132,22 @@ class TestKafkaAssertMessageOrder:
         ]
         with pytest.raises(AssertionError, match="Message order"):
             kafka_assert_message_order(messages, ["b", "a"])
+
+    def test_order_with_boolean_keys(self) -> None:
+        """Boolean keys should match their normalized string representation."""
+        messages = [
+            {"key": True, "value": "1"},
+            {"key": False, "value": "2"},
+        ]
+        kafka_assert_message_order(messages, ["true", "false"])
+
+    def test_order_with_none_key(self) -> None:
+        """None key should match normalized string 'null'."""
+        messages = [
+            {"key": None, "value": "1"},
+            {"key": "x", "value": "2"},
+        ]
+        kafka_assert_message_order(messages, ["null", "x"])
 
 
 # --- Store / Extract ---
@@ -310,3 +350,34 @@ class TestKafkaContextReset:
         ctx.bootstrap_servers = "broker1:9092,broker2:9092"
         ctx.reset()
         assert ctx.bootstrap_servers == "broker1:9092,broker2:9092"
+
+
+class TestBug36KafkaExpectedNormalization:
+    """Regression tests for Bug 36: kafka_assert_message_key_equals and
+    kafka_assert_message_value_equals should normalize the expected parameter
+    using _normalize_value so that non-string inputs (bool, None) are compared
+    using JSON-style lowercase representation."""
+
+    def test_key_expected_as_bool_true(self) -> None:
+        messages = [{"key": True, "value": "hello"}]
+        kafka_assert_message_key_equals(messages, 0, True)  # type: ignore[arg-type]
+
+    def test_key_expected_as_bool_false(self) -> None:
+        messages = [{"key": False, "value": "hello"}]
+        kafka_assert_message_key_equals(messages, 0, False)  # type: ignore[arg-type]
+
+    def test_key_expected_as_none(self) -> None:
+        messages = [{"key": None, "value": "hello"}]
+        kafka_assert_message_key_equals(messages, 0, None)  # type: ignore[arg-type]
+
+    def test_value_expected_as_bool_true(self) -> None:
+        messages = [{"key": "user1", "value": True}]
+        kafka_assert_message_value_equals(messages, 0, True)  # type: ignore[arg-type]
+
+    def test_value_expected_as_bool_false(self) -> None:
+        messages = [{"key": "user1", "value": False}]
+        kafka_assert_message_value_equals(messages, 0, False)  # type: ignore[arg-type]
+
+    def test_value_expected_as_none(self) -> None:
+        messages = [{"key": "user1", "value": None}]
+        kafka_assert_message_value_equals(messages, 0, None)  # type: ignore[arg-type]

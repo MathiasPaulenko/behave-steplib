@@ -256,3 +256,15 @@ class TestAssertOutputMatches:
         ctx = CLIContext()
         with pytest.raises(RuntimeError, match="No command has been executed"):
             cli_assert_output_matches(ctx, r".*")
+
+
+class TestBug18InvalidRegexPattern:
+    """Regression tests for Bug 18: cli_assert_output_matches should raise
+    AssertionError, not re.error, when the regex pattern is invalid."""
+
+    def test_invalid_regex_raises_assertion_error(self) -> None:
+        ctx = CLIContext()
+        ctx.exit_code = 0
+        ctx.stdout = "some output"
+        with pytest.raises(AssertionError, match="Invalid regex pattern"):
+            cli_assert_output_matches(ctx, "[invalid(")

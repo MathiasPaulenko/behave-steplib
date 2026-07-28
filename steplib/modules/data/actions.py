@@ -9,7 +9,26 @@ import time
 from pathlib import Path
 from typing import Any
 
+from steplib.core.exceptions import MissingDependencyError
 from steplib.modules.data.context import DataContext
+
+
+def _normalize_value(value: Any) -> str:
+    """Normalize a value to its string representation for comparison.
+
+    Python's ``str(True)`` returns ``"True"``, but users naturally write
+    ``"true"`` / ``"false"`` / ``"null"`` in step definitions.  This helper
+    ensures booleans and ``None`` use their JSON-style lowercase
+    representation.
+    """
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if value is None:
+        return "null"
+    return str(value)
+
 
 # --- Variable actions ---
 
@@ -45,7 +64,7 @@ def data_assert_variable_equals(
     if name not in data_ctx.variables:
         raise AssertionError(f"Variable '{name}' does not exist.")
     actual = data_ctx.variables[name]
-    if str(actual) != expected:
+    if _normalize_value(actual) != _normalize_value(expected):
         raise AssertionError(
             f"Variable '{name}': expected '{expected}', got '{actual}'."
         )
@@ -116,7 +135,7 @@ def data_assert_variable_not_equals(
     if name not in data_ctx.variables:
         raise AssertionError(f"Variable '{name}' does not exist.")
     actual = data_ctx.variables[name]
-    if str(actual) == expected:
+    if _normalize_value(actual) == _normalize_value(expected):
         raise AssertionError(
             f"Variable '{name}' should not equal '{expected}'."
         )
@@ -140,7 +159,7 @@ def data_assert_variable_contains(
     """
     if name not in data_ctx.variables:
         raise AssertionError(f"Variable '{name}' does not exist.")
-    actual = str(data_ctx.variables[name])
+    actual = _normalize_value(data_ctx.variables[name])
     if substring not in actual:
         raise AssertionError(
             f"Variable '{name}': expected to contain '{substring}', got '{actual}'."
@@ -279,7 +298,7 @@ def data_set_env_from_variable(
     """
     if variable not in data_ctx.variables:
         raise KeyError(f"Variable '{variable}' does not exist.")
-    data_set_env_var(data_ctx, key, str(data_ctx.variables[variable]))
+    data_set_env_var(data_ctx, key, _normalize_value(data_ctx.variables[variable]))
 
 
 def data_load_yaml_file(data_ctx: DataContext, path: str, name: str) -> None:
@@ -298,9 +317,7 @@ def data_load_yaml_file(data_ctx: DataContext, path: str, name: str) -> None:
     try:
         import yaml
     except ImportError as exc:
-        raise ImportError(
-            "PyYAML is required to load YAML files. Install it with: pip install pyyaml"
-        ) from exc
+        raise MissingDependencyError("data", "pyyaml") from exc
 
     file_path = Path(path)
     if not file_path.exists():
@@ -549,17 +566,19 @@ def data_assert_variable_matches(
         pattern: Regex pattern to match.
 
     Raises:
-        AssertionError: If the variable does not match.
-        KeyError: If the variable does not exist.
+        AssertionError: If the variable does not match or does not exist.
 
     """
     if name not in data_ctx.variables:
-        raise KeyError(f"Variable '{name}' does not exist.")
-    value = str(data_ctx.variables[name])
-    if not re.search(pattern, value):
-        raise AssertionError(
-            f"Variable '{name}' value '{value}' does not match pattern '{pattern}'."
-        )
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    value = _normalize_value(data_ctx.variables[name])
+    try:
+        if not re.search(pattern, value):
+            raise AssertionError(
+                f"Variable '{name}' value '{value}' does not match pattern '{pattern}'."
+            )
+    except re.error as exc:
+        raise AssertionError(f"Invalid regex pattern '{pattern}': {exc}") from exc
 
 
 def data_assert_variable_starts_with(
@@ -573,13 +592,12 @@ def data_assert_variable_starts_with(
         text: Expected prefix.
 
     Raises:
-        AssertionError: If the variable does not start with the text.
-        KeyError: If the variable does not exist.
+        AssertionError: If the variable does not start with the text or does not exist.
 
     """
     if name not in data_ctx.variables:
-        raise KeyError(f"Variable '{name}' does not exist.")
-    value = str(data_ctx.variables[name])
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    value = _normalize_value(data_ctx.variables[name])
     if not value.startswith(text):
         raise AssertionError(
             f"Variable '{name}' value '{value}' does not start with '{text}'."
@@ -597,13 +615,12 @@ def data_assert_variable_ends_with(
         text: Expected suffix.
 
     Raises:
-        AssertionError: If the variable does not end with the text.
-        KeyError: If the variable does not exist.
+        AssertionError: If the variable does not end with the text or does not exist.
 
     """
     if name not in data_ctx.variables:
-        raise KeyError(f"Variable '{name}' does not exist.")
-    value = str(data_ctx.variables[name])
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    value = _normalize_value(data_ctx.variables[name])
     if not value.endswith(text):
         raise AssertionError(
             f"Variable '{name}' value '{value}' does not end with '{text}'."
@@ -628,8 +645,18 @@ def data_increment_variable(
     if name not in data_ctx.variables:
         raise KeyError(f"Variable '{name}' does not exist.")
     current = data_ctx.variables[name]
+    if isinstance(current, bool):
+        raise ValueError(
+            f"Variable '{name}' value '{current}' is a boolean, not numeric."
+        )
     try:
-        numeric = int(current) + amount
+        if isinstance(current, float):
+            numeric: int | float = current + amount
+        else:
+            try:
+                numeric = int(current) + amount
+            except (TypeError, ValueError):
+                numeric = float(current) + amount
     except (TypeError, ValueError) as exc:
         raise ValueError(
             f"Variable '{name}' value '{current}' is not numeric."
@@ -648,14 +675,23 @@ def data_assert_variable_greater_than(
         value: Threshold value (compared as float).
 
     Raises:
-        AssertionError: If the variable is not greater than the value.
-        KeyError: If the variable does not exist.
+        AssertionError: If the variable is not greater than the value or does not exist.
 
     """
     if name not in data_ctx.variables:
-        raise KeyError(f"Variable '{name}' does not exist.")
-    current = float(data_ctx.variables[name])
-    threshold = float(value)
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    raw = data_ctx.variables[name]
+    if isinstance(raw, bool):
+        raise AssertionError(
+            f"Variable '{name}' is a boolean, not a numeric value."
+        )
+    try:
+        current = float(raw)
+        threshold = float(value)
+    except (TypeError, ValueError) as exc:
+        raise AssertionError(
+            f"Variable '{name}' or threshold '{value}' is not numeric."
+        ) from exc
     if not current > threshold:
         raise AssertionError(
             f"Variable '{name}' value {current} is not greater than {threshold}."
@@ -673,14 +709,23 @@ def data_assert_variable_less_than(
         value: Threshold value (compared as float).
 
     Raises:
-        AssertionError: If the variable is not less than the value.
-        KeyError: If the variable does not exist.
+        AssertionError: If the variable is not less than the value or does not exist.
 
     """
     if name not in data_ctx.variables:
-        raise KeyError(f"Variable '{name}' does not exist.")
-    current = float(data_ctx.variables[name])
-    threshold = float(value)
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    raw = data_ctx.variables[name]
+    if isinstance(raw, bool):
+        raise AssertionError(
+            f"Variable '{name}' is a boolean, not a numeric value."
+        )
+    try:
+        current = float(raw)
+        threshold = float(value)
+    except (TypeError, ValueError) as exc:
+        raise AssertionError(
+            f"Variable '{name}' or threshold '{value}' is not numeric."
+        ) from exc
     if not current < threshold:
         raise AssertionError(
             f"Variable '{name}' value {current} is not less than {threshold}."

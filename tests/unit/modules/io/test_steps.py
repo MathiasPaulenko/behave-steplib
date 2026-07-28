@@ -440,3 +440,26 @@ class TestStepReadFileAsLines:
         path.write_text("line1\nline2\nline3\n", encoding="utf-8")
         step_read_file_as_lines(ctx, str(path), "lines")
         assert ctx.steplib.io.variables["lines"] == ["line1", "line2", "line3"]
+
+
+class TestBug13StepCreateCsvInvalidJson:
+    """Regression tests for Bug 13: step_create_csv should raise
+    AssertionError, not json.JSONDecodeError, when data is invalid JSON."""
+
+    def test_invalid_json_raises_assertion_error(self, tmp_path: Path) -> None:
+        ctx = _make_context()
+        with pytest.raises(AssertionError, match="Invalid JSON data for CSV"):
+            step_create_csv(ctx, str(tmp_path / "out.csv"), "{invalid json")
+
+
+class TestBug13StepWriteCsvRowInvalidJson:
+    """Regression tests for Bug 13: step_write_csv_row should raise
+    AssertionError, not json.JSONDecodeError, when row is invalid JSON."""
+
+    def test_invalid_json_raises_assertion_error(self, tmp_path: Path) -> None:
+        ctx = _make_context()
+        path = tmp_path / "out.csv"
+        step_create_csv_writer(ctx, str(path), "name,age")
+        with pytest.raises(AssertionError, match="Invalid JSON row for CSV"):
+            step_write_csv_row(ctx, "{invalid json}")
+        step_close_csv_writer(ctx)

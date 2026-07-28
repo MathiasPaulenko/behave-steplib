@@ -134,6 +134,30 @@ class TestJsonPath:
         with pytest.raises(ValueError, match="non-numeric index"):
             JsonPath("$.users[abc]").evaluate({"users": []})
 
+    def test_array_index_out_of_range_raises_keyerror(self) -> None:
+        """Out-of-range array index should raise KeyError (not IndexError)."""
+        data = {"items": ["a", "b"]}
+        with pytest.raises(KeyError, match="Index 5 out of range"):
+            JsonPath("$.items[5]").evaluate(data)
+
+    def test_index_on_non_list_raises_keyerror(self) -> None:
+        """Indexing a non-list value should raise KeyError."""
+        data = {"items": "not a list"}
+        with pytest.raises(KeyError, match="Cannot index non-list"):
+            JsonPath("$.items[0]").evaluate(data)
+
+    def test_key_on_non_dict_raises_keyerror(self) -> None:
+        """Accessing a key on a non-dict value should raise KeyError."""
+        data = {"items": [1, 2, 3]}
+        with pytest.raises(KeyError, match="Cannot access key"):
+            JsonPath("$.items.name").evaluate(data)
+
+    def test_missing_nested_key_raises_keyerror(self) -> None:
+        """Missing nested key should raise KeyError with clear message."""
+        data = {"user": {"name": "Ada"}}
+        with pytest.raises(KeyError, match="Key 'age' not found"):
+            JsonPath("$.user.age").evaluate(data)
+
 
 class TestParseJson:
     """Tests for parse_json."""
