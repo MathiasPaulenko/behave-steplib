@@ -40,6 +40,7 @@ db = ["sqlalchemy>=2.0"]
 kafka = ["kafka-python-ng>=2.0"]
 kit = ["behave-kit>=1.3.1"]
 data = ["behave-data>=1.0.2"]
+io = ["jsonschema>=4.0"]
 tables = ["behave-tables>=1.3.1"]
 dev = [
     "pytest>=8.0",
@@ -58,7 +59,7 @@ docs = [
     "myst-parser>=3.0,<4.0",
     "sphinx-autodoc-typehints>=2.0",
 ]
-all = ["behave-steplib[api,requests,web,db,kafka,kit,data,tables]"]
+all = ["behave-steplib[api,requests,web,db,kafka,kit,data,io,tables]"]
 
 [project.scripts]
 steplib = "steplib.cli.main:main"
@@ -69,6 +70,8 @@ web = "steplib.modules.web.steps:register"
 db = "steplib.modules.db.steps:register"
 kafka = "steplib.modules.kafka.steps:register"
 data = "steplib.modules.data.steps:register"
+io = "steplib.modules.io.steps:register"
+cli = "steplib.modules.cli.steps:register"
 
 [project.urls]
 Homepage = "https://github.com/MathiasPaulenko/behave-steplib"

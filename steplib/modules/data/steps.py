@@ -12,18 +12,24 @@ from steplib.modules.data.actions import (
     data_assert_env_not_equals,
     data_assert_env_not_exists,
     data_assert_variable_contains,
+    data_assert_variable_ends_with,
     data_assert_variable_equals,
     data_assert_variable_exists,
+    data_assert_variable_greater_than,
     data_assert_variable_has_length,
     data_assert_variable_is_empty,
     data_assert_variable_is_not_empty,
+    data_assert_variable_less_than,
+    data_assert_variable_matches,
     data_assert_variable_not_equals,
     data_assert_variable_not_exists,
+    data_assert_variable_starts_with,
     data_clear_variables,
     data_copy_variable,
     data_delete_env_var,
     data_delete_variable,
     data_extract_key_path,
+    data_increment_variable,
     data_load_env_file,
     data_load_json_file,
     data_load_yaml_file,
@@ -32,6 +38,7 @@ from steplib.modules.data.actions import (
     data_set_variable,
     data_set_variable_json,
     data_store_env_var,
+    data_wait,
 )
 from steplib.modules.data.context import DataContext
 
@@ -451,6 +458,127 @@ def step_set_env_from_variable(context: Any, key: str, variable: str) -> None:
     data_set_env_from_variable(_get_data(context), variable.strip('"'), key.strip('"'))
 
 
+# --- Extended variable assertions ---
+
+
+@step(
+    "the variable {name} matches the pattern {pattern}",
+    category="data",
+    description="Assert that a variable's value matches a regex pattern.",
+    example='Then the variable "email" matches the pattern ".*@.*\\..*"',
+    i18n={
+        "es": "la variable {name} coincide con el patrón {pattern}",
+        "pt": "a variável {name} corresponde ao padrão {pattern}",
+    },
+)
+def step_variable_matches(context: Any, name: str, pattern: str) -> None:
+    """Assert variable matches regex pattern."""
+    data_assert_variable_matches(
+        _get_data(context), name.strip('"'), pattern.strip('"')
+    )
+
+
+@step(
+    "the variable {name} starts with {text}",
+    category="data",
+    description="Assert that a variable's value starts with the given text.",
+    example='Then the variable "greeting" starts with "Hello"',
+    i18n={
+        "es": "la variable {name} comienza con {text}",
+        "pt": "a variável {name} começa com {text}",
+    },
+)
+def step_variable_starts_with(context: Any, name: str, text: str) -> None:
+    """Assert variable starts with text."""
+    data_assert_variable_starts_with(
+        _get_data(context), name.strip('"'), text.strip('"')
+    )
+
+
+@step(
+    "the variable {name} ends with {text}",
+    category="data",
+    description="Assert that a variable's value ends with the given text.",
+    example='Then the variable "filename" ends with ".csv"',
+    i18n={
+        "es": "la variable {name} termina con {text}",
+        "pt": "a variável {name} termina com {text}",
+    },
+)
+def step_variable_ends_with(context: Any, name: str, text: str) -> None:
+    """Assert variable ends with text."""
+    data_assert_variable_ends_with(
+        _get_data(context), name.strip('"'), text.strip('"')
+    )
+
+
+@step(
+    "I increment the variable {name} by {amount:d}",
+    category="data",
+    description="Increment a numeric variable by a given amount.",
+    example='When I increment the variable "counter" by 1',
+    i18n={
+        "es": "incremento la variable {name} en {amount:d}",
+        "pt": "incremento a variável {name} em {amount:d}",
+    },
+)
+def step_increment_variable(context: Any, name: str, amount: int) -> None:
+    """Increment a numeric variable."""
+    data_increment_variable(_get_data(context), name.strip('"'), amount)
+
+
+@step(
+    "the variable {name} is greater than {value}",
+    category="data",
+    description="Assert that a variable's numeric value is greater than a threshold.",
+    example='Then the variable "count" is greater than 10',
+    i18n={
+        "es": "la variable {name} es mayor que {value}",
+        "pt": "a variável {name} é maior que {value}",
+    },
+)
+def step_variable_greater_than(context: Any, name: str, value: str) -> None:
+    """Assert variable is greater than value."""
+    data_assert_variable_greater_than(
+        _get_data(context), name.strip('"'), value.strip('"')
+    )
+
+
+@step(
+    "the variable {name} is less than {value}",
+    category="data",
+    description="Assert that a variable's numeric value is less than a threshold.",
+    example='Then the variable "count" is less than 100',
+    i18n={
+        "es": "la variable {name} es menor que {value}",
+        "pt": "a variável {name} é menor que {value}",
+    },
+)
+def step_variable_less_than(context: Any, name: str, value: str) -> None:
+    """Assert variable is less than value."""
+    data_assert_variable_less_than(
+        _get_data(context), name.strip('"'), value.strip('"')
+    )
+
+
+# --- Utility steps ---
+
+
+@step(
+    "I wait for {seconds:f} seconds",
+    category="data",
+    description="Sleep for a given number of seconds.",
+    example="When I wait for 2.5 seconds",
+    i18n={
+        "es": "espero {seconds:f} segundos",
+        "pt": "eu espero {seconds:f} segundos",
+    },
+)
+def step_wait(context: Any, seconds: float) -> None:
+    """Wait for a number of seconds."""
+    data_wait(seconds)
+
+
 _ALL_STEPS = [
     step_set_variable,
     step_variable_equals,
@@ -466,10 +594,18 @@ _ALL_STEPS = [
     step_variable_is_empty,
     step_variable_is_not_empty,
     step_variable_has_length,
+    # Regex + string assertions
+    step_variable_matches,
+    step_variable_starts_with,
+    step_variable_ends_with,
+    # Numeric assertions
+    step_variable_greater_than,
+    step_variable_less_than,
     # Variable manipulation
     step_copy_variable,
     step_clear_variables,
     step_set_variable_json,
+    step_increment_variable,
     # Env
     step_set_env_var,
     step_delete_env_var,
@@ -482,6 +618,8 @@ _ALL_STEPS = [
     step_env_not_exists,
     # Env from variable
     step_set_env_from_variable,
+    # Utility
+    step_wait,
 ]
 
 

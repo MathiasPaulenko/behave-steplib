@@ -36,6 +36,8 @@ management. Steps are defined in English with Spanish (``es``) and Portuguese
    modules/db
    modules/kafka
    modules/data
+   modules/io
+   modules/cli
 
 .. toctree::
    :maxdepth: 2
@@ -49,7 +51,7 @@ management. Steps are defined in English with Spanish (``es``) and Portuguese
 Features at a glance
 --------------------
 
-- **Modular** — ``api``, ``web``, ``db``, ``kafka``, ``data`` modules activated via extras and lazy imports.
+- **Modular** — ``api``, ``web``, ``db``, ``kafka``, ``data``, ``io``, ``cli`` modules activated via extras and lazy imports.
 - **Auto-registered** — ``autoload(context)`` registers every installed step in one line.
 - **Multilingual** — steps defined in English with ``es`` and ``pt`` translations; all patterns are registered with behave so matching works regardless of active language.
 - **Typed** — full type hints, ``mypy --strict`` clean, ``py.typed`` marker included.

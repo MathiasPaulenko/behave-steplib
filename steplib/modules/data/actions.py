@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -531,3 +533,168 @@ def data_load_env_file(data_ctx: DataContext, path: str) -> None:
             if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
                 value = value[1:-1]
             data_set_env_var(data_ctx, key, value)
+
+
+# --- Extended variable assertions ---
+
+
+def data_assert_variable_matches(
+    data_ctx: DataContext, name: str, pattern: str
+) -> None:
+    """Assert that a variable's string value matches a regex pattern.
+
+    Args:
+        data_ctx: The data context.
+        name: Variable name.
+        pattern: Regex pattern to match.
+
+    Raises:
+        AssertionError: If the variable does not match.
+        KeyError: If the variable does not exist.
+
+    """
+    if name not in data_ctx.variables:
+        raise KeyError(f"Variable '{name}' does not exist.")
+    value = str(data_ctx.variables[name])
+    if not re.search(pattern, value):
+        raise AssertionError(
+            f"Variable '{name}' value '{value}' does not match pattern '{pattern}'."
+        )
+
+
+def data_assert_variable_starts_with(
+    data_ctx: DataContext, name: str, text: str
+) -> None:
+    """Assert that a variable's string value starts with the given text.
+
+    Args:
+        data_ctx: The data context.
+        name: Variable name.
+        text: Expected prefix.
+
+    Raises:
+        AssertionError: If the variable does not start with the text.
+        KeyError: If the variable does not exist.
+
+    """
+    if name not in data_ctx.variables:
+        raise KeyError(f"Variable '{name}' does not exist.")
+    value = str(data_ctx.variables[name])
+    if not value.startswith(text):
+        raise AssertionError(
+            f"Variable '{name}' value '{value}' does not start with '{text}'."
+        )
+
+
+def data_assert_variable_ends_with(
+    data_ctx: DataContext, name: str, text: str
+) -> None:
+    """Assert that a variable's string value ends with the given text.
+
+    Args:
+        data_ctx: The data context.
+        name: Variable name.
+        text: Expected suffix.
+
+    Raises:
+        AssertionError: If the variable does not end with the text.
+        KeyError: If the variable does not exist.
+
+    """
+    if name not in data_ctx.variables:
+        raise KeyError(f"Variable '{name}' does not exist.")
+    value = str(data_ctx.variables[name])
+    if not value.endswith(text):
+        raise AssertionError(
+            f"Variable '{name}' value '{value}' does not end with '{text}'."
+        )
+
+
+def data_increment_variable(
+    data_ctx: DataContext, name: str, amount: int = 1
+) -> None:
+    """Increment a numeric variable by a given amount.
+
+    Args:
+        data_ctx: The data context.
+        name: Variable name.
+        amount: Amount to increment (default 1).
+
+    Raises:
+        KeyError: If the variable does not exist.
+        ValueError: If the variable is not numeric.
+
+    """
+    if name not in data_ctx.variables:
+        raise KeyError(f"Variable '{name}' does not exist.")
+    current = data_ctx.variables[name]
+    try:
+        numeric = int(current) + amount
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Variable '{name}' value '{current}' is not numeric."
+        ) from exc
+    data_ctx.variables[name] = numeric
+
+
+def data_assert_variable_greater_than(
+    data_ctx: DataContext, name: str, value: str
+) -> None:
+    """Assert that a variable's numeric value is greater than a threshold.
+
+    Args:
+        data_ctx: The data context.
+        name: Variable name.
+        value: Threshold value (compared as float).
+
+    Raises:
+        AssertionError: If the variable is not greater than the value.
+        KeyError: If the variable does not exist.
+
+    """
+    if name not in data_ctx.variables:
+        raise KeyError(f"Variable '{name}' does not exist.")
+    current = float(data_ctx.variables[name])
+    threshold = float(value)
+    if not current > threshold:
+        raise AssertionError(
+            f"Variable '{name}' value {current} is not greater than {threshold}."
+        )
+
+
+def data_assert_variable_less_than(
+    data_ctx: DataContext, name: str, value: str
+) -> None:
+    """Assert that a variable's numeric value is less than a threshold.
+
+    Args:
+        data_ctx: The data context.
+        name: Variable name.
+        value: Threshold value (compared as float).
+
+    Raises:
+        AssertionError: If the variable is not less than the value.
+        KeyError: If the variable does not exist.
+
+    """
+    if name not in data_ctx.variables:
+        raise KeyError(f"Variable '{name}' does not exist.")
+    current = float(data_ctx.variables[name])
+    threshold = float(value)
+    if not current < threshold:
+        raise AssertionError(
+            f"Variable '{name}' value {current} is not less than {threshold}."
+        )
+
+
+# --- Utility actions ---
+
+
+def data_wait(seconds: float) -> None:
+    """Sleep for a given number of seconds.
+
+    Args:
+        seconds: Number of seconds to sleep.
+
+    """
+    time.sleep(seconds)

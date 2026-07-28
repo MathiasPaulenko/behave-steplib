@@ -21,6 +21,7 @@ from steplib.modules.data.steps import (
     step_env_not_equals,
     step_env_not_exists,
     step_extract_key_path,
+    step_increment_variable,
     step_load_env_file,
     step_load_json_file,
     step_load_yaml,
@@ -30,13 +31,19 @@ from steplib.modules.data.steps import (
     step_set_variable_json,
     step_store_env_var,
     step_variable_contains,
+    step_variable_ends_with,
     step_variable_equals,
     step_variable_exists,
+    step_variable_greater_than,
     step_variable_has_length,
     step_variable_is_empty,
     step_variable_is_not_empty,
+    step_variable_less_than,
+    step_variable_matches,
     step_variable_not_equals,
     step_variable_not_exists,
+    step_variable_starts_with,
+    step_wait,
 )
 
 
@@ -411,3 +418,89 @@ def test_step_set_env_from_variable_missing() -> None:
     context = _make_context()
     with pytest.raises(KeyError, match="does not exist"):
         step_set_env_from_variable(context, "STEPLIB_KEY", '"missing"')
+
+
+# --- Extended variable assertion steps ---
+
+
+def test_step_variable_matches() -> None:
+    context = _make_context()
+    step_set_variable(context, '"email"', '"user@example.com"')
+    step_variable_matches(context, '"email"', '".*@.*\\..*"')
+
+
+def test_step_variable_matches_fail() -> None:
+    context = _make_context()
+    step_set_variable(context, '"email"', '"not-email"')
+    with pytest.raises(AssertionError, match="does not match pattern"):
+        step_variable_matches(context, '"email"', '".*@.*\\..*"')
+
+
+def test_step_variable_starts_with() -> None:
+    context = _make_context()
+    step_set_variable(context, '"greeting"', '"Hello World"')
+    step_variable_starts_with(context, '"greeting"', '"Hello"')
+
+
+def test_step_variable_starts_with_fail() -> None:
+    context = _make_context()
+    step_set_variable(context, '"greeting"', '"Hello World"')
+    with pytest.raises(AssertionError, match="does not start with"):
+        step_variable_starts_with(context, '"greeting"', '"World"')
+
+
+def test_step_variable_ends_with() -> None:
+    context = _make_context()
+    step_set_variable(context, '"filename"', '"data.csv"')
+    step_variable_ends_with(context, '"filename"', '".csv"')
+
+
+def test_step_variable_ends_with_fail() -> None:
+    context = _make_context()
+    step_set_variable(context, '"filename"', '"data.csv"')
+    with pytest.raises(AssertionError, match="does not end with"):
+        step_variable_ends_with(context, '"filename"', '".txt"')
+
+
+def test_step_increment_variable() -> None:
+    context = _make_context()
+    step_set_variable(context, '"counter"', '"5"')
+    step_increment_variable(context, '"counter"', 1)
+    assert context.steplib.data.variables["counter"] == 6  # type: ignore[attr-defined]
+
+
+def test_step_increment_variable_by_amount() -> None:
+    context = _make_context()
+    step_set_variable(context, '"counter"', '"10"')
+    step_increment_variable(context, '"counter"', 5)
+    assert context.steplib.data.variables["counter"] == 15  # type: ignore[attr-defined]
+
+
+def test_step_variable_greater_than() -> None:
+    context = _make_context()
+    step_set_variable(context, '"count"', '"15"')
+    step_variable_greater_than(context, '"count"', '"10"')
+
+
+def test_step_variable_greater_than_fail() -> None:
+    context = _make_context()
+    step_set_variable(context, '"count"', '"5"')
+    with pytest.raises(AssertionError, match="is not greater than"):
+        step_variable_greater_than(context, '"count"', '"10"')
+
+
+def test_step_variable_less_than() -> None:
+    context = _make_context()
+    step_set_variable(context, '"count"', '"5"')
+    step_variable_less_than(context, '"count"', '"10"')
+
+
+def test_step_variable_less_than_fail() -> None:
+    context = _make_context()
+    step_set_variable(context, '"count"', '"15"')
+    with pytest.raises(AssertionError, match="is not less than"):
+        step_variable_less_than(context, '"count"', '"10"')
+
+
+def test_step_wait() -> None:
+    step_wait(_make_context(), 0.01)

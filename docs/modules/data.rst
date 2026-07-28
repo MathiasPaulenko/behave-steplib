@@ -9,7 +9,7 @@ modules or manage environment variables in a scenario-safe way.
 
 The data module stores variables in ``context.steplib.data.variables`` and
 tracks environment variable modifications so they are automatically restored
-after each scenario — 26 steps in total, all with ``es`` and ``pt``
+after each scenario — 32 steps in total, all with ``es`` and ``pt``
 translations.
 
 Installation
@@ -85,6 +85,18 @@ Variable management
      - Remove all variables from the data context.
    * - ``I set the variable {name} to the JSON {json}``
      - Set a variable to a parsed JSON value.
+   * - ``the variable {name} matches the pattern {pattern}``
+     - Assert that a variable's value matches a regex pattern.
+   * - ``the variable {name} starts with {text}``
+     - Assert that a variable's value starts with the given text.
+   * - ``the variable {name} ends with {text}``
+     - Assert that a variable's value ends with the given text.
+   * - ``I increment the variable {name} by {amount:d}``
+     - Increment a numeric variable by a given amount.
+   * - ``the variable {name} is greater than {value}``
+     - Assert that a variable's numeric value is greater than a threshold.
+   * - ``the variable {name} is less than {value}``
+     - Assert that a variable's numeric value is less than a threshold.
 
 File loading
 ~~~~~~~~~~~~
@@ -132,6 +144,18 @@ Environment variables
    * - ``I load environment variables from file {path}``
      - Load environment variables from a ``.env``-style file.
 
+Utility
+~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 65 35
+
+   * - Pattern
+     - Description
+   * - ``I wait for {seconds:f} seconds``
+     - Sleep for a given number of seconds.
+
 Example
 -------
 
@@ -146,6 +170,21 @@ Example
        And the variable "user_id" has length 2
        When I delete the variable "user_id"
        Then the variable "user_id" does not exist
+
+     Scenario: Regex and string assertions
+       Given I set the variable "email" to "user@example.com"
+       Then the variable "email" matches the pattern ".*@.*\..*"
+       And the variable "email" starts with "user"
+       And the variable "email" ends with ".com"
+
+     Scenario: Numeric operations
+       Given I set the variable "counter" to "5"
+       When I increment the variable "counter" by 3
+       Then the variable "counter" is greater than 7
+       And the variable "counter" is less than 100
+
+     Scenario: Wait
+       When I wait for 0.5 seconds
 
      Scenario: Load and extract from JSON
        Given I load the JSON file "data/user.json" into the variable "user"

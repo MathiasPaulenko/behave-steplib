@@ -12,7 +12,7 @@ Reusable step libraries for [Behave](https://github.com/behave/behave) BDD — s
 
 Writing BDD step definitions for HTTP APIs, web browsers, databases and Kafka is repetitive. Every project re-implements the same "send a request", "check the status code", "query the database" steps. behave-steplib provides a curated, typed, multilingual library of reusable steps that you install once and share across projects.
 
-- **Modular** — `api`, `web`, `db`, `kafka`, `data` modules activated via extras and lazy imports. Install only what you need.
+- **Modular** — `api`, `web`, `db`, `kafka`, `data`, `io`, `cli` modules activated via extras and lazy imports. Install only what you need.
 - **Auto-registered** — `autoload(context)` discovers every installed step via Python entry points and registers it with behave in one line.
 - **Multilingual** — steps defined in English with `es` and `pt` translations; all patterns are registered with behave so matching works regardless of the language used in feature files.
 - **Typed** — full type hints, `mypy --strict` clean, `py.typed` marker included.
@@ -27,7 +27,7 @@ Writing BDD step definitions for HTTP APIs, web browsers, databases and Kafka is
 pip install behave-steplib            # core only (behave, parse, typer)
 pip install behave-steplib[api]       # + httpx HTTP client
 pip install behave-steplib[requests]  # + requests HTTP client
-pip install "behave-steplib[api,requests,web,db,kafka,data]"  # + all technology extras
+pip install "behave-steplib[api,requests,web,db,kafka,data,io]"  # + all technology extras
 pip install "behave-steplib[all]"     # + every technology extra
 pip install behave-steplib[dev]       # + pytest, ruff, mypy, build, twine
 ```
@@ -39,12 +39,14 @@ pip install behave-steplib[dev]       # + pytest, ruff, mypy, build, twine
 | `[web]` | `selenium` | Browser testing with Selenium |
 | `[db]` | `sqlalchemy` | Database testing with SQLAlchemy |
 | `[kafka]` | `kafka-python-ng` | Kafka producer/consumer testing |
+| `[io]` | `jsonschema` | File, JSON, CSV and directory operations |
+| `[cli]` | — | Shell command execution and assertions |
 | `[kit]` | `behave-kit` | Soft assertions, typed context, fixtures |
 | `[data]` | `behave-data` | Test data loading (CSV, JSON, YAML, Excel) |
 | `[tables]` | `behave-tables` | Table conversion helpers |
 | `[dev]` | pytest, ruff, mypy, build, twine | Development tools |
 | `[docs]` | sphinx, furo, myst-parser, sphinx-autodoc-typehints | Documentation tools |
-| `[all]` | api, requests, web, db, kafka, kit, data, tables | Everything except dev/docs |
+| `[all]` | api, requests, web, db, kafka, kit, data, tables, io | Everything except dev/docs |
 
 ## Requirements
 
@@ -194,7 +196,7 @@ And I store the message count as "total_messages"
 
 ### Data
 
-Generic variable management and environment variable handling — cross-module variable store, file loading (JSON/YAML), dot-path extraction, and scenario-safe env var modifications. **26 steps** covering variable set/assert/delete/copy/clear, JSON parsing, file loading, key-path extraction, and full environment variable lifecycle.
+Generic variable management and environment variable handling — cross-module variable store, file loading (JSON/YAML), dot-path extraction, scenario-safe env var modifications, regex/string assertions, numeric comparisons, and a wait utility. **32 steps** covering variable set/assert/delete/copy/clear, JSON parsing, file loading, key-path extraction, regex match, starts/ends with, increment, greater/less than, full environment variable lifecycle, and sleep.
 
 ```gherkin
 Given I set the variable "user_id" to "42"
@@ -203,9 +205,53 @@ And the variable "user_id" has length 2
 When I load the JSON file "data/user.json" into the variable "user"
 And I extract the key path "address.city" from the variable "user" as "city"
 Then the variable "city" equals "Berlin"
+And the variable "email" matches the pattern ".*@.*\..*"
+When I increment the variable "counter" by 1
+Then the variable "counter" is greater than 0
+When I wait for 0.5 seconds
 Given I set the environment variable "API_KEY" to "secret123"
 Then the environment variable "API_KEY" exists
 When I store the environment variable "API_KEY" as "api_key"
+```
+
+### IO
+
+File, JSON, CSV and directory operations with optional JSON Schema validation. **38 steps** covering file CRUD (read, write, append, delete, copy, move, rename, create empty), file assertions (exists, not exists, same, size, extension), JSON operations (load, save, path get/set/delete, validity, schema match, diff, merge, type check), CSV operations (create, write row, save, header row), directory operations (create, exists, not exists, list, delete) and read file as lines.
+
+```gherkin
+Given I create the directory "output/logs"
+When I write "hello" to the file "output/logs/test.txt"
+Then the file "output/logs/test.txt" exists
+And the file size of "output/logs/test.txt" is greater than 0 bytes
+When I read the file "output/logs/test.txt" as lines into "lines"
+Then the variable "lines" has length 1
+Given I load the JSON file "data/config.json"
+Then the JSON path "$.version" equals "1.0"
+And the JSON matches the schema "schemas/config.json"
+And the last JSON is valid
+When I create the CSV file "output/data.csv" with header "name,age"
+And I write the CSV row "Alice,30" to the file "output/data.csv"
+And I save the CSV file
+Then the directory "output" exists
+When I delete the directory "output"
+Then the directory "output" does not exist
+```
+
+### CLI
+
+Shell command execution with subprocess, capturing exit code, stdout and stderr. **10 steps** covering command execution (with optional timeout), exit code assertions, stdout assertions (contains, not contains, equals, matches pattern), stderr assertions, and storing output (stdout and stderr) into variables.
+
+```gherkin
+When I run the command "echo hello"
+Then the command exit code is 0
+And the command output contains "hello"
+And the command output does not contain "error"
+And the command output matches the pattern "hell."
+When I store the command output as "result"
+Then the variable "result" contains "hello"
+When I run the command "echo error 1>&2" with timeout 10 seconds
+And I store the command error output as "errors"
+Then the command stderr contains "error"
 ```
 
 ## CLI

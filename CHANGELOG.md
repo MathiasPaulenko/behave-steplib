@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-07-28
+
+### Added
+
+- **IO module** (`steplib.modules.io`): 38 file, JSON, CSV and directory
+  testing steps. File CRUD (read, write, append, delete, copy, move, rename,
+  create empty), file assertions (exists, not exists, same, size, extension),
+  JSON operations (load, save, path get/set/delete, validity, schema match,
+  diff, merge, type check), CSV operations (create, write row, save, header
+  row), directory operations (create, exists, not exists, list, delete) and
+  read file as lines.
+- **CLI module** (`steplib.modules.cli`): 10 shell command execution steps
+  with subprocess. Command execution (with optional timeout), exit code
+  assertions, stdout assertions (contains, not contains, equals, matches
+  pattern), stderr assertions, and storing output (stdout and stderr) into
+  variables.
+- **Data module extensions**: 6 new steps — regex match
+  (`the variable {name} matches the pattern {pattern}`), starts with, ends
+  with, increment variable, greater than, less than, and a wait/sleep utility
+  (`I wait for {seconds:f} seconds`). Data module now has 32 steps.
+- **Tests**: 861 tests covering core, all modules, CLI and behave integration.
+
+### Changed
+
+- Total step count increased from 131 to 211 across 7 modules.
+- README and Sphinx documentation updated with IO and CLI module sections,
+  updated step counts, and new feature examples.
+
 ## [1.0.0] - 2026-07-27
 
 ### Added

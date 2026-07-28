@@ -14,18 +14,24 @@ from steplib.modules.data.actions import (
     data_assert_env_not_equals,
     data_assert_env_not_exists,
     data_assert_variable_contains,
+    data_assert_variable_ends_with,
     data_assert_variable_equals,
     data_assert_variable_exists,
+    data_assert_variable_greater_than,
     data_assert_variable_has_length,
     data_assert_variable_is_empty,
     data_assert_variable_is_not_empty,
+    data_assert_variable_less_than,
+    data_assert_variable_matches,
     data_assert_variable_not_equals,
     data_assert_variable_not_exists,
+    data_assert_variable_starts_with,
     data_clear_variables,
     data_copy_variable,
     data_delete_env_var,
     data_delete_variable,
     data_extract_key_path,
+    data_increment_variable,
     data_load_env_file,
     data_load_json_file,
     data_load_yaml_file,
@@ -34,6 +40,7 @@ from steplib.modules.data.actions import (
     data_set_variable,
     data_set_variable_json,
     data_store_env_var,
+    data_wait,
 )
 from steplib.modules.data.context import DataContext
 
@@ -545,3 +552,101 @@ class TestAssertEnvNotExists:
                 data_assert_env_not_exists(key)
         finally:
             del os.environ[key]
+
+
+# --- Extended variable assertions ---
+
+
+class TestAssertVariableMatches:
+    def test_matches(self) -> None:
+        ctx = DataContext()
+        ctx.variables["email"] = "user@example.com"
+        data_assert_variable_matches(ctx, "email", r".*@.*\..*")
+
+    def test_does_not_match(self) -> None:
+        ctx = DataContext()
+        ctx.variables["email"] = "not-an-email"
+        with pytest.raises(AssertionError, match="does not match pattern"):
+            data_assert_variable_matches(ctx, "email", r".*@.*\..*")
+
+    def test_variable_not_found(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(KeyError, match="does not exist"):
+            data_assert_variable_matches(ctx, "missing", r".*")
+
+
+class TestAssertVariableStartsWith:
+    def test_starts_with(self) -> None:
+        ctx = DataContext()
+        ctx.variables["greeting"] = "Hello World"
+        data_assert_variable_starts_with(ctx, "greeting", "Hello")
+
+    def test_does_not_start_with(self) -> None:
+        ctx = DataContext()
+        ctx.variables["greeting"] = "Hello World"
+        with pytest.raises(AssertionError, match="does not start with"):
+            data_assert_variable_starts_with(ctx, "greeting", "World")
+
+
+class TestAssertVariableEndsWith:
+    def test_ends_with(self) -> None:
+        ctx = DataContext()
+        ctx.variables["filename"] = "data.csv"
+        data_assert_variable_ends_with(ctx, "filename", ".csv")
+
+    def test_does_not_end_with(self) -> None:
+        ctx = DataContext()
+        ctx.variables["filename"] = "data.csv"
+        with pytest.raises(AssertionError, match="does not end with"):
+            data_assert_variable_ends_with(ctx, "filename", ".txt")
+
+
+class TestIncrementVariable:
+    def test_increment_by_one(self) -> None:
+        ctx = DataContext()
+        ctx.variables["counter"] = 5
+        data_increment_variable(ctx, "counter")
+        assert ctx.variables["counter"] == 6
+
+    def test_increment_by_amount(self) -> None:
+        ctx = DataContext()
+        ctx.variables["counter"] = 10
+        data_increment_variable(ctx, "counter", 5)
+        assert ctx.variables["counter"] == 15
+
+    def test_non_numeric_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["text"] = "hello"
+        with pytest.raises(ValueError, match="is not numeric"):
+            data_increment_variable(ctx, "text")
+
+
+class TestAssertVariableGreaterThan:
+    def test_greater(self) -> None:
+        ctx = DataContext()
+        ctx.variables["count"] = 15
+        data_assert_variable_greater_than(ctx, "count", "10")
+
+    def test_not_greater(self) -> None:
+        ctx = DataContext()
+        ctx.variables["count"] = 5
+        with pytest.raises(AssertionError, match="is not greater than"):
+            data_assert_variable_greater_than(ctx, "count", "10")
+
+
+class TestAssertVariableLessThan:
+    def test_less(self) -> None:
+        ctx = DataContext()
+        ctx.variables["count"] = 5
+        data_assert_variable_less_than(ctx, "count", "10")
+
+    def test_not_less(self) -> None:
+        ctx = DataContext()
+        ctx.variables["count"] = 15
+        with pytest.raises(AssertionError, match="is not less than"):
+            data_assert_variable_less_than(ctx, "count", "10")
+
+
+class TestWait:
+    def test_wait_returns(self) -> None:
+        data_wait(0.01)
