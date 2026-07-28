@@ -387,7 +387,7 @@ class RequestsHTTPClient:
 
 
 def _build_headers_dict(headers_obj: Any) -> dict[str, str]:
-    """Build a ``dict[str, str]`` from a headers object, preserving duplicates.
+    r"""Build a ``dict[str, str]`` from a headers object, preserving duplicates.
 
     Multiple values for the same header name (notably ``Set-Cookie``) are
     joined with ``\n`` so that callers can split them back apart.
@@ -401,10 +401,7 @@ def _build_headers_dict(headers_obj: Any) -> dict[str, str]:
             values = get_all(key)
         else:
             get_list = getattr(headers_obj, "get_list", None)
-            if get_list is not None:
-                values = get_list(key)
-            else:
-                values = [headers_obj[key]]
+            values = get_list(key) if get_list is not None else [headers_obj[key]]
         if values:
             result[key] = "\n".join(values) if len(values) > 1 else values[0]
     return result
