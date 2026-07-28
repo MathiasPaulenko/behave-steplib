@@ -84,3 +84,19 @@ Kafka module
 .. automodule:: steplib.modules.kafka.client
    :members:
    :no-index:
+
+Data module
+~~~~~~~~~~~
+
+.. automodule:: steplib.modules.data
+   :members:
+
+.. automodule:: steplib.modules.data.steps
+   :members:
+
+.. automodule:: steplib.modules.data.actions
+   :members:
+
+.. automodule:: steplib.modules.data.context
+   :members:
+   :no-index:

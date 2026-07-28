@@ -12,7 +12,7 @@ Reusable step libraries for [Behave](https://github.com/behave/behave) BDD — s
 
 Writing BDD step definitions for HTTP APIs, web browsers, databases and Kafka is repetitive. Every project re-implements the same "send a request", "check the status code", "query the database" steps. behave-steplib provides a curated, typed, multilingual library of reusable steps that you install once and share across projects.
 
-- **Modular** — `api`, `web`, `db`, `kafka` modules activated via extras and lazy imports. Install only what you need.
+- **Modular** — `api`, `web`, `db`, `kafka`, `data` modules activated via extras and lazy imports. Install only what you need.
 - **Auto-registered** — `autoload(context)` discovers every installed step via Python entry points and registers it with behave in one line.
 - **Multilingual** — steps defined in English with `es` and `pt` translations; all patterns are registered with behave so matching works regardless of the language used in feature files.
 - **Typed** — full type hints, `mypy --strict` clean, `py.typed` marker included.
@@ -27,7 +27,7 @@ Writing BDD step definitions for HTTP APIs, web browsers, databases and Kafka is
 pip install behave-steplib            # core only (behave, parse, typer)
 pip install behave-steplib[api]       # + httpx HTTP client
 pip install behave-steplib[requests]  # + requests HTTP client
-pip install "behave-steplib[api,requests,web,db,kafka]"  # + all technology extras
+pip install "behave-steplib[api,requests,web,db,kafka,data]"  # + all technology extras
 pip install "behave-steplib[all]"     # + every technology extra
 pip install behave-steplib[dev]       # + pytest, ruff, mypy, build, twine
 ```
@@ -190,6 +190,22 @@ And I consume messages from topic "events" with timeout 10000 ms
 Then the consumed messages count is 1
 And the message at index 0 has value "hello"
 And I store the message count as "total_messages"
+```
+
+### Data
+
+Generic variable management and environment variable handling — cross-module variable store, file loading (JSON/YAML), dot-path extraction, and scenario-safe env var modifications. **26 steps** covering variable set/assert/delete/copy/clear, JSON parsing, file loading, key-path extraction, and full environment variable lifecycle.
+
+```gherkin
+Given I set the variable "user_id" to "42"
+Then the variable "user_id" equals "42"
+And the variable "user_id" has length 2
+When I load the JSON file "data/user.json" into the variable "user"
+And I extract the key path "address.city" from the variable "user" as "city"
+Then the variable "city" equals "Berlin"
+Given I set the environment variable "API_KEY" to "secret123"
+Then the environment variable "API_KEY" exists
+When I store the environment variable "API_KEY" as "api_key"
 ```
 
 ## CLI

@@ -6,9 +6,9 @@ discover and install step definitions across projects. Zero mandatory
 dependencies; each technology is an optional extra.
 
 behave-steplib provides a modular, auto-registered collection of BDD step
-definitions for HTTP APIs, web browsers, databases and Kafka. Steps are defined
-in English with Spanish (``es``) and Portuguese (``pt``) translations, fully
-typed, and discoverable via Python entry points.
+definitions for HTTP APIs, web browsers, databases, Kafka and generic data
+management. Steps are defined in English with Spanish (``es``) and Portuguese
+(``pt``) translations, fully typed, and discoverable via Python entry points.
 
 .. toctree::
    :maxdepth: 2
@@ -35,6 +35,7 @@ typed, and discoverable via Python entry points.
    modules/web
    modules/db
    modules/kafka
+   modules/data
 
 .. toctree::
    :maxdepth: 2
@@ -48,7 +49,7 @@ typed, and discoverable via Python entry points.
 Features at a glance
 --------------------
 
-- **Modular** — ``api``, ``web``, ``db``, ``kafka`` modules activated via extras and lazy imports.
+- **Modular** — ``api``, ``web``, ``db``, ``kafka``, ``data`` modules activated via extras and lazy imports.
 - **Auto-registered** — ``autoload(context)`` registers every installed step in one line.
 - **Multilingual** — steps defined in English with ``es`` and ``pt`` translations; all patterns are registered with behave so matching works regardless of active language.
 - **Typed** — full type hints, ``mypy --strict`` clean, ``py.typed`` marker included.
@@ -108,7 +109,7 @@ With optional extras:
 
 .. code-block:: bash
 
-   pip install "behave-steplib[api,requests,web,db,kafka]"
+   pip install "behave-steplib[api,requests,web,db,kafka,data]"
 
 License
 -------

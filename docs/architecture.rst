@@ -27,7 +27,7 @@ behave-steplib is organised in layers:
                            │ entry points (steplib.plugins)
    ┌───────────────────────▼──────────────────────────┐
    │                steplib.modules                     │
-   │    api · web · db · kafka                         │
+   │    api · web · db · kafka · data                  │
    │  Each module: steps · actions · context · client  │
    └──────────────────────────────────────────────────┘
 
