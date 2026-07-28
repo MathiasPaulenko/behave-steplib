@@ -9,7 +9,6 @@ from typing import Any
 
 from steplib.modules.data.context import DataContext
 
-
 # --- Variable actions ---
 
 
@@ -160,7 +159,7 @@ def data_assert_variable_is_empty(data_ctx: DataContext, name: str) -> None:
     if name not in data_ctx.variables:
         raise AssertionError(f"Variable '{name}' does not exist.")
     value = data_ctx.variables[name]
-    if value is not None and value != "" and value != [] and value != {}:
+    if value is not None and value not in ("", [], {}):
         raise AssertionError(f"Variable '{name}' is not empty: {value!r}.")
 
 
@@ -178,7 +177,7 @@ def data_assert_variable_is_not_empty(data_ctx: DataContext, name: str) -> None:
     if name not in data_ctx.variables:
         raise AssertionError(f"Variable '{name}' does not exist.")
     value = data_ctx.variables[name]
-    if value is None or value == "" or value == [] or value == {}:
+    if value is None or value in ("", [], {}):
         raise AssertionError(f"Variable '{name}' is empty.")
 
 
@@ -204,7 +203,7 @@ def data_assert_variable_has_length(
         raise AssertionError(f"Variable '{name}' does not exist.")
     value = data_ctx.variables[name]
     try:
-        actual = len(value)  # type: ignore[arg-type]
+        actual = len(value)
     except TypeError as exc:
         raise AssertionError(
             f"Variable '{name}' of type {type(value).__name__} has no length."
@@ -520,8 +519,8 @@ def data_load_env_file(data_ctx: DataContext, path: str) -> None:
         raise FileNotFoundError(f"Env file not found: {path}")
 
     with file_path.open(encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
+        for raw_line in f:
+            line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
             if "=" not in line:
