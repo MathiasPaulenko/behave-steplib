@@ -1,5 +1,4 @@
 Changelog
 =========
 
-.. include:: ../CHANGELOG.md
-   :parser: myst_parser
+.. mdinclude:: ../CHANGELOG.md
