@@ -68,6 +68,7 @@ api = "steplib.modules.api.steps:register"
 web = "steplib.modules.web.steps:register"
 db = "steplib.modules.db.steps:register"
 kafka = "steplib.modules.kafka.steps:register"
+data = "steplib.modules.data.steps:register"
 
 [project.urls]
 Homepage = "https://github.com/MathiasPaulenko/behave-steplib"
