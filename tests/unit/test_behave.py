@@ -32,9 +32,7 @@ def test_autoload_passes_filters() -> None:
     with patch("steplib.behave._autoload", return_value=expected) as mock_fn:
         result = autoload(context, categories=["api"], backends={"api": "httpx"})
     assert result is expected
-    mock_fn.assert_called_once_with(
-        context, categories=["api"], backends={"api": "httpx"}
-    )
+    mock_fn.assert_called_once_with(context, categories=["api"], backends={"api": "httpx"})
 
 
 def test_load_delegates_to_discovery() -> None:

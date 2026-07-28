@@ -60,7 +60,7 @@ Options
     Filter by category (e.g. ``api``, ``web``, ``db``, ``kafka``).
 
 ``--backend, -b``
-    Filter by backend (e.g. ``httpx``, ``selenium``, ``sqlalchemy``).
+    Filter by backend (e.g. ``httpx``, ``requests``, ``stdlib``, ``selenium``, ``sqlalchemy``).
 
 ``--tag, -t``
     Filter by tag.

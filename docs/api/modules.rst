@@ -80,3 +80,7 @@ Kafka module
 .. automodule:: steplib.modules.kafka.context
    :members:
    :no-index:
+
+.. automodule:: steplib.modules.kafka.client
+   :members:
+   :no-index:

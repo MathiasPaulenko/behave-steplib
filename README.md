@@ -26,7 +26,8 @@ Writing BDD step definitions for HTTP APIs, web browsers, databases and Kafka is
 ```bash
 pip install behave-steplib            # core only (behave, parse, typer)
 pip install behave-steplib[api]       # + httpx HTTP client
-pip install "behave-steplib[api,web,db,kafka]"  # + all technology extras
+pip install behave-steplib[requests]  # + requests HTTP client
+pip install "behave-steplib[api,requests,web,db,kafka]"  # + all technology extras
 pip install "behave-steplib[all]"     # + every technology extra
 pip install behave-steplib[dev]       # + pytest, ruff, mypy, build, twine
 ```
@@ -34,6 +35,7 @@ pip install behave-steplib[dev]       # + pytest, ruff, mypy, build, twine
 | Extra | Packages | Description |
 |-------|----------|-------------|
 | `[api]` | `httpx` | HTTP API testing with httpx |
+| `[requests]` | `requests` | HTTP API testing with requests |
 | `[web]` | `selenium` | Browser testing with Selenium |
 | `[db]` | `sqlalchemy` | Database testing with SQLAlchemy |
 | `[kafka]` | `kafka-python-ng` | Kafka producer/consumer testing |
@@ -41,8 +43,13 @@ pip install behave-steplib[dev]       # + pytest, ruff, mypy, build, twine
 | `[data]` | `behave-data` | Test data loading (CSV, JSON, YAML, Excel) |
 | `[tables]` | `behave-tables` | Table conversion helpers |
 | `[dev]` | pytest, ruff, mypy, build, twine | Development tools |
-| `[docs]` | sphinx, furo, myst-parser | Documentation tools |
-| `[all]` | api, web, db, kafka, kit, data, tables | Everything except dev/docs |
+| `[docs]` | sphinx, furo, myst-parser, sphinx-autodoc-typehints | Documentation tools |
+| `[all]` | api, requests, web, db, kafka, kit, data, tables | Everything except dev/docs |
+
+## Requirements
+
+- **Python 3.11+** (tested on CPython 3.11, 3.12, 3.13 and 3.14)
+- **behave** — the only mandatory runtime dependency alongside `parse` and `typer`
 
 ## Quickstart
 
@@ -221,7 +228,7 @@ Once installed, `autoload(context)` discovers your package automatically.
 ## Development
 
 ```bash
-make dev        # install with api, dev and docs extras
+make dev        # install with api, requests, dev and docs extras
 make lint       # ruff + mypy --strict
 make test-cov   # pytest with >=80% coverage gate
 make docs-build # build Sphinx documentation
@@ -231,6 +238,13 @@ make build      # build sdist + wheel
 ## Documentation
 
 Full documentation is available at <https://mathiaspaulenko.github.io/behave-steplib>.
+
+## Acknowledgements
+
+- [Behave](https://github.com/behave/behave) — the BDD framework this library extends.
+- [parse](https://github.com/r1chardj0n3s/parse) — pattern matching for step definitions.
+- [Typer](https://typer.tiangolo.com/) — CLI framework.
+- [Sphinx](https://www.sphinx-doc.org/) + [furo](https://pradyunsg.me/furo/) — documentation.
 
 ## License
 

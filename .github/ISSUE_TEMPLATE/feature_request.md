@@ -33,7 +33,7 @@ How would this feature be used in practice? Show an example `environment.py` or 
 ## Compatibility
 
 - Does this require new dependencies? [yes/no]
-- Which extra would it belong to? [api, web, db, kafka, core]
+- Which extra would it belong to? [api, requests, web, db, kafka, core]
 - Does this change the public API? [yes/no]
 - Does this break existing usage? [yes/no]
 - Does it need multilingual translations? [yes/no]

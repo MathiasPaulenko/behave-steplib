@@ -6,7 +6,7 @@ Thank you for your interest in contributing to `behave-steplib`! This document o
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/<your-username>/behave-steplib.git`
-3. Install in development mode: `pip install -e ".[api,dev,docs]"`
+3. Install in development mode: `pip install -e ".[api,requests,dev,docs]"`
 4. Create a branch: `git checkout -b my-feature`
 
 ## Development workflow
@@ -85,7 +85,7 @@ steplib/                   # Source code
 ├── core/                  # Registry, step metadata, i18n, plugin discovery
 ├── cli/                   # steplib CLI (Typer): list / show / validate / init
 └── modules/               # Technology step modules (optional extras)
-    ├── api/               # httpx-based HTTP steps   (extra: api)
+    ├── api/               # HTTP steps (httpx/requests/stdlib) (extra: api, requests)
     ├── web/               # selenium-based UI steps  (extra: web)
     ├── db/                # sqlalchemy DB steps      (extra: db)
     └── kafka/             # kafka steps              (extra: kafka)
@@ -95,7 +95,7 @@ tests/
 ├── integration/           # Integration tests
 └── e2e/                   # End-to-end behave runs
 
-docs/                      # MkDocs Material documentation
+docs/                      # Sphinx + furo documentation
 ref/                       # Reference documents (not shipped)
 ```
 

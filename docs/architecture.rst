@@ -79,7 +79,8 @@ Each technology module follows the same four-file pattern:
        and ``cleanup()``.
    * - ``client.py``
      - Backend abstraction with a ``Protocol`` and one or more lazy-loaded
-       implementations (e.g. ``UrllibHTTPClient``, ``HttpxHTTPClient``).
+       implementations (e.g. ``UrllibHTTPClient``, ``HttpxHTTPClient``,
+       ``RequestsHTTPClient``).
 
 This separation ensures that step definitions are thin, logic is testable,
 and backends are swappable.
@@ -104,7 +105,7 @@ supports:
 
 - **stdlib** (``urllib``) — default, no extra dependencies.
 - **httpx** — requires the ``[api]`` extra.
-- **requests** — requires the ``requests`` package.
+- **requests** — requires the ``[requests]`` extra.
 
 Backends are differentiated by the ``backend`` field on :class:`StepInfo`.
 When using ``autoload``, you can select which backend to activate per

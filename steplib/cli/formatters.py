@@ -24,28 +24,23 @@ def format_step_table(steps: list[StepInfo]) -> str:
     headers = ("PATTERN", "CATEGORY", "BACKEND", "DESCRIPTION")
     rows: list[tuple[str, str, str, str]] = []
     for info in steps:
-        rows.append((
-            info.pattern,
-            info.category,
-            info.backend or "-",
-            (info.description or "").split("\n")[0][:60],
-        ))
+        rows.append(
+            (
+                info.pattern,
+                info.category,
+                info.backend or "-",
+                (info.description or "").split("\n")[0][:60],
+            )
+        )
 
-    col_widths = [
-        max(len(str(row[i])) for row in [headers, *rows])
-        for i in range(len(headers))
-    ]
+    col_widths = [max(len(str(row[i])) for row in [headers, *rows]) for i in range(len(headers))]
 
     lines: list[str] = []
-    header_line = "  ".join(
-        headers[i].ljust(col_widths[i]) for i in range(len(headers))
-    )
+    header_line = "  ".join(headers[i].ljust(col_widths[i]) for i in range(len(headers)))
     lines.append(header_line)
     lines.append("  ".join("-" * col_widths[i] for i in range(len(headers))))
     for row in rows:
-        lines.append("  ".join(
-            str(row[i]).ljust(col_widths[i]) for i in range(len(headers))
-        ))
+        lines.append("  ".join(str(row[i]).ljust(col_widths[i]) for i in range(len(headers))))
     return "\n".join(lines)
 
 
@@ -83,15 +78,10 @@ def format_step_detail(info: StepInfo) -> str:
     if info.parameters:
         lines.append("Parameters:")
         for param in info.parameters:
-            type_name = (
-                param.type.__name__ if isinstance(param.type, type)
-                else str(param.type)
-            )
+            type_name = param.type.__name__ if isinstance(param.type, type) else str(param.type)
             default_hint = f", default {param.default!r}" if param.default is not None else ""
             required_hint = " (required)" if param.required else ""
-            lines.append(
-                f"  - {param.name}: {type_name}{required_hint}{default_hint}"
-            )
+            lines.append(f"  - {param.name}: {type_name}{required_hint}{default_hint}")
 
     if info.i18n:
         lines.append("Translations:")
@@ -113,18 +103,20 @@ def format_step_json(steps: list[StepInfo]) -> str:
     """
     data: list[dict[str, Any]] = []
     for info in steps:
-        data.append({
-            "pattern": info.pattern,
-            "category": info.category,
-            "backend": info.backend,
-            "description": info.description,
-            "module": info.module,
-            "tags": info.tags,
-            "version": info.version,
-            "deprecated": info.deprecated,
-            "example": info.example,
-            "i18n": info.i18n,
-        })
+        data.append(
+            {
+                "pattern": info.pattern,
+                "category": info.category,
+                "backend": info.backend,
+                "description": info.description,
+                "module": info.module,
+                "tags": info.tags,
+                "version": info.version,
+                "deprecated": info.deprecated,
+                "example": info.example,
+                "i18n": info.i18n,
+            }
+        )
     return json.dumps(data, indent=2, ensure_ascii=False)
 
 

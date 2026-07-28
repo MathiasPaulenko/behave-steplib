@@ -13,7 +13,8 @@ from steplib.modules.web.client import get_driver
 def test_get_driver_selenium_missing_raises() -> None:
     """get_driver('selenium') should raise MissingDependencyError if selenium is not installed."""
     with contextlib.suppress(ImportError):
-        import selenium  # noqa: F401, PLC0415
+        import selenium  # noqa: F401
+
         # selenium is installed; skip this test.
         return
 

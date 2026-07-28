@@ -27,7 +27,7 @@ class DatabaseClient:
 
         """
         try:
-            from sqlalchemy import create_engine, text  # noqa: PLC0415
+            from sqlalchemy import create_engine, text
         except ImportError as exc:
             raise MissingDependencyError("db", "sqlalchemy") from exc
 
@@ -63,6 +63,15 @@ class DatabaseClient:
         """
         result = self.connection.execute(self._text(query), params or {})
         return result.scalar()
+
+    def begin(self) -> Any:
+        """Begin a transaction on the underlying connection.
+
+        Returns:
+            The transaction object from SQLAlchemy.
+
+        """
+        return self.connection.begin()
 
     def close(self) -> None:
         """Close the connection and dispose the engine."""

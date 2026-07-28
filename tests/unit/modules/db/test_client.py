@@ -13,7 +13,8 @@ from steplib.modules.db.client import get_client
 def test_get_client_sqlalchemy_missing_raises() -> None:
     """get_client should raise MissingDependencyError if sqlalchemy is not installed."""
     with contextlib.suppress(ImportError):
-        import sqlalchemy  # noqa: F401, PLC0415
+        import sqlalchemy  # noqa: F401
+
         # sqlalchemy is installed; skip this test.
         return
 

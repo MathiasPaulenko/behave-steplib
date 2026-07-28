@@ -29,6 +29,9 @@ needs to keep the dependency surface small.
    * - ``[api]``
      - ``httpx``
      - HTTP API testing with httpx (HTTP/2, async, cookies)
+   * - ``[requests]``
+     - ``requests``
+     - HTTP API testing with requests (sessions, cookies, auth)
    * - ``[web]``
      - ``selenium``
      - Browser testing with Selenium (Chrome, Firefox, headless)
@@ -54,7 +57,7 @@ needs to keep the dependency surface small.
      - sphinx, furo, myst-parser, sphinx-autodoc-typehints
      - Documentation build tools
    * - ``[all]``
-     - api, web, db, kafka, kit, data, tables
+     - api, requests, web, db, kafka, kit, data, tables
      - Every technology extra (excludes dev and docs)
 
 Examples
@@ -72,7 +75,7 @@ Python version
 --------------
 
 behave-steplib requires **Python 3.11 or newer**. Tested on CPython 3.11,
-3.12 and 3.13.
+3.12, 3.13 and 3.14.
 
 Verifying the installation
 --------------------------

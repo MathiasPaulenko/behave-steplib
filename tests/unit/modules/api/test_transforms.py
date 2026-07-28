@@ -119,6 +119,21 @@ class TestJsonPath:
         """str() should return the path string."""
         assert str(JsonPath("$.name")) == "$.name"
 
+    def test_unclosed_bracket_raises(self) -> None:
+        """Unclosed bracket in path should raise ValueError with clear message."""
+        with pytest.raises(ValueError, match=r"unclosed '\['"):
+            JsonPath("$.users[0").evaluate({"users": []})
+
+    def test_empty_bracket_raises(self) -> None:
+        """Empty brackets '[]' should raise ValueError with clear message."""
+        with pytest.raises(ValueError, match="empty index"):
+            JsonPath("$.users[]").evaluate({"users": []})
+
+    def test_non_numeric_index_raises(self) -> None:
+        """Non-numeric index should raise ValueError with clear message."""
+        with pytest.raises(ValueError, match="non-numeric index"):
+            JsonPath("$.users[abc]").evaluate({"users": []})
+
 
 class TestParseJson:
     """Tests for parse_json."""

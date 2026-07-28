@@ -24,7 +24,7 @@ def assert_soft(condition: bool, message: str = "") -> None:
 
     """
     try:
-        from behave_kit import assert_soft as _assert_soft  # noqa: PLC0415
+        from behave_kit import assert_soft as _assert_soft
     except ImportError as exc:
         raise MissingDependencyError("kit", "behave-kit") from exc
     if message:
@@ -47,7 +47,7 @@ def wrap_table(table: Any) -> Any:
 
     """
     try:
-        from behave_tables import wrap as _wrap  # noqa: PLC0415
+        from behave_tables import wrap as _wrap
     except ImportError as exc:
         raise MissingDependencyError("tables", "behave-tables") from exc
     return _wrap(table)
@@ -69,14 +69,12 @@ def load_test_data(source: str, **kwargs: Any) -> Any:
 
     """
     try:
-        import behave_data  # noqa: PLC0415
+        import behave_data
     except ImportError as exc:
         raise MissingDependencyError("data", "behave-data") from exc
     load_fn = getattr(behave_data, "load", None)
     if load_fn is None:
-        raise StepContractError(
-            "behave-data is installed but does not expose a 'load' function."
-        )
+        raise StepContractError("behave-data is installed but does not expose a 'load' function.")
     return load_fn(source, **kwargs)
 
 
@@ -87,11 +85,9 @@ def check_behave_model_available() -> bool:
         ``True`` if ``behave-model`` is importable, ``False`` otherwise.
 
     """
-    try:
-        import behave_model  # noqa: F401, PLC0415
-    except ImportError:
-        return False
-    return True
+    import importlib.util
+
+    return importlib.util.find_spec("behave_model") is not None
 
 
 def check_behave_doctor_available() -> bool:
@@ -101,8 +97,6 @@ def check_behave_doctor_available() -> bool:
         ``True`` if ``behave-doctor`` is importable, ``False`` otherwise.
 
     """
-    try:
-        import behave_doctor  # noqa: F401, PLC0415
-    except ImportError:
-        return False
-    return True
+    import importlib.util
+
+    return importlib.util.find_spec("behave_doctor") is not None

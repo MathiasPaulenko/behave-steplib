@@ -16,8 +16,7 @@ class HttpMethod:
         self.value = method.upper().strip()
         if self.value not in VALID_METHODS:
             raise ValueError(
-                f"Invalid HTTP method '{method}'. "
-                f"Valid methods: {sorted(VALID_METHODS)}"
+                f"Invalid HTTP method '{method}'. Valid methods: {sorted(VALID_METHODS)}"
             )
 
     def __str__(self) -> str:
@@ -138,7 +137,9 @@ class JsonPath:
                 if current:
                     tokens.append(current)
                     current = ""
-                j = expr.index("]", i)
+                j = expr.find("]", i)
+                if j == -1:
+                    raise ValueError(f"JsonPath has unclosed '[' in expression: '{expr}'")
                 idx_str = expr[i + 1 : j]
                 tokens.append(f"[{idx_str}]")
                 i = j
@@ -153,7 +154,15 @@ class JsonPath:
     def _access(current: Any, token: str) -> Any:
         """Access a single key or index from *current*."""
         if token.startswith("[") and token.endswith("]"):
-            idx = int(token[1:-1])
+            idx_str = token[1:-1]
+            if not idx_str:
+                raise ValueError(f"JsonPath has empty index '[]' in token: '{token}'")
+            try:
+                idx = int(idx_str)
+            except ValueError as exc:
+                raise ValueError(
+                    f"JsonPath has non-numeric index '{idx_str}' in token: '{token}'"
+                ) from exc
             return current[idx]
         return current[token]
 

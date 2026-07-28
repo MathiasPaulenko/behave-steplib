@@ -42,6 +42,12 @@ class MockHTTPClient:
         headers: dict[str, str] | None = None,
         body: bytes | None = None,
         timeout: float | None = None,
+        params: dict[str, str] | None = None,
+        auth: tuple[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        allow_redirects: bool = True,
+        verify: bool = True,
+        proxies: dict[str, str] | None = None,
     ) -> Response:
         return self.response
 

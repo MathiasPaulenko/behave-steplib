@@ -17,7 +17,7 @@ from steplib.core.params import Param
 _STEPLIB_ATTR = "__steplib_steps__"
 
 
-def step(  # noqa: PLR0913
+def step(
     pattern: str,
     *,
     category: str,

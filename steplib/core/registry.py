@@ -210,7 +210,7 @@ class StepRegistry:
     def _register_with_behave(pattern: str, fn: Callable[..., Any]) -> None:
         """Register a single pattern with behave's global step registry."""
         try:
-            from behave import step as behave_step  # noqa: PLC0415
+            from behave import step as behave_step
         except ImportError:  # pragma: no cover
             return
         behave_step(pattern)(fn)

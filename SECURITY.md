@@ -4,7 +4,7 @@
 
 | Version | Supported |
 | ------- | --------- |
-| 0.x.x   | Yes       |
+| 1.x.x   | Yes       |
 
 ## Reporting a vulnerability
 
@@ -28,7 +28,7 @@ You will receive a response within 48 hours. If the vulnerability is confirmed, 
 - Registers behave step definitions via `behave.use_step_matcher` and `@step` decorators
 - Discovers step modules through `steplib.plugins` entry points and `autoload(context)`
 - Parses step arguments with the `parse` library
-- Provides optional integrations (`httpx`, `selenium`, `sqlalchemy`, `kafka-python-ng`) activated only when the corresponding extra is installed
+- Provides optional integrations (`httpx`, `requests`, `selenium`, `sqlalchemy`, `kafka-python-ng`) activated only when the corresponding extra is installed
 
 ### What behave-steplib does NOT do
 
@@ -39,7 +39,7 @@ You will receive a response within 48 hours. If the vulnerability is confirmed, 
 
 ### Optional dependencies
 
-Each technology extra (`api`, `web`, `db`, `kafka`) is isolated behind lazy imports. Installing `behave-steplib` without extras pulls none of the integration packages, reducing the attack surface. Keep installed extras limited to what your project actually uses.
+Each technology extra (`api`, `requests`, `web`, `db`, `kafka`) is isolated behind lazy imports. Installing `behave-steplib` without extras pulls none of the integration packages, reducing the attack surface. Keep installed extras limited to what your project actually uses.
 
 ### Step argument parsing
 
@@ -47,4 +47,4 @@ Step arguments are parsed with the `parse` library using strict type converters.
 
 ### Reporting integration issues
 
-Vulnerabilities in third-party packages (`httpx`, `selenium`, `sqlalchemy`, `kafka-python-ng`) should be reported upstream. Report here only if `behave-steplib` exposes or mishandles them in a way that increases risk.
+Vulnerabilities in third-party packages (`httpx`, `requests`, `selenium`, `sqlalchemy`, `kafka-python-ng`) should be reported upstream. Report here only if `behave-steplib` exposes or mishandles them in a way that increases risk.

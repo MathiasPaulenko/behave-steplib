@@ -6,7 +6,6 @@ on:
     paths:
       - "docs/**"
       - "steplib/**"
-      - "conf.py"
       - ".github/workflows/docs.yml"
   release:
     types: [published]

@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import base64
+import io
 import json as _json
+import ssl
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Protocol
@@ -76,6 +80,12 @@ class HTTPClient(Protocol):
         headers: dict[str, str] | None = None,
         body: bytes | None = None,
         timeout: float | None = None,
+        params: dict[str, str] | None = None,
+        auth: tuple[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        allow_redirects: bool = True,
+        verify: bool = True,
+        proxies: dict[str, str] | None = None,
     ) -> Response:
         """Send an HTTP request and return the response.
 
@@ -85,12 +95,40 @@ class HTTPClient(Protocol):
             headers: Optional request headers.
             body: Optional request body as bytes.
             timeout: Optional timeout in seconds.
+            params: Optional query parameters.
+            auth: Optional ``(username, password)`` tuple for basic auth.
+            cookies: Optional cookies to send.
+            allow_redirects: Whether to follow redirects (default ``True``).
+            verify: Whether to verify SSL certificates (default ``True``).
+            proxies: Optional proxy mappings.
 
         Returns:
             The ``Response`` object.
 
         """
         ...
+
+
+class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Redirect handler that raises HTTPError instead of following redirects."""
+
+    def redirect_request(
+        self,
+        req: Any,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> None:
+        """Reject all redirects by raising an HTTPError with the real status and headers."""
+        raise urllib.error.HTTPError(
+            newurl,
+            code,
+            msg,
+            headers,
+            io.BytesIO(b""),
+        )
 
 
 class UrllibHTTPClient:
@@ -104,6 +142,12 @@ class UrllibHTTPClient:
         headers: dict[str, str] | None = None,
         body: bytes | None = None,
         timeout: float | None = None,
+        params: dict[str, str] | None = None,
+        auth: tuple[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        allow_redirects: bool = True,
+        verify: bool = True,
+        proxies: dict[str, str] | None = None,
     ) -> Response:
         """Send an HTTP request using urllib.
 
@@ -113,16 +157,60 @@ class UrllibHTTPClient:
             headers: Optional request headers.
             body: Optional request body as bytes.
             timeout: Optional timeout in seconds.
+            params: Optional query parameters appended to the URL.
+            auth: Optional ``(username, password)`` for basic auth.
+            cookies: Optional cookies sent as a Cookie header.
+            allow_redirects: Whether to follow redirects (default ``True``).
+            verify: Whether to verify SSL certificates (default ``True``).
+            proxies: Optional proxy mappings.
 
         Returns:
             The ``Response`` object.
 
         """
         req_headers = dict(headers or {})
-        req = urllib.request.Request(url, data=body, method=method, headers=req_headers)
+
+        # Basic auth
+        if auth is not None:
+            credential = f"{auth[0]}:{auth[1]}"
+            token = base64.b64encode(credential.encode()).decode()
+            req_headers["Authorization"] = f"Basic {token}"
+
+        # Cookies
+        if cookies:
+            req_headers["Cookie"] = "; ".join(f"{k}={v}" for k, v in cookies.items())
+
+        # Query params
+        final_url = url
+        if params:
+            separator = "&" if "?" in url else "?"
+            query = urllib.parse.urlencode(params)
+            final_url = f"{url}{separator}{query}"
+
+        req = urllib.request.Request(final_url, data=body, method=method, headers=req_headers)
+
+        # SSL context
+        ctx = None
+        if not verify:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+
+        # Proxy handlers
+        handlers: list[urllib.request.BaseHandler] = []
+        if proxies:
+            proxy_support = urllib.request.ProxyHandler(proxies)
+            handlers.append(proxy_support)
+        if not allow_redirects:
+            handlers.append(NoRedirectHandler())
+        if handlers:
+            opener = urllib.request.build_opener(*handlers)
+        else:
+            opener = urllib.request.build_opener()
+
         start = time.monotonic()
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with opener.open(req, timeout=timeout) as resp:
                 resp_body = resp.read()
                 resp_headers = dict(resp.headers)
                 status = resp.status
@@ -150,7 +238,7 @@ class HttpxHTTPClient:
 
         """
         try:
-            import httpx  # noqa: PLC0415
+            import httpx
         except ImportError as exc:
             raise MissingDependencyError("api", "httpx") from exc
         self._httpx = httpx
@@ -163,6 +251,12 @@ class HttpxHTTPClient:
         headers: dict[str, str] | None = None,
         body: bytes | None = None,
         timeout: float | None = None,
+        params: dict[str, str] | None = None,
+        auth: tuple[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        allow_redirects: bool = True,
+        verify: bool = True,
+        proxies: dict[str, str] | None = None,
     ) -> Response:
         """Send an HTTP request using httpx.
 
@@ -172,19 +266,42 @@ class HttpxHTTPClient:
             headers: Optional request headers.
             body: Optional request body as bytes.
             timeout: Optional timeout in seconds.
+            params: Optional query parameters.
+            auth: Optional ``(username, password)`` for basic auth.
+            cookies: Optional cookies to send.
+            allow_redirects: Whether to follow redirects (default ``True``).
+            verify: Whether to verify SSL certificates (default ``True``).
+            proxies: Optional proxy mappings.
 
         Returns:
             The ``Response`` object.
 
         """
         start = time.monotonic()
-        with self._httpx.Client() as client:
+        client_kwargs: dict[str, Any] = {
+            "verify": verify,
+            "cookies": cookies,
+        }
+        if proxies:
+            # httpx 0.28+ uses `proxy` for a single proxy URL.
+            # For multiple proxies, use mounts with HTTPTransport.
+            if len(proxies) == 1:
+                client_kwargs["proxy"] = next(iter(proxies.values()))
+            else:
+                mounts: dict[str, Any] = {}
+                for scheme, proxy_url in proxies.items():
+                    mounts[scheme] = self._httpx.HTTPTransport(proxy=proxy_url)
+                client_kwargs["mounts"] = mounts
+        with self._httpx.Client(**client_kwargs) as client:
             resp = client.request(
                 method,
                 url,
                 headers=headers or {},
                 content=body,
                 timeout=timeout,
+                params=params,
+                auth=auth,
+                follow_redirects=allow_redirects,
             )
             elapsed = (time.monotonic() - start) * 1000
             return Response(
@@ -206,7 +323,7 @@ class RequestsHTTPClient:
 
         """
         try:
-            import requests  # noqa: PLC0415
+            import requests
         except ImportError as exc:
             raise MissingDependencyError("api", "requests") from exc
         self._requests = requests
@@ -219,6 +336,12 @@ class RequestsHTTPClient:
         headers: dict[str, str] | None = None,
         body: bytes | None = None,
         timeout: float | None = None,
+        params: dict[str, str] | None = None,
+        auth: tuple[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
+        allow_redirects: bool = True,
+        verify: bool = True,
+        proxies: dict[str, str] | None = None,
     ) -> Response:
         """Send an HTTP request using requests.
 
@@ -228,6 +351,12 @@ class RequestsHTTPClient:
             headers: Optional request headers.
             body: Optional request body as bytes.
             timeout: Optional timeout in seconds.
+            params: Optional query parameters.
+            auth: Optional ``(username, password)`` for basic auth.
+            cookies: Optional cookies to send.
+            allow_redirects: Whether to follow redirects (default ``True``).
+            verify: Whether to verify SSL certificates (default ``True``).
+            proxies: Optional proxy mappings.
 
         Returns:
             The ``Response`` object.
@@ -240,6 +369,12 @@ class RequestsHTTPClient:
             headers=headers or {},
             data=body,
             timeout=timeout,
+            params=params,
+            auth=auth,
+            cookies=cookies,
+            allow_redirects=allow_redirects,
+            verify=verify,
+            proxies=proxies,
         )
         elapsed = (time.monotonic() - start) * 1000
         return Response(

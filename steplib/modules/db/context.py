@@ -16,6 +16,7 @@ class DbContext:
         engine: The SQLAlchemy engine instance.
         connection: The active SQLAlchemy connection.
         connection_string: The SQLAlchemy connection string.
+        transaction: The active transaction (if any).
         variables: User-defined variables stored by steps.
         backend: The backend name (e.g. ``"sqlalchemy"``).
 
@@ -24,6 +25,7 @@ class DbContext:
     engine: Any = None
     connection: Any = None
     connection_string: str = ""
+    transaction: Any = None
     variables: dict[str, Any] = field(default_factory=dict)
     backend: str = "sqlalchemy"
 
@@ -33,6 +35,9 @@ class DbContext:
 
     def cleanup(self) -> None:
         """Close the database connection if it exists."""
+        if self.transaction is not None and hasattr(self.transaction, "rollback"):
+            self.transaction.rollback()
+            self.transaction = None
         if self.connection is not None and hasattr(self.connection, "close"):
             self.connection.close()
             self.connection = None

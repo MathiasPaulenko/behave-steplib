@@ -14,7 +14,8 @@ from steplib.modules.kafka.context import KafkaContext
 def test_kafka_produce_missing_dependency_raises() -> None:
     """kafka_produce should raise MissingDependencyError if kafka is not installed."""
     with contextlib.suppress(ImportError):
-        import kafka  # noqa: F401, PLC0415
+        import kafka  # noqa: F401
+
         # kafka is installed; skip this test.
         return
 
@@ -26,7 +27,8 @@ def test_kafka_produce_missing_dependency_raises() -> None:
 def test_kafka_consume_missing_dependency_raises() -> None:
     """kafka_consume should raise MissingDependencyError if kafka is not installed."""
     with contextlib.suppress(ImportError):
-        import kafka  # noqa: F401, PLC0415
+        import kafka  # noqa: F401
+
         # kafka is installed; skip this test.
         return
 

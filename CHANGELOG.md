@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Typer with table and JSON output formats.
 - **i18n**: Spanish (`es`) and Portuguese (`pt`) translations for all steps.
   Both `i18n` dictionary and stacked decorator patterns supported.
-- **Tests**: 164 tests covering core, modules, CLI and behave integration.
+- **Tests**: 467 tests covering core, modules, CLI and behave integration.
   Coverage gate at 80% (current: 82%).
 - **CI/CD**: GitHub Actions workflows for CI (lint, typecheck, test, coverage),
   release (build, PyPI publish with attestations, GitHub release) and docs

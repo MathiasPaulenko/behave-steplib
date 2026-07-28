@@ -42,6 +42,7 @@ typed, and discoverable via Python entry points.
 
    api/core
    api/modules
+   changelog
 
 
 Features at a glance
@@ -54,6 +55,7 @@ Features at a glance
 - **CLI** — ``steplib list / show / validate / init`` powered by Typer.
 - **Pluggable** — third-party packages can register steps via the ``steplib.plugins`` entry point group.
 - **Ecosystem** — integrates with ``behave-kit``, ``behave-tables`` and ``behave-data`` when installed.
+- **Backends** — each module supports multiple backends (e.g. stdlib/httpx/requests for API, selenium for web) selectable at autoload time.
 
 Three adoption levels
 ---------------------
@@ -106,7 +108,7 @@ With optional extras:
 
 .. code-block:: bash
 
-   pip install "behave-steplib[api,web,db,kafka]"
+   pip install "behave-steplib[api,requests,web,db,kafka]"
 
 License
 -------

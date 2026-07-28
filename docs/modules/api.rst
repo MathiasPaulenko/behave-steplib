@@ -11,10 +11,12 @@ Installation
 
 .. code-block:: bash
 
-   pip install "behave-steplib[api]"
+   pip install "behave-steplib[api]"        # httpx backend
+   pip install "behave-steplib[requests]"   # requests backend
 
 The ``stdlib`` backend (urllib) is always available with no extra
-dependencies. Install the ``[api]`` extra to use ``httpx``.
+dependencies. Install the ``[api]`` extra to use ``httpx``, or the
+``[requests]`` extra to use ``requests``.
 
 Backends
 --------
@@ -36,13 +38,16 @@ Backends
        ``[api]`` extra.
    * - ``requests``
      - ``requests``
-     - Legacy compatibility. Requires the ``requests`` package.
+     - Session-based with cookie persistence. Requires the
+       ``[requests]`` extra.
 
 Select a backend via ``autoload``:
 
 .. code-block:: python
 
    autoload(context, backends={"api": "httpx"})
+   autoload(context, backends={"api": "requests"})
+   autoload(context, backends={"api": "stdlib"})  # default, no extra needed
 
 Steps
 -----

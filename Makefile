@@ -4,7 +4,7 @@ install:
 	python -m pip install -e .
 
 dev:
-	python -m pip install -e ".[api,dev,docs]"
+	python -m pip install -e ".[api,requests,dev,docs]"
 
 lint:
 	python -m ruff check .

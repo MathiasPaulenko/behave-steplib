@@ -41,8 +41,8 @@ What actually happened.
 
 - Python version: [e.g. 3.12.4]
 - Behave version: [e.g. 1.3.3]
-- behave-steplib version: [e.g. 0.1.0]
-- Installed extras: [e.g. api, web, db, kafka, all]
+- behave-steplib version: [e.g. 1.0.0]
+- Installed extras: [e.g. api, requests, web, db, kafka, all]
 - OS: [e.g. Windows 11, Ubuntu 24.04]
 
 ## Additional context
