@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-api = ["httpx>=0.27"]
+api = ["httpx>=0.28.1"]
 requests = ["requests>=2.31"]
 web = ["selenium>=4.0"]
 db = ["sqlalchemy>=2.0"]
