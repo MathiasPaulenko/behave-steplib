@@ -14,7 +14,6 @@ authors = [{ name = "Mathias Paulenko" }]
 keywords = ["behave", "bdd", "steps", "api", "web", "db", "kafka", "i18n"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Framework :: behave",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
