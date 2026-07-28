@@ -96,6 +96,191 @@ def data_delete_variable(data_ctx: DataContext, name: str) -> None:
     del data_ctx.variables[name]
 
 
+def data_assert_variable_not_equals(
+    data_ctx: DataContext,
+    name: str,
+    expected: str,
+) -> None:
+    """Assert that a variable does not equal a value.
+
+    Args:
+        data_ctx: The data context to check.
+        name: The variable name.
+        expected: The value that the variable should NOT have.
+
+    Raises:
+        AssertionError: If the variable does not exist or equals the value.
+
+    """
+    if name not in data_ctx.variables:
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    actual = data_ctx.variables[name]
+    if str(actual) == expected:
+        raise AssertionError(
+            f"Variable '{name}' should not equal '{expected}'."
+        )
+
+
+def data_assert_variable_contains(
+    data_ctx: DataContext,
+    name: str,
+    substring: str,
+) -> None:
+    """Assert that a variable's string value contains a substring.
+
+    Args:
+        data_ctx: The data context to check.
+        name: The variable name.
+        substring: The substring to look for.
+
+    Raises:
+        AssertionError: If the variable does not exist or doesn't contain the substring.
+
+    """
+    if name not in data_ctx.variables:
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    actual = str(data_ctx.variables[name])
+    if substring not in actual:
+        raise AssertionError(
+            f"Variable '{name}': expected to contain '{substring}', got '{actual}'."
+        )
+
+
+def data_assert_variable_is_empty(data_ctx: DataContext, name: str) -> None:
+    """Assert that a variable is empty (empty string, empty list, empty dict, or None).
+
+    Args:
+        data_ctx: The data context to check.
+        name: The variable name.
+
+    Raises:
+        AssertionError: If the variable does not exist or is not empty.
+
+    """
+    if name not in data_ctx.variables:
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    value = data_ctx.variables[name]
+    if value is not None and value != "" and value != [] and value != {}:
+        raise AssertionError(f"Variable '{name}' is not empty: {value!r}.")
+
+
+def data_assert_variable_is_not_empty(data_ctx: DataContext, name: str) -> None:
+    """Assert that a variable is not empty.
+
+    Args:
+        data_ctx: The data context to check.
+        name: The variable name.
+
+    Raises:
+        AssertionError: If the variable does not exist or is empty.
+
+    """
+    if name not in data_ctx.variables:
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    value = data_ctx.variables[name]
+    if value is None or value == "" or value == [] or value == {}:
+        raise AssertionError(f"Variable '{name}' is empty.")
+
+
+def data_assert_variable_has_length(
+    data_ctx: DataContext,
+    name: str,
+    expected: int,
+) -> None:
+    """Assert that a variable has a specific length.
+
+    Works with strings, lists, dicts, and any object with ``__len__``.
+
+    Args:
+        data_ctx: The data context to check.
+        name: The variable name.
+        expected: The expected length.
+
+    Raises:
+        AssertionError: If the variable does not exist or has a different length.
+
+    """
+    if name not in data_ctx.variables:
+        raise AssertionError(f"Variable '{name}' does not exist.")
+    value = data_ctx.variables[name]
+    try:
+        actual = len(value)  # type: ignore[arg-type]
+    except TypeError as exc:
+        raise AssertionError(
+            f"Variable '{name}' of type {type(value).__name__} has no length."
+        ) from exc
+    if actual != expected:
+        raise AssertionError(
+            f"Variable '{name}': expected length {expected}, got {actual}."
+        )
+
+
+def data_copy_variable(
+    data_ctx: DataContext,
+    source: str,
+    target: str,
+) -> None:
+    """Copy a variable to a new name.
+
+    Args:
+        data_ctx: The data context to operate on.
+        source: The source variable name.
+        target: The target variable name.
+
+    Raises:
+        KeyError: If the source variable does not exist.
+
+    """
+    if source not in data_ctx.variables:
+        raise KeyError(f"Source variable '{source}' does not exist.")
+    data_ctx.variables[target] = data_ctx.variables[source]
+
+
+def data_clear_variables(data_ctx: DataContext) -> None:
+    """Clear all variables from the data context."""
+    data_ctx.variables = {}
+
+
+def data_set_variable_json(
+    data_ctx: DataContext,
+    name: str,
+    json_str: str,
+) -> None:
+    """Set a variable to a parsed JSON value.
+
+    Args:
+        data_ctx: The data context to operate on.
+        name: The variable name.
+        json_str: A JSON string to parse and store.
+
+    Raises:
+        json.JSONDecodeError: If the string is not valid JSON.
+
+    """
+    data_ctx.variables[name] = json.loads(json_str)
+
+
+def data_set_env_from_variable(
+    data_ctx: DataContext,
+    variable: str,
+    key: str,
+) -> None:
+    """Set an environment variable from a data variable's value.
+
+    Args:
+        data_ctx: The data context (used for backup tracking).
+        variable: The source data variable name.
+        key: The environment variable name to set.
+
+    Raises:
+        KeyError: If the source variable does not exist.
+
+    """
+    if variable not in data_ctx.variables:
+        raise KeyError(f"Variable '{variable}' does not exist.")
+    data_set_env_var(data_ctx, key, str(data_ctx.variables[variable]))
+
+
 def data_load_yaml_file(data_ctx: DataContext, path: str, name: str) -> None:
     """Load a YAML file into a variable as a dict.
 
@@ -259,6 +444,40 @@ def data_assert_env_exists(key: str) -> None:
     """
     if key not in os.environ:
         raise AssertionError(f"Environment variable '{key}' is not set.")
+
+
+def data_assert_env_not_equals(key: str, expected: str) -> None:
+    """Assert that an environment variable does not equal a value.
+
+    Args:
+        key: The environment variable name.
+        expected: The value that the env var should NOT have.
+
+    Raises:
+        AssertionError: If the env var does not exist or equals the value.
+
+    """
+    actual = os.environ.get(key)
+    if actual is None:
+        raise AssertionError(f"Environment variable '{key}' is not set.")
+    if actual == expected:
+        raise AssertionError(
+            f"Environment variable '{key}' should not equal '{expected}'."
+        )
+
+
+def data_assert_env_not_exists(key: str) -> None:
+    """Assert that an environment variable does not exist.
+
+    Args:
+        key: The environment variable name.
+
+    Raises:
+        AssertionError: If the env var exists.
+
+    """
+    if key in os.environ:
+        raise AssertionError(f"Environment variable '{key}' should not be set.")
 
 
 def data_store_env_var(

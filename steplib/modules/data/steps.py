@@ -9,17 +9,28 @@ from steplib.core.registry import StepRegistry
 from steplib.modules.data.actions import (
     data_assert_env_equals,
     data_assert_env_exists,
+    data_assert_env_not_equals,
+    data_assert_env_not_exists,
+    data_assert_variable_contains,
     data_assert_variable_equals,
     data_assert_variable_exists,
+    data_assert_variable_has_length,
+    data_assert_variable_is_empty,
+    data_assert_variable_is_not_empty,
+    data_assert_variable_not_equals,
     data_assert_variable_not_exists,
+    data_clear_variables,
+    data_copy_variable,
     data_delete_env_var,
     data_delete_variable,
     data_extract_key_path,
     data_load_env_file,
     data_load_json_file,
     data_load_yaml_file,
+    data_set_env_from_variable,
     data_set_env_var,
     data_set_variable,
+    data_set_variable_json,
     data_store_env_var,
 )
 from steplib.modules.data.context import DataContext
@@ -266,6 +277,180 @@ def step_load_env_file(context: Any, path: str) -> None:
     data_load_env_file(_get_data(context), path.strip('"'))
 
 
+# --- Extended variable assertions ---
+
+
+@step(
+    "the variable {name} does not equal {value}",
+    category="data",
+    description="Assert that a variable does not equal a value.",
+    example='Then the variable "status" does not equal "error"',
+    i18n={
+        "es": "la variable {name} no es igual a {value}",
+        "pt": "a variável {name} não é igual a {value}",
+    },
+)
+def step_variable_not_equals(context: Any, name: str, value: str) -> None:
+    """Assert variable does not equal."""
+    data_assert_variable_not_equals(_get_data(context), name.strip('"'), value.strip('"'))
+
+
+@step(
+    "the variable {name} contains {text}",
+    category="data",
+    description="Assert that a variable's string value contains a substring.",
+    example='Then the variable "message" contains "success"',
+    i18n={
+        "es": "la variable {name} contiene {text}",
+        "pt": "a variável {name} contém {text}",
+    },
+)
+def step_variable_contains(context: Any, name: str, text: str) -> None:
+    """Assert variable contains substring."""
+    data_assert_variable_contains(_get_data(context), name.strip('"'), text.strip('"'))
+
+
+@step(
+    "the variable {name} is empty",
+    category="data",
+    description="Assert that a variable is empty.",
+    example='Then the variable "errors" is empty',
+    i18n={
+        "es": "la variable {name} está vacía",
+        "pt": "a variável {name} está vazia",
+    },
+)
+def step_variable_is_empty(context: Any, name: str) -> None:
+    """Assert variable is empty."""
+    data_assert_variable_is_empty(_get_data(context), name.strip('"'))
+
+
+@step(
+    "the variable {name} is not empty",
+    category="data",
+    description="Assert that a variable is not empty.",
+    example='Then the variable "results" is not empty',
+    i18n={
+        "es": "la variable {name} no está vacía",
+        "pt": "a variável {name} não está vazia",
+    },
+)
+def step_variable_is_not_empty(context: Any, name: str) -> None:
+    """Assert variable is not empty."""
+    data_assert_variable_is_not_empty(_get_data(context), name.strip('"'))
+
+
+@step(
+    "the variable {name} has length {count:d}",
+    category="data",
+    description="Assert that a variable has a specific length.",
+    example='Then the variable "items" has length 5',
+    i18n={
+        "es": "la variable {name} tiene longitud {count:d}",
+        "pt": "a variável {name} tem comprimento {count:d}",
+    },
+)
+def step_variable_has_length(context: Any, name: str, count: int) -> None:
+    """Assert variable has length."""
+    data_assert_variable_has_length(_get_data(context), name.strip('"'), count)
+
+
+# --- Extended env assertions ---
+
+
+@step(
+    "the environment variable {key} does not equal {value}",
+    category="data",
+    description="Assert that an environment variable does not equal a value.",
+    example='Then the environment variable "MODE" does not equal "production"',
+    i18n={
+        "es": "la variable de entorno {key} no es igual a {value}",
+        "pt": "a variável de ambiente {key} não é igual a {value}",
+    },
+)
+def step_env_not_equals(context: Any, key: str, value: str) -> None:
+    """Assert env var does not equal."""
+    data_assert_env_not_equals(key.strip('"'), value.strip('"'))
+
+
+@step(
+    "the environment variable {key} does not exist",
+    category="data",
+    description="Assert that an environment variable does not exist.",
+    example='Then the environment variable "DEBUG" does not exist',
+    i18n={
+        "es": "la variable de entorno {key} no existe",
+        "pt": "a variável de ambiente {key} não existe",
+    },
+)
+def step_env_not_exists(context: Any, key: str) -> None:
+    """Assert env var does not exist."""
+    data_assert_env_not_exists(key.strip('"'))
+
+
+# --- Variable manipulation ---
+
+
+@step(
+    "I copy the variable {source} to {target}",
+    category="data",
+    description="Copy a variable to a new name.",
+    example='When I copy the variable "original" to "backup"',
+    i18n={
+        "es": "copio la variable {source} a {target}",
+        "pt": "copio a variável {source} para {target}",
+    },
+)
+def step_copy_variable(context: Any, source: str, target: str) -> None:
+    """Copy a variable."""
+    data_copy_variable(_get_data(context), source.strip('"'), target.strip('"'))
+
+
+@step(
+    "I clear all variables",
+    category="data",
+    description="Remove all variables from the data context.",
+    example="When I clear all variables",
+    i18n={
+        "es": "limpio todas las variables",
+        "pt": "limpo todas as variáveis",
+    },
+)
+def step_clear_variables(context: Any) -> None:
+    """Clear all variables."""
+    data_clear_variables(_get_data(context))
+
+
+@step(
+    "I set the variable {name} to the JSON {json}",
+    category="data",
+    description="Set a variable to a parsed JSON value.",
+    example='Given I set the variable "config" to the JSON \'{"debug": true}\'',
+    i18n={
+        "es": "establezco la variable {name} al JSON {json}",
+        "pt": "defino a variável {name} como o JSON {json}",
+    },
+)
+def step_set_variable_json(context: Any, name: str, json_str: str) -> None:
+    """Set a variable from a JSON string."""
+    data_set_variable_json(_get_data(context), name.strip('"'), json_str.strip("'").strip('"'))
+
+
+@step(
+    "I set the environment variable {key} from the variable {variable}",
+    category="data",
+    description="Set an environment variable from a data variable's value.",
+    example='When I set the environment variable "TOKEN" from the variable "api_token"',
+    i18n={
+        "es": "establezco la variable de entorno {key} desde la variable {variable}",
+        "pt": "defino a variável de ambiente {key} da variável {variable}",
+    },
+)
+def step_set_env_from_variable(context: Any, key: str, variable: str) -> None:
+    """Set env var from a data variable."""
+    data_set_env_from_variable(_get_data(context), variable.strip('"'), key.strip('"'))
+
+
 _ALL_STEPS = [
     step_set_variable,
     step_variable_equals,
@@ -275,6 +460,16 @@ _ALL_STEPS = [
     step_load_yaml,
     step_load_json_file,
     step_extract_key_path,
+    # Extended variable assertions
+    step_variable_not_equals,
+    step_variable_contains,
+    step_variable_is_empty,
+    step_variable_is_not_empty,
+    step_variable_has_length,
+    # Variable manipulation
+    step_copy_variable,
+    step_clear_variables,
+    step_set_variable_json,
     # Env
     step_set_env_var,
     step_delete_env_var,
@@ -282,6 +477,11 @@ _ALL_STEPS = [
     step_env_exists,
     step_store_env_var,
     step_load_env_file,
+    # Extended env assertions
+    step_env_not_equals,
+    step_env_not_exists,
+    # Env from variable
+    step_set_env_from_variable,
 ]
 
 

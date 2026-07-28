@@ -12,17 +12,28 @@ import pytest
 from steplib.modules.data.actions import (
     data_assert_env_equals,
     data_assert_env_exists,
+    data_assert_env_not_equals,
+    data_assert_env_not_exists,
+    data_assert_variable_contains,
     data_assert_variable_equals,
     data_assert_variable_exists,
+    data_assert_variable_has_length,
+    data_assert_variable_is_empty,
+    data_assert_variable_is_not_empty,
+    data_assert_variable_not_equals,
     data_assert_variable_not_exists,
+    data_clear_variables,
+    data_copy_variable,
     data_delete_env_var,
     data_delete_variable,
     data_extract_key_path,
     data_load_env_file,
     data_load_json_file,
     data_load_yaml_file,
+    data_set_env_from_variable,
     data_set_env_var,
     data_set_variable,
+    data_set_variable_json,
     data_store_env_var,
 )
 from steplib.modules.data.context import DataContext
@@ -291,3 +302,248 @@ class TestLoadEnvFile:
         ctx = DataContext()
         with pytest.raises(FileNotFoundError, match="Env file not found"):
             data_load_env_file(ctx, "missing.env")
+
+
+# --- Extended variable assertion actions ---
+
+
+class TestAssertVariableNotEquals:
+    def test_not_equals(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "1")
+        data_assert_variable_not_equals(ctx, "x", "2")
+
+    def test_equals_raises(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "1")
+        with pytest.raises(AssertionError, match="should not equal"):
+            data_assert_variable_not_equals(ctx, "x", "1")
+
+    def test_missing(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_not_equals(ctx, "missing", "1")
+
+
+class TestAssertVariableContains:
+    def test_contains(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "msg", "hello world")
+        data_assert_variable_contains(ctx, "msg", "world")
+
+    def test_not_contains_raises(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "msg", "hello")
+        with pytest.raises(AssertionError, match="expected to contain"):
+            data_assert_variable_contains(ctx, "msg", "bye")
+
+    def test_missing(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_contains(ctx, "missing", "x")
+
+
+class TestAssertVariableIsEmpty:
+    def test_empty_string(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "")
+        data_assert_variable_is_empty(ctx, "x")
+
+    def test_empty_list(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = []
+        data_assert_variable_is_empty(ctx, "x")
+
+    def test_empty_dict(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = {}
+        data_assert_variable_is_empty(ctx, "x")
+
+    def test_none(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = None
+        data_assert_variable_is_empty(ctx, "x")
+
+    def test_not_empty_raises(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "value")
+        with pytest.raises(AssertionError, match="is not empty"):
+            data_assert_variable_is_empty(ctx, "x")
+
+    def test_missing(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_is_empty(ctx, "missing")
+
+
+class TestAssertVariableIsNotEmpty:
+    def test_not_empty_string(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "value")
+        data_assert_variable_is_not_empty(ctx, "x")
+
+    def test_not_empty_list(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = [1]
+        data_assert_variable_is_not_empty(ctx, "x")
+
+    def test_empty_string_raises(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "")
+        with pytest.raises(AssertionError, match="is empty"):
+            data_assert_variable_is_not_empty(ctx, "x")
+
+    def test_empty_list_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = []
+        with pytest.raises(AssertionError, match="is empty"):
+            data_assert_variable_is_not_empty(ctx, "x")
+
+    def test_none_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = None
+        with pytest.raises(AssertionError, match="is empty"):
+            data_assert_variable_is_not_empty(ctx, "x")
+
+    def test_missing(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_is_not_empty(ctx, "missing")
+
+
+class TestAssertVariableHasLength:
+    def test_string_length(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "hello")
+        data_assert_variable_has_length(ctx, "x", 5)
+
+    def test_list_length(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = [1, 2, 3]
+        data_assert_variable_has_length(ctx, "x", 3)
+
+    def test_dict_length(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = {"a": 1, "b": 2}
+        data_assert_variable_has_length(ctx, "x", 2)
+
+    def test_wrong_length_raises(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "x", "hello")
+        with pytest.raises(AssertionError, match="expected length 10"):
+            data_assert_variable_has_length(ctx, "x", 10)
+
+    def test_no_length_raises(self) -> None:
+        ctx = DataContext()
+        ctx.variables["x"] = 42
+        with pytest.raises(AssertionError, match="has no length"):
+            data_assert_variable_has_length(ctx, "x", 1)
+
+    def test_missing(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(AssertionError, match="does not exist"):
+            data_assert_variable_has_length(ctx, "missing", 1)
+
+
+# --- Variable manipulation actions ---
+
+
+class TestCopyVariable:
+    def test_copy(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "original", "value")
+        data_copy_variable(ctx, "original", "backup")
+        assert ctx.variables["backup"] == "value"
+        assert ctx.variables["original"] == "value"
+
+    def test_copy_missing(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(KeyError, match="does not exist"):
+            data_copy_variable(ctx, "missing", "target")
+
+
+class TestClearVariables:
+    def test_clear(self) -> None:
+        ctx = DataContext()
+        data_set_variable(ctx, "a", "1")
+        data_set_variable(ctx, "b", "2")
+        data_clear_variables(ctx)
+        assert ctx.variables == {}
+
+    def test_clear_empty(self) -> None:
+        ctx = DataContext()
+        data_clear_variables(ctx)
+        assert ctx.variables == {}
+
+
+class TestSetVariableJson:
+    def test_set_json(self) -> None:
+        ctx = DataContext()
+        data_set_variable_json(ctx, "config", '{"debug": true, "port": 8080}')
+        assert ctx.variables["config"] == {"debug": True, "port": 8080}
+
+    def test_set_json_list(self) -> None:
+        ctx = DataContext()
+        data_set_variable_json(ctx, "items", '[1, 2, 3]')
+        assert ctx.variables["items"] == [1, 2, 3]
+
+    def test_invalid_json(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(json.JSONDecodeError):
+            data_set_variable_json(ctx, "x", "{invalid}")
+
+
+class TestSetEnvFromVariable:
+    def test_set_env_from_var(self) -> None:
+        ctx = DataContext()
+        key = "STEPLIB_TEST_ENV_FROM_VAR"
+        data_set_variable(ctx, "token", "secret123")
+        data_set_env_from_variable(ctx, "token", key)
+        assert os.environ[key] == "secret123"
+        ctx.cleanup()
+        assert key not in os.environ
+
+    def test_missing_variable(self) -> None:
+        ctx = DataContext()
+        with pytest.raises(KeyError, match="does not exist"):
+            data_set_env_from_variable(ctx, "missing", "KEY")
+
+
+# --- Extended env assertion actions ---
+
+
+class TestAssertEnvNotEquals:
+    def test_not_equals(self) -> None:
+        key = "STEPLIB_TEST_ENV_NEQ2"
+        os.environ[key] = "value"
+        try:
+            data_assert_env_not_equals(key, "other")
+        finally:
+            del os.environ[key]
+
+    def test_equals_raises(self) -> None:
+        key = "STEPLIB_TEST_ENV_NEQ3"
+        os.environ[key] = "value"
+        try:
+            with pytest.raises(AssertionError, match="should not equal"):
+                data_assert_env_not_equals(key, "value")
+        finally:
+            del os.environ[key]
+
+    def test_missing(self) -> None:
+        with pytest.raises(AssertionError, match="not set"):
+            data_assert_env_not_equals("STEPLIB_NONEXISTENT_11111", "x")
+
+
+class TestAssertEnvNotExists:
+    def test_not_exists(self) -> None:
+        data_assert_env_not_exists("STEPLIB_NONEXISTENT_22222")
+
+    def test_exists_raises(self) -> None:
+        key = "STEPLIB_TEST_ENV_EXISTS2"
+        os.environ[key] = "1"
+        try:
+            with pytest.raises(AssertionError, match="should not be set"):
+                data_assert_env_not_exists(key)
+        finally:
+            del os.environ[key]
