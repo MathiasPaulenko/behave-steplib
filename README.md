@@ -134,49 +134,62 @@ Então o status da resposta é 200
 
 ### API
 
-HTTP API testing with stdlib (urllib), httpx or requests backends.
+HTTP API testing with stdlib (urllib), httpx or requests backends. **55 steps** covering configuration, authentication, SSL/redirects, requests (body, form, JSON, query params, headers), status/body/JSON Path/header/response-time assertions, store/extract, variable reuse and table comparison.
 
 ```gherkin
 Given the API base url is "https://api.example.com"
-When I send a GET request to "/users"
-Then the response status is 200
-And the JSON path "$.users[0].name" equals "Ada"
-And the response header "Content-Type" is "application/json"
+And I set the bearer token to "eyJhbGciOi..."
+When I send a POST request to "/users" with JSON body
+  """
+  {"name": "Ada", "email": "ada@example.com"}
+  """
+Then the response status is 201
+And the JSON path "$.id" is not null
+And the response time is less than 5 seconds
+And I store the JSON path "$.id" as "user_id"
 ```
 
 ### Web
 
-Browser testing with Selenium (Chrome, Firefox, headless).
+Browser testing with Selenium (Chrome, Firefox, headless). **34 steps** covering configuration, navigation, interactions (click, type, clear, select, screenshot), waits, assertions (title, URL, element presence/visibility/enabled/text/attribute, page content), cookies, frame switching and store/extract.
 
 ```gherkin
 Given the web base url is "https://example.com"
 When I navigate to "/login"
-Then the page title is "Login"
-And the element id "username" is present
-And the page contains "Sign In"
+And I type "admin" into the element id "username"
+And I type "secret" into the element id "password"
+And I click the element id "submit"
+Then the page title is "Dashboard"
+And the element id "welcome" is visible
+And I store the text of element id "username" as "displayed_name"
 ```
 
 ### DB
 
-Database testing with SQLAlchemy (SQLite, PostgreSQL, MySQL, ...).
+Database testing with SQLAlchemy (SQLite, PostgreSQL, MySQL, ...). **22 steps** covering connection management, query execution (with bind parameters), row count assertions, column assertions (equals, not equals, contains, null, not null), scalar queries, table assertions, transactions and store/extract.
 
 ```gherkin
 Given the database connection string is "sqlite:///test.db"
-When I execute the SQL query "SELECT * FROM users"
+When I connect to the database
+And I execute the SQL query "SELECT * FROM users"
 Then the query returns 3 rows
 And the column "name" in the first row equals "Ada"
+And the column "email" in the first row contains "@"
+And I store the column "id" from the first row as "user_id"
 ```
 
 ### Kafka
 
-Kafka producer and consumer testing with kafka-python-ng.
+Kafka producer and consumer testing with kafka-python-ng. **20 steps** covering bootstrap/group/offset configuration, producer/consumer config overrides, message production (single, JSON, batch from table), consumption (with optional timeout), assertions (count, contains, key/value by index, regex, order) and store/extract.
 
 ```gherkin
 Given the Kafka bootstrap servers are "localhost:9092"
+And the Kafka consumer group is "test-group"
 When I produce a message to topic "events" with key "id" and value "hello"
-And I consume messages from topic "events"
+And I consume messages from topic "events" with timeout 10000 ms
 Then the consumed messages count is 1
-And a consumed message contains "hello"
+And the message at index 0 has value "hello"
+And I store the message count as "total_messages"
 ```
 
 ## CLI

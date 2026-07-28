@@ -14,31 +14,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `SteplibState` lifecycle management, i18n pattern expansion and validation,
   static step contract validation, ecosystem integration helpers
   (`behave-kit`, `behave-tables`, `behave-data`).
-- **API module** (`steplib.modules.api`): HTTP testing steps with stdlib
-  (urllib), httpx and requests backends. Configuration, requests, assertions
-  (status, body, JSON path, headers), response storage and table comparison.
-- **Web module** (`steplib.modules.web`): Browser testing steps with Selenium
-  (Chrome, Firefox, headless). Navigation, page title, URL, element presence
-  and page content assertions.
-- **DB module** (`steplib.modules.db`): Database testing steps with SQLAlchemy.
-  Connection configuration, query execution, row count and column assertions.
-- **Kafka module** (`steplib.modules.kafka`): Kafka producer/consumer testing
-  steps with kafka-python-ng. Bootstrap configuration, produce, consume,
-  message count and content assertions.
+- **API module** (`steplib.modules.api`): 55 HTTP testing steps with stdlib
+  (urllib), httpx and requests backends. Configuration (base URL, headers,
+  timeout, query params, proxy), authentication (basic auth, bearer token),
+  SSL/redirect control, cookie management, requests (plain, body, form data,
+  JSON body, query params, headers from table), status/body/JSON Path/header/
+  response-time assertions, JSON Schema validation, store/extract operations,
+  variable reuse and table comparison.
+- **Web module** (`steplib.modules.web`): 34 browser testing steps with
+  Selenium (Chrome, Firefox, headless). Configuration (base URL, implicit
+  wait, page load timeout, window size), navigation (navigate, refresh, back,
+  forward, frame switching), interactions (click, type, clear, select,
+  screenshot), waits (element present, element visible, text), assertions
+  (title, URL, element presence/visibility/enabled/text/attribute, page
+  content), cookies (exists, delete, store) and store/extract operations.
+- **DB module** (`steplib.modules.db`): 22 database testing steps with
+  SQLAlchemy. Connection management (connect, disconnect), query execution
+  (plain and with bind parameters), row count assertions (exact, greater
+  than, fewer than), column assertions (equals, not equals, contains, null,
+  not null), scalar queries, table assertions (exists, row count),
+  transaction management (begin, rollback, commit) and store/extract
+  operations.
+- **Kafka module** (`steplib.modules.kafka`): 20 Kafka producer/consumer
+  testing steps with kafka-python-ng. Configuration (bootstrap servers,
+  consumer group, auto offset reset, producer/consumer config overrides),
+  message production (single, JSON, batch from table), consumption (with
+  optional timeout), assertions (count, greater than, contains, key/value
+  by index, regex match, order) and store/extract operations.
 - **Behave integration** (`steplib.behave`): `autoload(context)` for entry-point
   discovery, `load(context, *modules)` for explicit loading, `before_all` and
   `after_scenario` hooks.
 - **CLI** (`steplib.cli`): `steplib list / show / validate / init` powered by
-  Typer with table and JSON output formats.
-- **i18n**: Spanish (`es`) and Portuguese (`pt`) translations for all steps.
-  Both `i18n` dictionary and stacked decorator patterns supported.
+  Typer with table and JSON output formats. List supports `--category`,
+  `--backend` and `--tag` filters.
+- **i18n**: Spanish (`es`) and Portuguese (`pt`) translations for all 131
+  steps across all modules. Both `i18n` dictionary and stacked decorator
+  patterns supported.
 - **Tests**: 467 tests covering core, modules, CLI and behave integration.
   Coverage gate at 80% (current: 82%).
 - **CI/CD**: GitHub Actions workflows for CI (lint, typecheck, test, coverage),
   release (build, PyPI publish with attestations, GitHub release) and docs
   (Sphinx + furo, GitHub Pages deployment).
 - **Documentation**: Sphinx documentation with furo theme, autodoc API
-  reference, getting started guides, module references and architecture docs.
+  reference, getting started guides, module references with complete step
+  listings, architecture docs, step contract guide and i18n guide.
 - **Community files**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`,
   pull request template, bug report and feature request issue templates.
 - **Project setup**: `pyproject.toml` with hatchling + hatch-vcs, `Makefile`,

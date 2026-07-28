@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path("..").resolve()))
 
 project = "behave-steplib"
 author = "Mathias Paulenko"
-copyright = "2025, Mathias Paulenko"
+copyright = "2026, Mathias Paulenko"
 try:
     from steplib._version import __version__ as release
 except ImportError:  # pragma: no cover
