@@ -55,7 +55,7 @@ dev = [
 ]
 docs = [
     "sphinx>=7.0,<8.0",
-    "furo>=2024.0,<2025.0",
+    "furo>=2024.0,<2026.0",
     "myst-parser>=3.0,<4.0",
     "sphinx-autodoc-typehints>=2.0",
 ]
