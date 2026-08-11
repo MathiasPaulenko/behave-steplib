@@ -199,3 +199,206 @@ def test_init_creates_environment(
     assert "autoload(context)" in content
     assert "def before_scenario" in content
     assert "def after_scenario" in content
+
+
+def test_init_json_output(
+    runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    """steplib init --json should output valid JSON with created and path."""
+    output = tmp_path / "features" / "environment.py"
+    result = runner.invoke(app, ["init", "--path", str(output), "--json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["created"] is True
+    assert data["path"] == str(output)
+    assert output.exists()
+
+
+# --- search command tests ---
+
+
+def test_search_by_partial_pattern(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search 'send a' should match the API step."""
+    result = runner.invoke(app, ["search", "send a"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+    assert "I click {selector}" not in result.output
+
+
+def test_search_case_insensitive(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search should be case-insensitive."""
+    result = runner.invoke(app, ["search", "SEND"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+
+
+def test_search_by_category(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search --category api should show only API steps."""
+    result = runner.invoke(app, ["search", "--category", "api"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+    assert "I click {selector}" not in result.output
+
+
+def test_search_by_backend(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search --backend httpx should show only httpx steps."""
+    result = runner.invoke(app, ["search", "--backend", "httpx"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+    assert "I click {selector}" not in result.output
+
+
+def test_search_by_tag(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search --tag smoke should show only tagged steps."""
+    result = runner.invoke(app, ["search", "--tag", "smoke"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+    assert "I click {selector}" not in result.output
+
+
+def test_search_json_output(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search --json should output valid JSON."""
+    result = runner.invoke(app, ["search", "send a", "--json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["pattern"] == "I send a {method} request to {url}"
+
+
+def test_search_no_results(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search with no matches should show 'No steps found'."""
+    result = runner.invoke(app, ["search", "nonexistent"])
+    assert result.exit_code == 0
+    assert "No steps" in result.output
+
+
+def test_search_combined_filters(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search with pattern + category should AND-combine filters."""
+    result = runner.invoke(app, ["search", "send", "--category", "api"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+
+    result_none = runner.invoke(app, ["search", "send", "--category", "web"])
+    assert result_none.exit_code == 0
+    assert "No steps" in result_none.output
+
+
+def test_search_no_args_lists_all(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib search with no args should list all steps (like list)."""
+    result = runner.invoke(app, ["search"])
+    assert result.exit_code == 0
+    assert "I send a {method} request to {url}" in result.output
+    assert "I click {selector}" in result.output
+
+
+# --- validate --json tests ---
+
+
+def test_validate_json_ok(
+    runner: CliRunner,
+    populated_registry: StepRegistry,
+) -> None:
+    """steplib validate --json should output valid JSON with valid=true."""
+    result = runner.invoke(app, ["validate", "--json"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["valid"] is True
+    assert data["errors"] == []
+
+
+def test_validate_json_with_errors(
+    runner: CliRunner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """steplib validate --json should report errors and exit 1."""
+    registry = StepRegistry(auto_register_behave=False)
+
+    @step(
+        "I send a {method} request to {url}",
+        category="api",
+        backend="httpx",
+        i18n={"es": "envío una petición a {url}"},  # missing {method}
+    )
+    def step_bad(context, method, url):  # type: ignore[no-untyped-def]
+        pass
+
+    registry.add(step_bad)
+    monkeypatch.setattr(cli_main, "_get_registry", lambda: registry)
+    result = runner.invoke(app, ["validate", "--json"])
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["valid"] is False
+    assert len(data["errors"]) > 0
+
+
+# --- install command tests ---
+
+
+def test_install_no_extra(
+    runner: CliRunner,
+) -> None:
+    """steplib install with no args should show informative message and exit 1."""
+    result = runner.invoke(app, ["install"])
+    assert result.exit_code == 1
+    assert "not a steplib command" in result.output
+    assert "pip install behave-steplib[EXTRA]" in result.output
+
+
+def test_install_known_extra(
+    runner: CliRunner,
+) -> None:
+    """steplib install api should suggest pip install behave-steplib[api]."""
+    result = runner.invoke(app, ["install", "api"])
+    assert result.exit_code == 1
+    assert "pip install behave-steplib[api]" in result.output
+
+
+def test_install_unknown_extra(
+    runner: CliRunner,
+) -> None:
+    """steplib install unknown should list available extras."""
+    result = runner.invoke(app, ["install", "nonexistent"])
+    assert result.exit_code == 1
+    assert "Unknown extra" in result.output
+    assert "api" in result.output
+
+
+# --- unknown subcommand test ---
+
+
+def test_unknown_subcommand_suggests_help(
+    runner: CliRunner,
+) -> None:
+    """steplib with an unknown subcommand should show help and exit non-zero."""
+    result = runner.invoke(app, ["foobar"])
+    assert result.exit_code != 0
+    assert "Usage" in result.output or "list" in result.output

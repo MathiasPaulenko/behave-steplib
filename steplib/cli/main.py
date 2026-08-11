@@ -3,12 +3,15 @@
 Commands:
     list      List registered steps (with optional --category/--backend filters).
     show      Show detailed metadata for a single step pattern.
+    search    Search steps by partial pattern, category, backend or tag.
     validate  Validate step contracts.
     init      Generate a features/environment.py scaffold.
+    install   Informative message — use pip install behave-steplib[EXTRA] instead.
 """
 
 from __future__ import annotations
 
+import json as json_module
 from pathlib import Path
 from typing import Annotated
 
@@ -91,16 +94,65 @@ def show_step(
         typer.echo(format_step_detail(info))
 
 
+@app.command(name="search")
+def search_steps(
+    pattern: Annotated[
+        str | None,
+        typer.Argument(help="Partial text to search for in step patterns."),
+    ] = None,
+    category: Annotated[
+        str | None,
+        typer.Option("--category", "-c", help="Filter by category (e.g. 'api')."),
+    ] = None,
+    backend: Annotated[
+        str | None,
+        typer.Option("--backend", "-b", help="Filter by backend (e.g. 'httpx')."),
+    ] = None,
+    tag: Annotated[
+        str | None,
+        typer.Option("--tag", "-t", help="Filter by tag."),
+    ] = None,
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Output as JSON."),
+    ] = False,
+) -> None:
+    """Search steps by partial pattern, category, backend or tag."""
+    registry = _get_registry()
+    steps = registry.search(
+        pattern=pattern,
+        category=category,
+        backend=backend,
+        tag=tag,
+    )
+    if json_output:
+        typer.echo(format_step_json(steps))
+    else:
+        typer.echo(format_step_table(steps))
+
+
 @app.command(name="validate")
-def validate() -> None:
+def validate(
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Output as JSON."),
+    ] = False,
+) -> None:
     """Validate that all registered steps satisfy the step contract."""
     registry = _get_registry()
     errors = validate_steps(registry)
-    if errors:
+    if json_output:
+        data = {"valid": len(errors) == 0, "errors": errors}
+        typer.echo(json_module.dumps(data, indent=2, ensure_ascii=False))
+    elif errors:
         for error in errors:
             typer.echo(error, err=True)
         raise typer.Exit(code=1)
-    typer.echo("OK")
+    else:
+        typer.echo("OK")
+
+    if errors and json_output:
+        raise typer.Exit(code=1)
 
 
 @app.command(name="init")
@@ -109,6 +161,10 @@ def init_scaffold(
         str,
         typer.Option("--path", "-p", help="Output path for environment.py."),
     ] = "features/environment.py",
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Output as JSON."),
+    ] = False,
 ) -> None:
     """Generate a features/environment.py with autoload(context)."""
     output = Path(path)
@@ -124,7 +180,55 @@ def init_scaffold(
         "    context.steplib.cleanup()\n",
         encoding="utf-8",
     )
-    typer.echo(f"Created {path}")
+    if json_output:
+        data = {"created": True, "path": str(output)}
+        typer.echo(json_module.dumps(data, indent=2, ensure_ascii=False))
+    else:
+        typer.echo(f"Created {path}")
+
+
+@app.command(name="install")
+def install(
+    extra: Annotated[
+        str | None,
+        typer.Argument(help="Extra name to install (e.g. 'api')."),
+    ] = None,
+) -> None:
+    """Informative message — use pip install behave-steplib[EXTRA] instead.
+
+    behave-steplib does not install packages. Use pip directly to install
+    the desired extras.
+    """
+    available_extras = [
+        "api",
+        "requests",
+        "web",
+        "db",
+        "kafka",
+        "data",
+        "io",
+        "tables",
+        "kit",
+        "all",
+    ]
+    if extra and extra in available_extras:
+        typer.echo(
+            f"'install' is not a steplib command. "
+            f"Use 'pip install behave-steplib[{extra}]' instead."
+        )
+    elif extra:
+        typer.echo(
+            f"Unknown extra '{extra}'. "
+            f"Available extras: {', '.join(available_extras)}.\n"
+            f"Use 'pip install behave-steplib[EXTRA]' to install."
+        )
+    else:
+        typer.echo(
+            "'install' is not a steplib command. "
+            "Use 'pip install behave-steplib[EXTRA]' instead.\n"
+            f"Available extras: {', '.join(available_extras)}."
+        )
+    raise typer.Exit(code=1)
 
 
 def main() -> None:

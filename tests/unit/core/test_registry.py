@@ -191,3 +191,59 @@ def test_registry_iter() -> None:
 
     patterns = [info.pattern for info in registry]
     assert patterns == ["step one", "step two"]
+
+
+def test_registry_search_partial_pattern() -> None:
+    """search() should match steps by case-insensitive substring."""
+
+    @step("I send a {method} request to {url}", category="api", backend="httpx")
+    def step_send(context, method, url):  # type: ignore[no-untyped-def]
+        pass
+
+    @step("I click {selector}", category="web", backend="selenium")
+    def step_click(context, selector):  # type: ignore[no-untyped-def]
+        pass
+
+    registry = StepRegistry(auto_register_behave=False)
+    registry.add(step_send)
+    registry.add(step_click)
+
+    results = registry.search(pattern="send a")
+    assert len(results) == 1
+    assert results[0].pattern == "I send a {method} request to {url}"
+
+    results_ci = registry.search(pattern="SEND")
+    assert len(results_ci) == 1
+    assert results_ci[0].pattern == "I send a {method} request to {url}"
+
+    results_none = registry.search(pattern="nonexistent")
+    assert len(results_none) == 0
+
+
+def test_registry_search_with_filters() -> None:
+    """search() should AND-combine pattern substring with category/backend/tag."""
+
+    @step(
+        "I send a {method} request to {url}",
+        category="api",
+        backend="httpx",
+        tags=["smoke"],
+    )
+    def step_send(context, method, url):  # type: ignore[no-untyped-def]
+        pass
+
+    @step("I click {selector}", category="web", backend="selenium")
+    def step_click(context, selector):  # type: ignore[no-untyped-def]
+        pass
+
+    registry = StepRegistry(auto_register_behave=False)
+    registry.add(step_send)
+    registry.add(step_click)
+
+    assert len(registry.search(pattern="send", category="api")) == 1
+    assert len(registry.search(pattern="send", category="web")) == 0
+    assert len(registry.search(pattern="send", backend="httpx")) == 1
+    assert len(registry.search(pattern="send", tag="smoke")) == 1
+    assert len(registry.search(tag="smoke")) == 1
+    assert len(registry.search(category="api")) == 1
+    assert len(registry.search()) == 2

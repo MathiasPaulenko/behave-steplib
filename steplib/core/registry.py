@@ -103,6 +103,41 @@ class StepRegistry:
             result.append(info)
         return result
 
+    def search(
+        self,
+        pattern: str | None = None,
+        category: str | None = None,
+        backend: str | None = None,
+        tag: str | None = None,
+    ) -> list[StepInfo]:
+        """Return steps matching partial text and/or filters (all optional, AND-combined).
+
+        Unlike :meth:`filter`, the *pattern* argument performs a case-insensitive
+        substring match against the step pattern text.
+
+        Args:
+            pattern: Partial text to search for (case-insensitive substring).
+            category: Filter by category (e.g. ``"api"``).
+            backend: Filter by backend (e.g. ``"httpx"``).
+            tag: Filter by tag.
+
+        Returns:
+            A list of ``StepInfo`` entries matching all provided criteria.
+
+        """
+        result: list[StepInfo] = []
+        for info in self._steps:
+            if pattern is not None and pattern.lower() not in info.pattern.lower():
+                continue
+            if category is not None and info.category != category:
+                continue
+            if backend is not None and info.backend != backend:
+                continue
+            if tag is not None and tag not in info.tags:
+                continue
+            result.append(info)
+        return result
+
     def get(self, pattern: str, backend: str | None = None) -> StepInfo | None:
         """Return the ``StepInfo`` for *pattern* (optionally filtered by backend).
 
