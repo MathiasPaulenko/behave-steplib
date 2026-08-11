@@ -56,8 +56,11 @@ needs to keep the dependency surface small.
    * - ``[docs]``
      - sphinx, furo, myst-parser, sphinx-autodoc-typehints
      - Documentation build tools
+   * - ``[io]``
+     - ``jsonschema``
+     - File, JSON, CSV and directory operations with schema validation
    * - ``[all]``
-     - api, requests, web, db, kafka, kit, data, tables
+     - api, requests, web, db, kafka, kit, data, tables, io
      - Every technology extra (excludes dev and docs)
 
 Examples

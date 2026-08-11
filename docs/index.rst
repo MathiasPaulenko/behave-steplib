@@ -55,7 +55,7 @@ Features at a glance
 - **Auto-registered** — ``autoload(context)`` registers every installed step in one line.
 - **Multilingual** — steps defined in English with ``es`` and ``pt`` translations; all patterns are registered with behave so matching works regardless of active language.
 - **Typed** — full type hints, ``mypy --strict`` clean, ``py.typed`` marker included.
-- **CLI** — ``steplib list / show / validate / init`` powered by Typer.
+- **CLI** — ``steplib list / show / search / validate / init / install`` powered by Typer.
 - **Pluggable** — third-party packages can register steps via the ``steplib.plugins`` entry point group.
 - **Ecosystem** — integrates with ``behave-kit``, ``behave-tables`` and ``behave-data`` when installed.
 - **Backends** — each module supports multiple backends (e.g. stdlib/httpx/requests for API, selenium for web) selectable at autoload time.
@@ -111,7 +111,7 @@ With optional extras:
 
 .. code-block:: bash
 
-   pip install "behave-steplib[api,requests,web,db,kafka,data]"
+   pip install "behave-steplib[api,requests,web,db,kafka,data,io]"
 
 License
 -------

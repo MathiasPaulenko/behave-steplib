@@ -107,6 +107,9 @@ packages that register steps under the ``steplib.plugins`` entry point group:
    web = "steplib.modules.web.steps:register"
    db = "steplib.modules.db.steps:register"
    kafka = "steplib.modules.kafka.steps:register"
+   data = "steplib.modules.data.steps:register"
+   io = "steplib.modules.io.steps:register"
+   cli = "steplib.modules.cli.steps:register"
 
 Third-party packages can add their own entry points in the same group:
 

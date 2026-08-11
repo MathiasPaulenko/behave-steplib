@@ -27,7 +27,7 @@ behave-steplib is organised in layers:
                            │ entry points (steplib.plugins)
    ┌───────────────────────▼──────────────────────────┐
    │                steplib.modules                     │
-   │    api · web · db · kafka · data                  │
+   │    api · web · db · kafka · data · io · cli       │
    │  Each module: steps · actions · context · client  │
    └──────────────────────────────────────────────────┘
 
@@ -59,7 +59,8 @@ specific technology:
 Module pattern (``steplib.modules.*``)
 --------------------------------------
 
-Each technology module follows the same four-file pattern:
+Each technology module follows the same four-file pattern (``cli`` has no
+``client.py`` since it uses the standard library ``subprocess`` directly):
 
 .. list-table::
    :header-rows: 1

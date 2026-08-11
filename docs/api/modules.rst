@@ -100,3 +100,35 @@ Data module
 .. automodule:: steplib.modules.data.context
    :members:
    :no-index:
+
+IO module
+~~~~~~~~~
+
+.. automodule:: steplib.modules.io
+   :members:
+
+.. automodule:: steplib.modules.io.steps
+   :members:
+
+.. automodule:: steplib.modules.io.actions
+   :members:
+
+.. automodule:: steplib.modules.io.context
+   :members:
+   :no-index:
+
+CLI module
+~~~~~~~~~~
+
+.. automodule:: steplib.modules.cli
+   :members:
+
+.. automodule:: steplib.modules.cli.steps
+   :members:
+
+.. automodule:: steplib.modules.cli.actions
+   :members:
+
+.. automodule:: steplib.modules.cli.context
+   :members:
+   :no-index:

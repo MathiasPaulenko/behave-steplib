@@ -16,7 +16,7 @@ Writing BDD step definitions for HTTP APIs, web browsers, databases and Kafka is
 - **Auto-registered** — `autoload(context)` discovers every installed step via Python entry points and registers it with behave in one line.
 - **Multilingual** — steps defined in English with `es` and `pt` translations; all patterns are registered with behave so matching works regardless of the language used in feature files.
 - **Typed** — full type hints, `mypy --strict` clean, `py.typed` marker included.
-- **CLI** — `steplib list / show / validate / init` powered by Typer for inspecting and validating your step library from the terminal.
+- **CLI** — `steplib list / show / search / validate / init / install` powered by Typer for inspecting and validating your step library from the terminal. Also available as `behave-steplib`.
 - **Pluggable** — third-party packages can register steps via the `steplib.plugins` entry point group; `autoload` discovers them automatically.
 - **Ecosystem** — integrates with `behave-kit` (soft assertions), `behave-tables` (table conversion) and `behave-data` (test data loading) when installed.
 - **Backends** — each module supports multiple backends (e.g. stdlib/httpx/requests for API, selenium for web) selectable at autoload time.
@@ -260,11 +260,52 @@ Then the command stderr contains "error"
 steplib list                         # list all registered steps
 steplib list --category api          # filter by category
 steplib list --backend httpx         # filter by backend
+steplib list --tag smoke             # filter by tag
 steplib list --json                  # output as JSON
+
+steplib search "send a request"      # search by partial pattern (case-insensitive)
+steplib search --category api        # search within a category
+steplib search --backend httpx       # search within a backend
+steplib search --tag http --json     # search by tag with JSON output
+
 steplib show "I send a {method} request to {url}"
+steplib show "I send a {method} request to {url}" --json
+
 steplib validate                     # validate step contracts
+steplib validate --json              # output as JSON: {"valid": true, "errors": []}
+
 steplib init                         # generate features/environment.py
+steplib init --path custom/env.py    # custom output path
+steplib init --json                  # output as JSON: {"created": true, "path": "..."}
+
+steplib install                      # informative message (use pip instead)
+steplib install api                  # suggests: pip install behave-steplib[api]
 ```
+
+Both `steplib` and `behave-steplib` are installed as console commands and accept the same subcommands: `list`, `show`, `search`, `validate`, `init`, `install`.
+
+### JSON output schema
+
+All commands support `--json` for machine-readable output:
+
+| Command | Schema |
+|---------|--------|
+| `list --json` | `[{ "pattern", "category", "backend", "description", "module", "tags", "version", "deprecated", "example", "i18n" }]` |
+| `search --json` | Same as `list --json` |
+| `show --json` | `{ "pattern", "category", "backend", "description", "module", "function", "example", "tags", "version", "deprecated", "requires", "i18n", "parameters" }` |
+| `validate --json` | `{ "valid": bool, "errors": [str] }` |
+| `init --json` | `{ "created": bool, "path": str }` |
+
+### `install` — not a steplib command
+
+`behave-steplib` does not install packages. Use `pip` directly to install extras:
+
+```bash
+pip install behave-steplib[api]      # install the api extra (httpx)
+pip install behave-steplib[all]      # install all technology extras
+```
+
+Running `steplib install` prints an informative message with the correct `pip` command.
 
 ## Writing custom steps
 

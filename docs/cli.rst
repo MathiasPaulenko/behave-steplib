@@ -104,6 +104,34 @@ Options
 ``--json``
     Output as JSON.
 
+``steplib search``
+-------------------
+
+Search steps by partial pattern text, optionally filtered by category,
+backend or tag. Matching is case-insensitive.
+
+.. code-block:: bash
+
+   steplib search "send a request"
+   steplib search --category api
+   steplib search --backend httpx
+   steplib search --tag http --json
+
+Options
+~~~~~~~
+
+``--category, -c``
+    Filter by category (e.g. ``api``, ``web``, ``db``, ``kafka``).
+
+``--backend, -b``
+    Filter by backend (e.g. ``httpx``, ``requests``, ``stdlib``, ``selenium``).
+
+``--tag, -t``
+    Filter by tag.
+
+``--json``
+    Output as JSON instead of a table.
+
 ``steplib validate``
 --------------------
 
@@ -162,6 +190,20 @@ Options
     Output path for ``environment.py``. Defaults to
     ``features/environment.py``. Parent directories are created
     automatically.
+
+``steplib install``
+-------------------
+
+Informative command — ``behave-steplib`` does not install packages. Use
+``pip`` directly to install extras:
+
+.. code-block:: bash
+
+   steplib install              # lists available extras
+   steplib install api          # suggests: pip install behave-steplib[api]
+
+Available extras: ``api``, ``requests``, ``web``, ``db``, ``kafka``,
+``data``, ``io``, ``tables``, ``kit``, ``all``.
 
 API reference
 -------------
