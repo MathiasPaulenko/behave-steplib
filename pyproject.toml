@@ -63,6 +63,7 @@ all = ["behave-steplib[api,requests,web,db,kafka,kit,data,io,tables]"]
 
 [project.scripts]
 steplib = "steplib.cli.main:main"
+behave-steplib = "steplib.cli.main:main"
 
 [project.entry-points."steplib.plugins"]
 api = "steplib.modules.api.steps:register"
