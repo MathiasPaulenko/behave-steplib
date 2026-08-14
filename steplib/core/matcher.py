@@ -16,7 +16,7 @@ general forms.
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, cast
 
 import parse
 from behave.matchers import Match, Matcher
@@ -32,7 +32,7 @@ def _skeleton(text: str) -> tuple[str, ...]:
     return tuple(words)
 
 
-class SteplibMatcher(Matcher):
+class SteplibMatcher(Matcher):  # type: ignore[misc]
     """Parse-based matcher that resolves prefix/negative-form ambiguities."""
 
     NAME = "steplib"
@@ -53,7 +53,7 @@ class SteplibMatcher(Matcher):
     @property
     def regex_pattern(self) -> str:
         """Expose the internal regex built by ``parse``."""
-        return self._parser._expression  # type: ignore[attr-defined]
+        return cast(str, self._parser._expression)
 
     def compile(self) -> SteplibMatcher:
         """Pre-compile the parse expression to detect bad patterns early."""
