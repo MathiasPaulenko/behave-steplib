@@ -152,7 +152,7 @@ def step_load_yaml(context: Any, path: str, name: str) -> None:
 
 
 @step(
-    "I load the JSON file {path} into the variable {name}",
+    "I load the JSON file {path} and store it in the variable {name}",
     category="data",
     description="Load a JSON file and store the parsed content as a variable.",
     example='Given I load the JSON file "data.json" into the variable "payload"',

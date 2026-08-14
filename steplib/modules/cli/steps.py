@@ -49,7 +49,7 @@ def _strip_quotes(value: str) -> str:
 
 
 @step(
-    "I run the command {command}",
+    "I run the command {command} using the default timeout",
     category="cli",
     description="Run a shell command and store the exit code, stdout, and stderr.",
     example='When I run the command "echo hello"',
@@ -124,7 +124,7 @@ def step_stderr_contains(context: Any, text: str) -> None:
 
 
 @step(
-    "I run the command {command} with timeout {seconds:d}",
+    "I run the command {command} using a timeout of {seconds:d} seconds",
     category="cli",
     description="Run a shell command with a custom timeout in seconds.",
     example='When I run the command "sleep 1" with timeout 5',

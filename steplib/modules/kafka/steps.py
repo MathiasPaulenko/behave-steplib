@@ -81,7 +81,7 @@ def step_produce_message(context: Any, topic: str, key: str, value: str) -> None
 
 
 @step(
-    "I consume messages from topic {topic}",
+    "I consume messages from topic {topic} using the default timeout",
     category="kafka",
     description="Consume messages from a Kafka topic.",
     example='When I consume messages from topic "events"',
@@ -364,7 +364,7 @@ def step_set_auto_offset_reset(context: Any, strategy: str) -> None:
 
 
 @step(
-    "I consume messages from topic {topic} with timeout {timeout_ms:d} ms",
+    "I consume messages from topic {topic} using a timeout of {timeout_ms:d} ms",
     category="kafka",
     description="Consume messages from a Kafka topic with a custom timeout.",
     example='When I consume messages from topic "events" with timeout 10000 ms',

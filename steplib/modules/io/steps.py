@@ -283,7 +283,7 @@ def step_create_empty_file(context: Any, path: str) -> None:
 
 
 @step(
-    "I load the JSON file {path}",
+    "I load the JSON file {path} as the last JSON",
     category="io",
     description="Load a JSON file and store it as the last JSON.",
     example='Given I load the JSON file "data.json"',

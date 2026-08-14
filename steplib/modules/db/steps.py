@@ -55,7 +55,7 @@ def step_set_db_connection(context: Any, connection_string: str) -> None:
 
 
 @step(
-    "I execute the SQL query {query}",
+    "I execute the SQL query {query} without bind parameters",
     category="db",
     description="Execute a SQL query and store the result.",
     example='When I execute the SQL query "SELECT * FROM users"',
@@ -427,7 +427,7 @@ def step_table_row_count(context: Any, table: str, count: int) -> None:
 
 
 @step(
-    "I execute the SQL query {query} with params {params}",
+    "I execute the SQL query {query} using params {params}",
     category="db",
     description="Execute a SQL query with bind parameters and store the result.",
     example=(

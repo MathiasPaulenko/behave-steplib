@@ -36,7 +36,6 @@ from steplib.modules.api.actions import (
     api_assert_response_time_less_than,
     api_assert_status,
     api_assert_status_in,
-    api_assert_variable_equals,
     api_clear_request_data,
     api_remove_header,
     api_remove_query_param,
@@ -146,7 +145,7 @@ def step_send_request(context: Any, method: str, url: str) -> None:
 
 
 @step(
-    "I send a {method} request to {url} with body",
+    "I send a {method} request with body to {url}",
     category="api",
     description="Send an HTTP request with a body from the step text.",
     example='When I send a POST request to "/users" with body',
@@ -221,7 +220,7 @@ def step_response_body_valid_json(context: Any) -> None:
 )
 def step_json_path_equals(context: Any, path: str, value: str) -> None:
     """Assert JSON path equals value."""
-    api_assert_json_path_equals(_get_api(context), path, value.strip('"'))
+    api_assert_json_path_equals(_get_api(context), path.strip('"'), value.strip('"'))
 
 
 @step(
@@ -818,7 +817,7 @@ def step_response_header_not_exists(context: Any, name: str) -> None:
 
 
 @step(
-    "I send a {method} request to {url} with form data",
+    "I send a {method} request with form data to {url}",
     category="api",
     description="Send an HTTP request with form-encoded data from the step table.",
     example='When I send a POST request to "/login" with form data',
@@ -837,7 +836,7 @@ def step_send_form_data(context: Any, method: str, url: str) -> None:
 
 
 @step(
-    "I send a {method} request to {url} with JSON body",
+    "I send a {method} request with JSON body to {url}",
     category="api",
     description="Send an HTTP request with a JSON body from the step text.",
     example='When I send a POST request to "/users" with JSON body',
@@ -853,7 +852,7 @@ def step_send_json_body(context: Any, method: str, url: str) -> None:
 
 
 @step(
-    "I send a {method} request to {url} with query parameters",
+    "I send a {method} request with query parameters to {url}",
     category="api",
     description="Send an HTTP request with query parameters from the step table.",
     example='When I send a GET request to "/search" with query parameters',
@@ -872,7 +871,7 @@ def step_send_with_params(context: Any, method: str, url: str) -> None:
 
 
 @step(
-    "I send a {method} request to {url} with headers",
+    "I send a {method} request with headers to {url}",
     category="api",
     description="Send an HTTP request with extra headers from the step table.",
     example='When I send a GET request to "/secure" with headers',
@@ -922,20 +921,6 @@ def step_use_variable_as_param(context: Any, variable: str, name: str) -> None:
     """Set a query param from a stored variable."""
     api_use_variable_as_query_param(_get_api(context), name.strip('"'), variable.strip('"'))
 
-
-@step(
-    "the variable {variable} equals {value}",
-    category="api",
-    description="Assert that a stored variable equals a value.",
-    example='Then the variable "user_id" equals "42"',
-    i18n={
-        "es": "la variable {variable} es igual a {value}",
-        "pt": "a variável {variable} é igual a {value}",
-    },
-)
-def step_variable_equals(context: Any, variable: str, value: str) -> None:
-    """Assert stored variable equals value."""
-    api_assert_variable_equals(_get_api(context), variable.strip('"'), value.strip('"'))
 
 
 @step(
@@ -1051,7 +1036,6 @@ _ALL_STEPS = [
     step_store_response_time,
     step_use_variable_as_header,
     step_use_variable_as_param,
-    step_variable_equals,
     step_response_matches_table,
     step_response_matches_schema,
 ]

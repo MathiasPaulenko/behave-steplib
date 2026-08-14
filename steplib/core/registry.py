@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from steplib.core.decorators import get_step_infos
 from steplib.core.exceptions import DuplicateStepError, StepContractError
 from steplib.core.i18n import expand_patterns
+from steplib.core.matcher import SteplibMatcher
 from steplib.core.metadata import StepInfo
 
 # User-facing decorator name used in error messages.
@@ -47,6 +48,7 @@ class StepRegistry:
         self._steps: list[StepInfo] = []
         self._patterns: dict[tuple[str, str | None], StepInfo] = {}
         self._auto_register = auto_register_behave
+        self._registered_with_behave = False
 
     # --- public API ---
 
@@ -220,6 +222,7 @@ class StepRegistry:
         for info in kept:
             for _lang, pattern in expand_patterns(info):
                 self._patterns[(pattern, info.backend)] = info
+        self._registered_with_behave = False
 
     def __len__(self) -> int:
         """Return the number of registered steps."""
@@ -237,15 +240,45 @@ class StepRegistry:
             if key in self._patterns:
                 raise DuplicateStepError(pattern, info.backend)
             self._patterns[key] = info
-            if self._auto_register:
-                self._register_with_behave(pattern, fn)
         self._steps.append(info)
+
+    def register_with_behave(self) -> None:
+        """Register the base pattern of every stored step with behave.
+
+        Only the English base pattern is registered. Translations are kept in
+        the registry metadata for CLI/validation use but are not exposed to
+        behave's matcher, because mixed-language patterns often share prefixes
+        and cause ``AmbiguousStep`` errors.
+        """
+        if self._registered_with_behave:
+            return
+        seen: set[tuple[str, str | None]] = set()
+        for info in self._steps:
+            key = (info.pattern, info.backend)
+            if key in seen:
+                continue
+            seen.add(key)
+            self._register_with_behave(info.pattern, info.func)
+        self._registered_with_behave = True
 
     @staticmethod
     def _register_with_behave(pattern: str, fn: Callable[..., Any]) -> None:
-        """Register a single pattern with behave's global step registry."""
+        """Register a single pattern with behave's global step registry.
+
+        Uses ``SteplibMatcher`` to avoid ``AmbiguousStep`` errors between
+        positive and negative forms that share the same fixed words.
+        """
         try:
             from behave import step as behave_step
+            from behave.matchers import (
+                has_registered_step_matcher_class,
+                register_step_matcher_class,
+                use_step_matcher,
+            )
         except ImportError:  # pragma: no cover
             return
+
+        if not has_registered_step_matcher_class(SteplibMatcher.NAME):
+            register_step_matcher_class(SteplibMatcher.NAME, SteplibMatcher)
+        use_step_matcher(SteplibMatcher.NAME)
         behave_step(pattern)(fn)

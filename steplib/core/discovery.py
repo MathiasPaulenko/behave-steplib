@@ -57,9 +57,10 @@ def autoload(
         A ``SteplibState`` holding the filtered registry.
 
     """
-    registry = _create_registry(auto_register_behave=True)
+    registry = _create_registry(auto_register_behave=False)
     _load_entry_points(registry)
     _apply_filters(registry, categories, backends)
+    registry.register_with_behave()
     return SteplibState(context, registry)
 
 
@@ -76,7 +77,7 @@ def load(context: Any, *modules: str) -> SteplibState:
         A ``SteplibState`` holding the registry.
 
     """
-    registry = _create_registry(auto_register_behave=True)
+    registry = _create_registry(auto_register_behave=False)
     for module_name in modules:
         mod = importlib.import_module(module_name)
         register_fn = getattr(mod, "register", None)
@@ -85,6 +86,7 @@ def load(context: Any, *modules: str) -> SteplibState:
                 f"Module '{module_name}' does not expose a 'register(registry)' function."
             )
         register_fn(registry)
+    registry.register_with_behave()
     return SteplibState(context, registry)
 
 
