@@ -19,7 +19,7 @@ import re
 from typing import Any
 
 import parse
-from behave.matchers import Matcher, Match
+from behave.matchers import Match, Matcher
 from behave.model_type import Argument
 
 _FIXED_RE = re.compile(r'"[^"]*"|\{[^}]+?\}')
@@ -45,6 +45,7 @@ class SteplibMatcher(Matcher):
         step_type: str | None = None,
         custom_types: Any | None = None,
     ) -> None:
+        """Create a matcher for a parsed step pattern."""
         super().__init__(func, pattern, step_type)
         self._skeleton = _skeleton(pattern)
         self._parser = parse.Parser(pattern, extra_types=custom_types or {})
@@ -54,7 +55,7 @@ class SteplibMatcher(Matcher):
         """Expose the internal regex built by ``parse``."""
         return self._parser._expression  # type: ignore[attr-defined]
 
-    def compile(self) -> "SteplibMatcher":
+    def compile(self) -> SteplibMatcher:
         """Pre-compile the parse expression to detect bad patterns early."""
         _ = self._parser.parse("")
         return self
