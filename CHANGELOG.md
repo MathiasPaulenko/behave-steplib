@@ -5,6 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-10-05
+
+### Fixed
+
+- i18n translations (`es`/`pt`) are now actually registered with behave.
+  Previously only the English base patterns were registered, so translated
+  feature files got undefined-step errors despite the documentation
+  claiming otherwise.
+- Fixed runtime step-shadowing: `parse` placeholders can capture trailing
+  text, so generic patterns registered before their more specific variants
+  silently stole them (`the response header ... is not ...`,
+  `I set the variable ... to the JSON ...`,
+  `I read the file ... as lines into ...`, plus every `no`/`not` variant
+  in the `es`/`pt` translations). All specific patterns now register
+  before their generic forms.
+- `autoload(context, backends={"api": "httpx"})` no longer removes every
+  step of the filtered category — steps without a backend are kept as
+  documented, and the selected backend is stored on
+  `context.steplib.backends` and used by the API module when creating its
+  client.
+- `steplib validate` passes on the shipped library: the `es`/`pt`
+  translations of `the element {by} {value} attribute {attr} equals
+  {expected}` had placeholders in a different order.
+- `get_client()` in the API module raises `ValueError` for unknown
+  backends instead of silently falling back to urllib.
+- The Kafka consumer is recreated when consuming from a different topic
+  in the same scenario — the consumer was bound to the first topic.
+- `the page load timeout is` and `the implicit wait is` steps now apply
+  the values to the active driver, not just to the context.
+- SQL statements in the DB module now auto-commit unless an explicit
+  transaction was started with `I begin a database transaction` —
+  previously `INSERT`/`UPDATE` were rolled back when the connection
+  closed.
+- `SteplibMatcher` now shares `ParseMatcher`'s type registry, so custom
+  types registered via `register_type()`/`behave.register_type()` convert
+  `{value:Type}` placeholders at match time.
+- The behave step matcher in use before registration is restored
+  afterwards; `autoload` no longer leaves the custom matcher active for
+  user-defined steps.
+- `requests` backend: duplicate `Set-Cookie` headers are recovered from
+  the raw response so `I save cookies from the response` behaves like the
+  other backends.
+- Query parameters sent via step table are merged with the configured
+  defaults instead of replacing them.
+- `steplib init` refuses to overwrite an existing file; use `--force` to
+  overwrite.
+- `register_type()` now also registers the converter with behave so
+  `{value:Name}` patterns actually convert values.
+- `validate_steps` now also flags pattern placeholders missing from
+  declared `Param` descriptors.
+- Corrected 13 step `example` strings that did not parse their own
+  patterns, and fixed the `es`/`pt` pattern of
+  `I load the JSON file {path} as the last JSON` so it does not collide
+  with the data module's JSON loading step.
+
+### Tests
+
+- Added contract tests that parse every step example against its pattern
+  and verify first-match resolution across all registered languages.
+- `io` tests that need `jsonschema` are now skipped with
+  `pytest.importorskip` when the package is not installed.
+- Full test suite: 1053 passing, 4 skipped.
+
+### Documentation
+
+- Rewrote the module pages whose patterns and examples did not match the
+  implementation (`api`, `cli`, `db`, `data`, `io`, `kafka`), fixed the
+  step counts (API has 54 steps, not 55; 210 total) and fixed README
+  examples that used non-existent patterns.
+- `docs/changelog.rst` now uses `myst_parser` via `include` with the
+  `parser` option (`mdinclude` is not supported by MyST 5).
+- Removed the `steplib.modules.kafka.client` autodoc entry — the module
+  does not exist.
+- Driver/connection lifecycle examples create the module context
+  (`WebContext`, `DbContext`) before assigning to it; the previous
+  snippets raised `AttributeError`.
+
 ## [1.4.0] - 2026-07-28
 
 ### Fixed
@@ -55,7 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Total step count increased from 131 to 211 across 7 modules.
+- Total step count increased from 131 to 210 across 7 modules.
 - README and Sphinx documentation updated with IO and CLI module sections,
   updated step counts, and new feature examples.
 
@@ -68,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `SteplibState` lifecycle management, i18n pattern expansion and validation,
   static step contract validation, ecosystem integration helpers
   (`behave-kit`, `behave-tables`, `behave-data`).
-- **API module** (`steplib.modules.api`): 55 HTTP testing steps with stdlib
+- **API module** (`steplib.modules.api`): 54 HTTP testing steps with stdlib
   (urllib), httpx and requests backends. Configuration (base URL, headers,
   timeout, query params, proxy), authentication (basic auth, bearer token),
   SSL/redirect control, cookie management, requests (plain, body, form data,
