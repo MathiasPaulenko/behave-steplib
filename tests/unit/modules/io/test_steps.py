@@ -260,6 +260,7 @@ class TestStepJsonValid:
 
 class TestStepJsonMatchesSchema:
     def test_matches_schema(self, tmp_path: Path) -> None:
+        pytest.importorskip("jsonschema")
         schema = {
             "type": "object",
             "properties": {"name": {"type": "string"}},
@@ -272,6 +273,7 @@ class TestStepJsonMatchesSchema:
         step_json_matches_schema(ctx, str(schema_file))
 
     def test_does_not_match(self, tmp_path: Path) -> None:
+        pytest.importorskip("jsonschema")
         schema = {
             "type": "object",
             "properties": {"name": {"type": "string"}},

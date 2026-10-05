@@ -394,7 +394,7 @@ def test_step_clear_variables() -> None:
 
 def test_step_set_variable_json() -> None:
     context = _make_context()
-    step_set_variable_json(context, '"config"', '\'{"debug": true}\'')
+    step_set_variable_json(context, '"config"', "'{\"debug\": true}'")
     assert context.steplib.data.variables["config"] == {"debug": True}  # type: ignore[attr-defined]
 
 

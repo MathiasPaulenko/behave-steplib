@@ -113,7 +113,7 @@ class TestStepRunCommandWithTimeout:
         ctx = _make_context()
         with pytest.raises(subprocess.TimeoutExpired):
             step_run_command_with_timeout(
-                ctx, f'"{sys.executable} -c \"import time; time.sleep(10)\""', 1
+                ctx, f'"{sys.executable} -c "import time; time.sleep(10)""', 1
             )
 
 

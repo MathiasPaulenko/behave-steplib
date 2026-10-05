@@ -531,7 +531,7 @@ class TestSetVariableJson:
 
     def test_set_json_list(self) -> None:
         ctx = DataContext()
-        data_set_variable_json(ctx, "items", '[1, 2, 3]')
+        data_set_variable_json(ctx, "items", "[1, 2, 3]")
         assert ctx.variables["items"] == [1, 2, 3]
 
     def test_invalid_json(self) -> None:

@@ -60,7 +60,7 @@ class TestRunCommandWithTimeout:
         ctx = CLIContext()
         with pytest.raises(subprocess.TimeoutExpired):
             cli_run_command_with_timeout(
-                ctx, f"{sys.executable} -c \"import time; time.sleep(10)\"", 1
+                ctx, f'{sys.executable} -c "import time; time.sleep(10)"', 1
             )
 
 

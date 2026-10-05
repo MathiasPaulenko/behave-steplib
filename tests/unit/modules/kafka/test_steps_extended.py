@@ -75,7 +75,7 @@ def test_step_set_producer_config() -> None:
 
 def test_step_set_consumer_config() -> None:
     context = _make_context()
-    step_set_consumer_config(context, '\'{"enable.auto.commit": false}\'')
+    step_set_consumer_config(context, "'{\"enable.auto.commit\": false}'")
     assert context.steplib.kafka.consumer_config["enable.auto.commit"] is False  # type: ignore[attr-defined]
 
 
@@ -127,19 +127,23 @@ def test_step_message_count_greater_than_raises() -> None:
 
 
 def test_step_message_order() -> None:
-    context = _make_context(messages=[
-        {"key": "a", "value": "1"},
-        {"key": "b", "value": "2"},
-        {"key": "c", "value": "3"},
-    ])
+    context = _make_context(
+        messages=[
+            {"key": "a", "value": "1"},
+            {"key": "b", "value": "2"},
+            {"key": "c", "value": "3"},
+        ]
+    )
     step_message_order(context, '"a,b,c"')
 
 
 def test_step_message_order_raises() -> None:
-    context = _make_context(messages=[
-        {"key": "a", "value": "1"},
-        {"key": "b", "value": "2"},
-    ])
+    context = _make_context(
+        messages=[
+            {"key": "a", "value": "1"},
+            {"key": "b", "value": "2"},
+        ]
+    )
     with pytest.raises(AssertionError, match="Message order"):
         step_message_order(context, '"b,a"')
 

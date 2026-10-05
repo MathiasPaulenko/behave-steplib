@@ -1,7 +1,8 @@
-"""E2E test: simulate a behave scenario by calling step functions directly.
+"""Scenario-flow test: call step functions directly in sequence.
 
-This tests the full flow: step function → action → HTTP client → assertion,
-using a mock HTTP client to avoid real network calls.
+This tests the step function → action → HTTP client → assertion flow with a
+mock HTTP client, without the behave runner. For a real behave run (pattern
+registration, matching, i18n), see ``test_behave_run.py``.
 """
 
 from __future__ import annotations

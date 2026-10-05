@@ -201,6 +201,32 @@ def test_init_creates_environment(
     assert "def after_scenario" in content
 
 
+def test_init_refuses_to_overwrite(
+    runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    """steplib init should refuse to overwrite an existing file."""
+    output = tmp_path / "features" / "environment.py"
+    output.parent.mkdir(parents=True)
+    output.write_text("# existing", encoding="utf-8")
+    result = runner.invoke(app, ["init", "--path", str(output)])
+    assert result.exit_code == 1
+    assert output.read_text(encoding="utf-8") == "# existing"
+
+
+def test_init_force_overwrites(
+    runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    """steplib init --force should overwrite an existing file."""
+    output = tmp_path / "features" / "environment.py"
+    output.parent.mkdir(parents=True)
+    output.write_text("# existing", encoding="utf-8")
+    result = runner.invoke(app, ["init", "--path", str(output), "--force"])
+    assert result.exit_code == 0
+    assert "from steplib.behave import autoload" in output.read_text(encoding="utf-8")
+
+
 def test_init_json_output(
     runner: CliRunner,
     tmp_path: Path,

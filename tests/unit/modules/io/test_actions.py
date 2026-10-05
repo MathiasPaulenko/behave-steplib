@@ -415,6 +415,7 @@ class TestAssertJsonValid:
 
 class TestAssertJsonMatchesSchema:
     def test_matches_schema(self, tmp_path: Path) -> None:
+        pytest.importorskip("jsonschema")
         schema = {
             "type": "object",
             "properties": {"name": {"type": "string"}},
@@ -427,6 +428,7 @@ class TestAssertJsonMatchesSchema:
         io_assert_json_matches_schema(ctx, str(schema_file))
 
     def test_does_not_match_schema(self, tmp_path: Path) -> None:
+        pytest.importorskip("jsonschema")
         schema = {
             "type": "object",
             "properties": {"name": {"type": "string"}},
@@ -505,9 +507,7 @@ class TestDiffJsonObjects:
 
     def test_with_diff(self) -> None:
         ctx = IOContext()
-        result = io_diff_json_objects(
-            ctx, '{"a": 1, "b": 2}', '{"a": 1, "c": 3}'
-        )
+        result = io_diff_json_objects(ctx, '{"a": 1, "b": 2}', '{"a": 1, "c": 3}')
         assert result["only_in_first"] == ["b"]
         assert result["only_in_second"] == ["c"]
 

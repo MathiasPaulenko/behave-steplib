@@ -336,7 +336,7 @@ def test_step_execute_query_with_params() -> None:
     step_execute_query_with_params(
         context,
         '"SELECT * FROM users WHERE id = :id"',
-        '\'{"id": 1}\'',
+        "'{\"id\": 1}'",
     )
     result = context.steplib.db.variables["_last_result"]  # type: ignore[attr-defined]
     assert len(result) == 1

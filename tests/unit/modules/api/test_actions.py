@@ -1544,7 +1544,8 @@ class TestJsonPathMissingKeyRaisesAssertionError:
             api_assert_json_path_is_null(ctx_with_json, "$.nonexistent")
 
     def test_json_path_is_not_null_missing_raises_assertion(
-        self, ctx_with_json: ApiContext,
+        self,
+        ctx_with_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="does not exist"):
             api_assert_json_path_is_not_null(ctx_with_json, "$.nonexistent")
@@ -1554,7 +1555,8 @@ class TestJsonPathMissingKeyRaisesAssertionError:
             api_assert_json_path_has_length(ctx_with_json, "$.nonexistent", 3)
 
     def test_json_path_matches_regex_missing_raises_assertion(
-        self, ctx_with_json: ApiContext,
+        self,
+        ctx_with_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="does not exist"):
             api_assert_json_path_matches_regex(ctx_with_json, "$.nonexistent", ".*")
@@ -1575,73 +1577,85 @@ class TestInvalidJsonBodyRaisesAssertionError:
         return api_ctx
 
     def test_assert_json_valid_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_valid(ctx_with_invalid_json)
 
     def test_json_path_equals_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_equals(ctx_with_invalid_json, "$.name", "x")
 
     def test_json_path_exists_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_exists(ctx_with_invalid_json, "$.name")
 
     def test_json_path_type_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_type(ctx_with_invalid_json, "$.name", "str")
 
     def test_store_json_path_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_store_json_path(ctx_with_invalid_json, "$.name", "var")
 
     def test_json_path_contains_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_contains(ctx_with_invalid_json, "$.name", "x")
 
     def test_json_path_not_equals_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_not_equals(ctx_with_invalid_json, "$.name", "x")
 
     def test_json_path_is_null_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_is_null(ctx_with_invalid_json, "$.name")
 
     def test_json_path_is_not_null_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_is_not_null(ctx_with_invalid_json, "$.name")
 
     def test_json_path_has_length_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_has_length(ctx_with_invalid_json, "$.name", 3)
 
     def test_json_path_matches_regex_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_path_matches_regex(ctx_with_invalid_json, "$.name", ".*")
 
     def test_json_schema_invalid_body_raises_assertion(
-        self, ctx_with_invalid_json: ApiContext,
+        self,
+        ctx_with_invalid_json: ApiContext,
     ) -> None:
         with pytest.raises(AssertionError, match="not valid JSON"):
             api_assert_json_schema(ctx_with_invalid_json, {"type": "object"})
@@ -1702,14 +1716,10 @@ class TestBug20InvalidSchemaPattern:
         from steplib.modules.api.client import Response
 
         ctx = ApiContext()
-        ctx.last_response = Response(
-            status=200, headers={}, body=b'{"name": "test"}'
-        )
+        ctx.last_response = Response(status=200, headers={}, body=b'{"name": "test"}')
         schema = {
             "type": "object",
-            "properties": {
-                "name": {"type": "string", "pattern": "[invalid("}
-            },
+            "properties": {"name": {"type": "string", "pattern": "[invalid("}},
         }
         with pytest.raises(AssertionError, match="Invalid regex pattern"):
             api_assert_json_schema(ctx, schema)
