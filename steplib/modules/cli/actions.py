@@ -32,9 +32,7 @@ def cli_run_command(cli_ctx: CLIContext, command: str) -> None:
     cli_ctx.stderr = result.stderr
 
 
-def cli_run_command_with_timeout(
-    cli_ctx: CLIContext, command: str, seconds: int
-) -> None:
+def cli_run_command_with_timeout(cli_ctx: CLIContext, command: str, seconds: int) -> None:
     """Run a shell command with a custom timeout.
 
     Args:
@@ -74,9 +72,7 @@ def cli_assert_exit_code(cli_ctx: CLIContext, expected: int) -> None:
     if cli_ctx.exit_code is None:
         raise RuntimeError("No command has been executed.")
     if cli_ctx.exit_code != expected:
-        raise AssertionError(
-            f"Expected exit code {expected}, got {cli_ctx.exit_code}."
-        )
+        raise AssertionError(f"Expected exit code {expected}, got {cli_ctx.exit_code}.")
 
 
 def cli_assert_output_contains(cli_ctx: CLIContext, text: str) -> None:
@@ -94,9 +90,7 @@ def cli_assert_output_contains(cli_ctx: CLIContext, text: str) -> None:
     if cli_ctx.exit_code is None:
         raise RuntimeError("No command has been executed.")
     if text not in cli_ctx.stdout:
-        raise AssertionError(
-            f"Expected stdout to contain '{text}', got: {cli_ctx.stdout!r}"
-        )
+        raise AssertionError(f"Expected stdout to contain '{text}', got: {cli_ctx.stdout!r}")
 
 
 def cli_assert_output_equals(cli_ctx: CLIContext, text: str) -> None:
@@ -114,9 +108,7 @@ def cli_assert_output_equals(cli_ctx: CLIContext, text: str) -> None:
     if cli_ctx.exit_code is None:
         raise RuntimeError("No command has been executed.")
     if cli_ctx.stdout != text:
-        raise AssertionError(
-            f"Expected stdout to be '{text}', got: {cli_ctx.stdout!r}"
-        )
+        raise AssertionError(f"Expected stdout to be '{text}', got: {cli_ctx.stdout!r}")
 
 
 def cli_assert_stderr_contains(cli_ctx: CLIContext, text: str) -> None:
@@ -134,9 +126,7 @@ def cli_assert_stderr_contains(cli_ctx: CLIContext, text: str) -> None:
     if cli_ctx.exit_code is None:
         raise RuntimeError("No command has been executed.")
     if text not in cli_ctx.stderr:
-        raise AssertionError(
-            f"Expected stderr to contain '{text}', got: {cli_ctx.stderr!r}"
-        )
+        raise AssertionError(f"Expected stderr to contain '{text}', got: {cli_ctx.stderr!r}")
 
 
 def cli_store_output(cli_ctx: CLIContext, variable: str) -> None:
@@ -170,9 +160,7 @@ def cli_assert_output_not_contains(cli_ctx: CLIContext, text: str) -> None:
     if cli_ctx.exit_code is None:
         raise RuntimeError("No command has been executed.")
     if text in cli_ctx.stdout:
-        raise AssertionError(
-            f"Expected stdout to NOT contain '{text}', got: {cli_ctx.stdout!r}"
-        )
+        raise AssertionError(f"Expected stdout to NOT contain '{text}', got: {cli_ctx.stdout!r}")
 
 
 def cli_store_stderr(cli_ctx: CLIContext, variable: str) -> None:
@@ -191,9 +179,7 @@ def cli_store_stderr(cli_ctx: CLIContext, variable: str) -> None:
     cli_ctx.variables[variable] = cli_ctx.stderr
 
 
-def cli_assert_output_matches(
-    cli_ctx: CLIContext, pattern: str
-) -> None:
+def cli_assert_output_matches(cli_ctx: CLIContext, pattern: str) -> None:
     """Assert that the last command's stdout matches a regex pattern.
 
     Args:
@@ -210,8 +196,7 @@ def cli_assert_output_matches(
     try:
         if not re.search(pattern, cli_ctx.stdout):
             raise AssertionError(
-                f"Expected stdout to match pattern '{pattern}', "
-                f"got: {cli_ctx.stdout!r}"
+                f"Expected stdout to match pattern '{pattern}', got: {cli_ctx.stdout!r}"
             )
     except re.error as exc:
         raise AssertionError(f"Invalid regex pattern '{pattern}': {exc}") from exc

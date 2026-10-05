@@ -84,7 +84,7 @@ def step_produce_message(context: Any, topic: str, key: str, value: str) -> None
     "I consume messages from topic {topic} using the default timeout",
     category="kafka",
     description="Consume messages from a Kafka topic.",
-    example='When I consume messages from topic "events"',
+    example='When I consume messages from topic "events" using the default timeout',
     i18n={
         "es": "consumo mensajes del topic {topic}",
         "pt": "consumo mensagens do tópico {topic}",
@@ -367,7 +367,7 @@ def step_set_auto_offset_reset(context: Any, strategy: str) -> None:
     "I consume messages from topic {topic} using a timeout of {timeout_ms:d} ms",
     category="kafka",
     description="Consume messages from a Kafka topic with a custom timeout.",
-    example='When I consume messages from topic "events" with timeout 10000 ms',
+    example='When I consume messages from topic "events" using a timeout of 10000 ms',
     i18n={
         "es": "consumo mensajes del topic {topic} con tiempo de espera {timeout_ms:d} ms",
         "pt": "consumo mensagens do tópico {topic} com tempo de espera {timeout_ms:d} ms",
@@ -423,10 +423,12 @@ def step_set_consumer_config(context: Any, config: str) -> None:
 
 
 _ALL_STEPS = [
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text.
+    step_consume_with_timeout,
     step_set_kafka_servers,
     step_produce_message,
     step_consume_messages,
-    step_consume_with_timeout,
     step_message_count,
     step_message_contains,
     # Produce advanced

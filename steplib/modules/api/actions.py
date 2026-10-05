@@ -125,7 +125,7 @@ def api_send(
     )
     api_ctx.last_request = req
 
-    request_params = params if params is not None else (api_ctx.query_params or None)
+    request_params = {**api_ctx.query_params, **(params or {})} or None
 
     response = api_ctx.client.request(
         method=req.method,

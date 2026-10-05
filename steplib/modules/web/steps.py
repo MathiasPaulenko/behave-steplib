@@ -335,8 +335,8 @@ def step_element_text_equals(context: Any, by: str, value: str, expected: str) -
     description="Assert an element's attribute equals a value.",
     example='Then the element id "link" attribute "href" equals "https://example.com"',
     i18n={
-        "es": "el atributo {attr} del elemento {by} {value} es igual a {expected}",
-        "pt": "o atributo {attr} do elemento {by} {value} é igual a {expected}",
+        "es": "el elemento {by} {value} tiene el atributo {attr} igual a {expected}",
+        "pt": "o elemento {by} {value} tem o atributo {attr} igual a {expected}",
     },
 )
 def step_element_attribute_equals(
@@ -621,6 +621,10 @@ def step_take_screenshot(context: Any, filename: str) -> None:
 
 
 _ALL_STEPS = [
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text (e.g. "no está
+    # presente" also parses "está presente").
+    step_element_not_present,
     step_set_web_base_url,
     step_navigate,
     step_page_title,
@@ -637,7 +641,6 @@ _ALL_STEPS = [
     step_wait_for_element_visible,
     step_wait_for_text,
     # Extended assertions
-    step_element_not_present,
     step_element_visible,
     step_element_enabled,
     step_element_text_equals,

@@ -65,9 +65,7 @@ def data_assert_variable_equals(
         raise AssertionError(f"Variable '{name}' does not exist.")
     actual = data_ctx.variables[name]
     if _normalize_value(actual) != _normalize_value(expected):
-        raise AssertionError(
-            f"Variable '{name}': expected '{expected}', got '{actual}'."
-        )
+        raise AssertionError(f"Variable '{name}': expected '{expected}', got '{actual}'.")
 
 
 def data_assert_variable_exists(data_ctx: DataContext, name: str) -> None:
@@ -136,9 +134,7 @@ def data_assert_variable_not_equals(
         raise AssertionError(f"Variable '{name}' does not exist.")
     actual = data_ctx.variables[name]
     if _normalize_value(actual) == _normalize_value(expected):
-        raise AssertionError(
-            f"Variable '{name}' should not equal '{expected}'."
-        )
+        raise AssertionError(f"Variable '{name}' should not equal '{expected}'.")
 
 
 def data_assert_variable_contains(
@@ -230,9 +226,7 @@ def data_assert_variable_has_length(
             f"Variable '{name}' of type {type(value).__name__} has no length."
         ) from exc
     if actual != expected:
-        raise AssertionError(
-            f"Variable '{name}': expected length {expected}, got {actual}."
-        )
+        raise AssertionError(f"Variable '{name}': expected length {expected}, got {actual}.")
 
 
 def data_copy_variable(
@@ -382,15 +376,11 @@ def data_extract_key_path(
                     f"Cannot index list with non-integer key '{key}' in path '{key_path}'."
                 ) from exc
             if idx < 0 or idx >= len(current):
-                raise KeyError(
-                    f"Index {idx} out of range in path '{key_path}'."
-                )
+                raise KeyError(f"Index {idx} out of range in path '{key_path}'.")
             current = current[idx]
         elif isinstance(current, dict):
             if key not in current:
-                raise KeyError(
-                    f"Key '{key}' not found in path '{key_path}'."
-                )
+                raise KeyError(f"Key '{key}' not found in path '{key_path}'.")
             current = current[key]
         else:
             raise KeyError(
@@ -479,9 +469,7 @@ def data_assert_env_not_equals(key: str, expected: str) -> None:
     if actual is None:
         raise AssertionError(f"Environment variable '{key}' is not set.")
     if actual == expected:
-        raise AssertionError(
-            f"Environment variable '{key}' should not equal '{expected}'."
-        )
+        raise AssertionError(f"Environment variable '{key}' should not equal '{expected}'.")
 
 
 def data_assert_env_not_exists(key: str) -> None:
@@ -555,9 +543,7 @@ def data_load_env_file(data_ctx: DataContext, path: str) -> None:
 # --- Extended variable assertions ---
 
 
-def data_assert_variable_matches(
-    data_ctx: DataContext, name: str, pattern: str
-) -> None:
+def data_assert_variable_matches(data_ctx: DataContext, name: str, pattern: str) -> None:
     """Assert that a variable's string value matches a regex pattern.
 
     Args:
@@ -581,9 +567,7 @@ def data_assert_variable_matches(
         raise AssertionError(f"Invalid regex pattern '{pattern}': {exc}") from exc
 
 
-def data_assert_variable_starts_with(
-    data_ctx: DataContext, name: str, text: str
-) -> None:
+def data_assert_variable_starts_with(data_ctx: DataContext, name: str, text: str) -> None:
     """Assert that a variable's string value starts with the given text.
 
     Args:
@@ -599,14 +583,10 @@ def data_assert_variable_starts_with(
         raise AssertionError(f"Variable '{name}' does not exist.")
     value = _normalize_value(data_ctx.variables[name])
     if not value.startswith(text):
-        raise AssertionError(
-            f"Variable '{name}' value '{value}' does not start with '{text}'."
-        )
+        raise AssertionError(f"Variable '{name}' value '{value}' does not start with '{text}'.")
 
 
-def data_assert_variable_ends_with(
-    data_ctx: DataContext, name: str, text: str
-) -> None:
+def data_assert_variable_ends_with(data_ctx: DataContext, name: str, text: str) -> None:
     """Assert that a variable's string value ends with the given text.
 
     Args:
@@ -622,14 +602,10 @@ def data_assert_variable_ends_with(
         raise AssertionError(f"Variable '{name}' does not exist.")
     value = _normalize_value(data_ctx.variables[name])
     if not value.endswith(text):
-        raise AssertionError(
-            f"Variable '{name}' value '{value}' does not end with '{text}'."
-        )
+        raise AssertionError(f"Variable '{name}' value '{value}' does not end with '{text}'.")
 
 
-def data_increment_variable(
-    data_ctx: DataContext, name: str, amount: int = 1
-) -> None:
+def data_increment_variable(data_ctx: DataContext, name: str, amount: int = 1) -> None:
     """Increment a numeric variable by a given amount.
 
     Args:
@@ -646,9 +622,7 @@ def data_increment_variable(
         raise KeyError(f"Variable '{name}' does not exist.")
     current = data_ctx.variables[name]
     if isinstance(current, bool):
-        raise ValueError(
-            f"Variable '{name}' value '{current}' is a boolean, not numeric."
-        )
+        raise ValueError(f"Variable '{name}' value '{current}' is a boolean, not numeric.")
     try:
         if isinstance(current, float):
             numeric: int | float = current + amount
@@ -658,15 +632,11 @@ def data_increment_variable(
             except (TypeError, ValueError):
                 numeric = float(current) + amount
     except (TypeError, ValueError) as exc:
-        raise ValueError(
-            f"Variable '{name}' value '{current}' is not numeric."
-        ) from exc
+        raise ValueError(f"Variable '{name}' value '{current}' is not numeric.") from exc
     data_ctx.variables[name] = numeric
 
 
-def data_assert_variable_greater_than(
-    data_ctx: DataContext, name: str, value: str
-) -> None:
+def data_assert_variable_greater_than(data_ctx: DataContext, name: str, value: str) -> None:
     """Assert that a variable's numeric value is greater than a threshold.
 
     Args:
@@ -682,25 +652,17 @@ def data_assert_variable_greater_than(
         raise AssertionError(f"Variable '{name}' does not exist.")
     raw = data_ctx.variables[name]
     if isinstance(raw, bool):
-        raise AssertionError(
-            f"Variable '{name}' is a boolean, not a numeric value."
-        )
+        raise AssertionError(f"Variable '{name}' is a boolean, not a numeric value.")
     try:
         current = float(raw)
         threshold = float(value)
     except (TypeError, ValueError) as exc:
-        raise AssertionError(
-            f"Variable '{name}' or threshold '{value}' is not numeric."
-        ) from exc
+        raise AssertionError(f"Variable '{name}' or threshold '{value}' is not numeric.") from exc
     if not current > threshold:
-        raise AssertionError(
-            f"Variable '{name}' value {current} is not greater than {threshold}."
-        )
+        raise AssertionError(f"Variable '{name}' value {current} is not greater than {threshold}.")
 
 
-def data_assert_variable_less_than(
-    data_ctx: DataContext, name: str, value: str
-) -> None:
+def data_assert_variable_less_than(data_ctx: DataContext, name: str, value: str) -> None:
     """Assert that a variable's numeric value is less than a threshold.
 
     Args:
@@ -716,20 +678,14 @@ def data_assert_variable_less_than(
         raise AssertionError(f"Variable '{name}' does not exist.")
     raw = data_ctx.variables[name]
     if isinstance(raw, bool):
-        raise AssertionError(
-            f"Variable '{name}' is a boolean, not a numeric value."
-        )
+        raise AssertionError(f"Variable '{name}' is a boolean, not a numeric value.")
     try:
         current = float(raw)
         threshold = float(value)
     except (TypeError, ValueError) as exc:
-        raise AssertionError(
-            f"Variable '{name}' or threshold '{value}' is not numeric."
-        ) from exc
+        raise AssertionError(f"Variable '{name}' or threshold '{value}' is not numeric.") from exc
     if not current < threshold:
-        raise AssertionError(
-            f"Variable '{name}' value {current} is not less than {threshold}."
-        )
+        raise AssertionError(f"Variable '{name}' value {current} is not less than {threshold}.")
 
 
 # --- Utility actions ---

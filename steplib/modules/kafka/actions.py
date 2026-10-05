@@ -102,6 +102,13 @@ def kafka_consume(
     except ImportError as exc:
         raise MissingDependencyError("kafka", "kafka-python-ng") from exc
 
+    # A KafkaConsumer is bound to the topics given at construction time, so
+    # consuming from a different topic requires recreating the client.
+    if kafka_ctx.consumer is not None and kafka_ctx.consumer_topic != topic:
+        close = getattr(kafka_ctx.consumer, "close", None)
+        if callable(close):
+            close()
+        kafka_ctx.consumer = None
     if kafka_ctx.consumer is None:
         consumer_config: dict[str, Any] = {
             "bootstrap_servers": kafka_ctx.bootstrap_servers,
@@ -114,6 +121,7 @@ def kafka_consume(
         }
         consumer_config.update(kafka_ctx.consumer_config)
         kafka_ctx.consumer = KafkaConsumer(topic, **consumer_config)
+        kafka_ctx.consumer_topic = topic
 
     messages: list[dict[str, Any]] = []
     for _ in range(max_records):

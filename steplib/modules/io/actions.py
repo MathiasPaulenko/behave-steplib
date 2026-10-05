@@ -315,9 +315,7 @@ def _navigate_key_path(data: Any, key_path: str) -> Any:
                     f"Cannot index list with non-integer '{part}' in path '{key_path}'."
                 ) from exc
             if idx < 0 or idx >= len(current):
-                raise KeyError(
-                    f"Index {idx} out of range for list of length {len(current)}."
-                )
+                raise KeyError(f"Index {idx} out of range for list of length {len(current)}.")
             current = current[idx]
         elif isinstance(current, dict):
             if part not in current:
@@ -350,9 +348,7 @@ def io_assert_json_path_equals(io_ctx: IOContext, key_path: str, value: str) -> 
     except KeyError as exc:
         raise AssertionError(str(exc)) from exc
     if _normalize_value(actual) != _normalize_value(value):
-        raise AssertionError(
-            f"JSON path '{key_path}': expected '{value}', got '{actual}'."
-        )
+        raise AssertionError(f"JSON path '{key_path}': expected '{value}', got '{actual}'.")
 
 
 def io_store_json_path(io_ctx: IOContext, key_path: str, variable: str) -> None:
@@ -399,9 +395,7 @@ def io_update_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
                     f"Cannot index list with non-integer '{part}' in path '{key_path}'."
                 ) from exc
             if idx < 0 or idx >= len(current):
-                raise KeyError(
-                    f"Index {idx} out of range for list of length {len(current)}."
-                )
+                raise KeyError(f"Index {idx} out of range for list of length {len(current)}.")
             current = current[idx]
         elif isinstance(current, dict):
             if part not in current:
@@ -418,9 +412,7 @@ def io_update_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
                 f"Cannot index list with non-integer '{last}' in path '{key_path}'."
             ) from exc
         if idx < 0 or idx >= len(current):
-            raise KeyError(
-                f"Index {idx} out of range for list of length {len(current)}."
-            )
+            raise KeyError(f"Index {idx} out of range for list of length {len(current)}.")
         current[idx] = value
     elif isinstance(current, dict):
         current[last] = value
@@ -451,9 +443,7 @@ def io_create_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
         if part not in current:
             current[part] = {}
         elif not isinstance(current[part], dict):
-            raise KeyError(
-                f"Key '{part}' exists with non-dict value in path '{key_path}'."
-            )
+            raise KeyError(f"Key '{part}' exists with non-dict value in path '{key_path}'.")
         current = current[part]
     current[parts[-1]] = value
 
@@ -483,9 +473,7 @@ def io_delete_json_path(io_ctx: IOContext, key_path: str) -> None:
                     f"Cannot index list with non-integer '{part}' in path '{key_path}'."
                 ) from exc
             if idx < 0 or idx >= len(current):
-                raise KeyError(
-                    f"Index {idx} out of range for list of length {len(current)}."
-                )
+                raise KeyError(f"Index {idx} out of range for list of length {len(current)}.")
             current = current[idx]
         elif isinstance(current, dict):
             if part not in current:
@@ -502,9 +490,7 @@ def io_delete_json_path(io_ctx: IOContext, key_path: str) -> None:
                 f"Cannot index list with non-integer '{last}' in path '{key_path}'."
             ) from exc
         if idx < 0 or idx >= len(current):
-            raise KeyError(
-                f"Index {idx} out of range for list of length {len(current)}."
-            )
+            raise KeyError(f"Index {idx} out of range for list of length {len(current)}.")
         del current[idx]
     elif isinstance(current, dict):
         if last not in current:
@@ -640,9 +626,7 @@ def io_diff_json_objects(io_ctx: IOContext, json1: str, json2: str) -> dict[str,
     }
 
 
-def io_merge_json(
-    io_ctx: IOContext, target_name: str, origin_name: str, priority: str
-) -> None:
+def io_merge_json(io_ctx: IOContext, target_name: str, origin_name: str, priority: str) -> None:
     """Merge two JSON objects stored as variables.
 
     Args:
@@ -864,9 +848,7 @@ def io_list_directory(io_ctx: IOContext, path: str, variable: str) -> None:
     p = Path(path)
     if not p.is_dir():
         raise FileNotFoundError(f"Directory not found: {path}")
-    io_ctx.variables[variable] = sorted(
-        entry.name for entry in p.iterdir()
-    )
+    io_ctx.variables[variable] = sorted(entry.name for entry in p.iterdir())
 
 
 def io_delete_directory(path: str) -> None:
@@ -887,9 +869,7 @@ def io_delete_directory(path: str) -> None:
     shutil.rmtree(p)
 
 
-def io_read_file_as_lines(
-    io_ctx: IOContext, path: str, variable: str
-) -> None:
+def io_read_file_as_lines(io_ctx: IOContext, path: str, variable: str) -> None:
     """Read a file and store its lines as a list in a variable.
 
     Args:

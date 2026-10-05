@@ -15,6 +15,7 @@ class KafkaContext:
     Attributes:
         producer: The Kafka producer instance.
         consumer: The Kafka consumer instance.
+        consumer_topic: The topic the current consumer is subscribed to.
         bootstrap_servers: Comma-separated Kafka bootstrap server addresses.
         consumer_group: The consumer group ID.
         auto_offset_reset: Offset reset strategy (``"earliest"`` or ``"latest"``).
@@ -27,6 +28,7 @@ class KafkaContext:
 
     producer: Any = None
     consumer: Any = None
+    consumer_topic: str | None = None
     bootstrap_servers: str = "localhost:9092"
     consumer_group: str = "steplib-group"
     auto_offset_reset: str = "earliest"
@@ -49,3 +51,4 @@ class KafkaContext:
         if self.consumer is not None and hasattr(self.consumer, "close"):
             self.consumer.close()
             self.consumer = None
+            self.consumer_topic = None

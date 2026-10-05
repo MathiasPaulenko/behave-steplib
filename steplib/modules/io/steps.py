@@ -223,9 +223,7 @@ def step_file_not_exists(context: Any, path: str) -> None:
 )
 def step_files_same(context: Any, path1: str, path2: str) -> None:
     """Assert two files have the same content."""
-    io_assert_files_same(
-        _get_io(context), _strip_quotes(path1), _strip_quotes(path2)
-    )
+    io_assert_files_same(_get_io(context), _strip_quotes(path1), _strip_quotes(path2))
 
 
 @step(
@@ -240,9 +238,7 @@ def step_files_same(context: Any, path1: str, path2: str) -> None:
 )
 def step_get_file_size(context: Any, path: str, variable: str) -> None:
     """Get file size into a variable."""
-    io_get_file_size(
-        _get_io(context), _strip_quotes(path), _strip_quotes(variable)
-    )
+    io_get_file_size(_get_io(context), _strip_quotes(path), _strip_quotes(variable))
 
 
 @step(
@@ -257,9 +253,7 @@ def step_get_file_size(context: Any, path: str, variable: str) -> None:
 )
 def step_get_file_extension(context: Any, path: str, variable: str) -> None:
     """Get file extension into a variable."""
-    io_get_file_extension(
-        _get_io(context), _strip_quotes(path), _strip_quotes(variable)
-    )
+    io_get_file_extension(_get_io(context), _strip_quotes(path), _strip_quotes(variable))
 
 
 @step(
@@ -286,10 +280,10 @@ def step_create_empty_file(context: Any, path: str) -> None:
     "I load the JSON file {path} as the last JSON",
     category="io",
     description="Load a JSON file and store it as the last JSON.",
-    example='Given I load the JSON file "data.json"',
+    example='Given I load the JSON file "data.json" as the last JSON',
     i18n={
-        "es": "Cargo el archivo JSON {path}",
-        "pt": "Eu carrego o arquivo JSON {path}",
+        "es": "Cargo el archivo JSON {path} como último JSON",
+        "pt": "Eu carrego o arquivo JSON {path} como último JSON",
     },
 )
 def step_load_json(context: Any, path: str) -> None:
@@ -324,9 +318,7 @@ def step_save_json(context: Any, path: str) -> None:
 )
 def step_json_path_equals(context: Any, key_path: str, value: str) -> None:
     """Assert JSON key path equals value."""
-    io_assert_json_path_equals(
-        _get_io(context), _strip_quotes(key_path), _strip_quotes(value)
-    )
+    io_assert_json_path_equals(_get_io(context), _strip_quotes(key_path), _strip_quotes(value))
 
 
 @step(
@@ -341,9 +333,7 @@ def step_json_path_equals(context: Any, key_path: str, value: str) -> None:
 )
 def step_store_json_path(context: Any, key_path: str, variable: str) -> None:
     """Store a JSON key path into a variable."""
-    io_store_json_path(
-        _get_io(context), _strip_quotes(key_path), _strip_quotes(variable)
-    )
+    io_store_json_path(_get_io(context), _strip_quotes(key_path), _strip_quotes(variable))
 
 
 @step(
@@ -358,9 +348,7 @@ def step_store_json_path(context: Any, key_path: str, variable: str) -> None:
 )
 def step_update_json_path(context: Any, key_path: str, value: str) -> None:
     """Update a JSON key path value."""
-    io_update_json_path(
-        _get_io(context), _strip_quotes(key_path), _strip_quotes(value)
-    )
+    io_update_json_path(_get_io(context), _strip_quotes(key_path), _strip_quotes(value))
 
 
 @step(
@@ -375,9 +363,7 @@ def step_update_json_path(context: Any, key_path: str, value: str) -> None:
 )
 def step_create_json_path(context: Any, key_path: str, value: str) -> None:
     """Create a nested JSON key path."""
-    io_create_json_path(
-        _get_io(context), _strip_quotes(key_path), _strip_quotes(value)
-    )
+    io_create_json_path(_get_io(context), _strip_quotes(key_path), _strip_quotes(value))
 
 
 @step(
@@ -429,7 +415,7 @@ def step_json_matches_schema(context: Any, schema_path: str) -> None:
     "the last JSON is valid",
     category="io",
     description="Assert that the last loaded JSON is valid by re-serializing it.",
-    example='Then the last JSON is valid',
+    example="Then the last JSON is valid",
     i18n={
         "es": "el último JSON es válido",
         "pt": "o último JSON é válido",
@@ -452,16 +438,14 @@ def step_last_json_valid(context: Any) -> None:
 )
 def step_get_json_path_type(context: Any, key_path: str, variable: str) -> None:
     """Get the type of a JSON key path value."""
-    io_get_json_path_type(
-        _get_io(context), _strip_quotes(key_path), _strip_quotes(variable)
-    )
+    io_get_json_path_type(_get_io(context), _strip_quotes(key_path), _strip_quotes(variable))
 
 
 @step(
     "I diff the JSON objects {json1} and {json2}",
     category="io",
     description="Diff two JSON strings and assert no differences.",
-    example='Then I diff the JSON objects \'{"a":1}\' and \'{"a":1}\'',
+    example="Then I diff the JSON objects '{\"a\":1}' and '{\"a\":1}'",
     i18n={
         "es": "Comparo los objetos JSON {json1} y {json2}",
         "pt": "Eu comparo os objetos JSON {json1} e {json2}",
@@ -469,9 +453,7 @@ def step_get_json_path_type(context: Any, key_path: str, variable: str) -> None:
 )
 def step_diff_json(context: Any, json1: str, json2: str) -> None:
     """Diff two JSON objects."""
-    result = io_diff_json_objects(
-        _get_io(context), _strip_quotes(json1), _strip_quotes(json2)
-    )
+    result = io_diff_json_objects(_get_io(context), _strip_quotes(json1), _strip_quotes(json2))
     if result["only_in_first"] or result["only_in_second"] or result["different"]:
         raise AssertionError(f"JSON objects differ: {result}")
 
@@ -486,9 +468,7 @@ def step_diff_json(context: Any, json1: str, json2: str) -> None:
         "pt": "Eu fundo o JSON {origin_name} em {target_name} com prioridade {priority}",
     },
 )
-def step_merge_json(
-    context: Any, origin_name: str, target_name: str, priority: str
-) -> None:
+def step_merge_json(context: Any, origin_name: str, target_name: str, priority: str) -> None:
     """Merge two JSON dicts."""
     io_merge_json(
         _get_io(context),
@@ -565,7 +545,7 @@ def step_write_csv_row(context: Any, row: str) -> None:
     "I close the CSV writer",
     category="io",
     description="Close the active CSV writer and its file handle.",
-    example='Then I close the CSV writer',
+    example="Then I close the CSV writer",
     i18n={
         "es": "Cierro el escritor CSV",
         "pt": "Eu fecho o escritor CSV",
@@ -580,7 +560,7 @@ def step_close_csv_writer(context: Any) -> None:
     "I save the CSV file",
     category="io",
     description="Flush the active CSV writer without closing it.",
-    example='Then I save the CSV file',
+    example="Then I save the CSV file",
     i18n={
         "es": "Guardo el archivo CSV",
         "pt": "Eu salvo o arquivo CSV",
@@ -603,9 +583,7 @@ def step_save_csv(context: Any) -> None:
 )
 def step_set_csv_header_row(context: Any, row: int, path: str, variable: str) -> None:
     """Set the header row for a CSV file."""
-    io_set_csv_header_row(
-        _get_io(context), _strip_quotes(path), row, _strip_quotes(variable)
-    )
+    io_set_csv_header_row(_get_io(context), _strip_quotes(path), row, _strip_quotes(variable))
 
 
 # ---------------------------------------------------------------------------
@@ -700,9 +678,7 @@ def step_delete_directory(context: Any, path: str) -> None:
 )
 def step_read_file_as_lines(context: Any, path: str, variable: str) -> None:
     """Read file as lines."""
-    io_read_file_as_lines(
-        _get_io(context), _strip_quotes(path), _strip_quotes(variable)
-    )
+    io_read_file_as_lines(_get_io(context), _strip_quotes(path), _strip_quotes(variable))
 
 
 # ---------------------------------------------------------------------------
@@ -710,6 +686,9 @@ def step_read_file_as_lines(context: Any, path: str, variable: str) -> None:
 # ---------------------------------------------------------------------------
 
 _ALL_STEPS = [
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text.
+    step_read_file_as_lines,
     # File
     step_read_file,
     step_write_file,
@@ -718,19 +697,18 @@ _ALL_STEPS = [
     step_copy_file,
     step_move_file,
     step_rename_file,
-    step_file_exists,
     step_file_not_exists,
+    step_file_exists,
     step_files_same,
     step_get_file_size,
     step_get_file_extension,
     step_create_empty_file,
     # Directory
     step_create_directory,
-    step_directory_exists,
     step_directory_not_exists,
+    step_directory_exists,
     step_list_directory,
     step_delete_directory,
-    step_read_file_as_lines,
     # JSON
     step_load_json,
     step_save_json,

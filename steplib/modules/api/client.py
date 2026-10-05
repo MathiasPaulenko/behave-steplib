@@ -378,9 +378,19 @@ class RequestsHTTPClient:
             proxies=proxies,
         )
         elapsed = (time.monotonic() - start) * 1000
+        headers = _build_headers_dict(resp.headers)
+        # requests collapses duplicate headers (Set-Cookie) with commas;
+        # recover the raw multi-values from urllib3 so api_save_cookies sees
+        # the same newline-joined format as the other backends.
+        raw_getlist = getattr(getattr(resp, "raw", None), "headers", None)
+        getlist = getattr(raw_getlist, "getlist", None)
+        if getlist is not None:
+            set_cookies = getlist("Set-Cookie")
+            if len(set_cookies) > 1:
+                headers["Set-Cookie"] = "\n".join(set_cookies)
         return Response(
             status=resp.status_code,
-            headers=_build_headers_dict(resp.headers),
+            headers=headers,
             body=resp.content,
             elapsed_ms=elapsed,
         )
@@ -418,10 +428,15 @@ def get_client(backend: str = "stdlib") -> HTTPClient:
 
     Raises:
         MissingDependencyError: If the backend's dependency is not installed.
+        ValueError: If *backend* is not a known backend name.
 
     """
+    if backend == "stdlib":
+        return UrllibHTTPClient()
     if backend == "httpx":
         return HttpxHTTPClient()
     if backend == "requests":
         return RequestsHTTPClient()
-    return UrllibHTTPClient()
+    raise ValueError(
+        f"Unsupported API backend: '{backend}'. Valid backends: stdlib, httpx, requests."
+    )

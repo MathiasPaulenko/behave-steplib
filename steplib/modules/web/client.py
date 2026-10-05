@@ -113,6 +113,14 @@ class BrowserDriver(Protocol):
         """Set the browser window size."""
         ...
 
+    def implicitly_wait(self, seconds: float) -> None:
+        """Set the driver-level implicit wait for element lookups."""
+        ...
+
+    def set_page_load_timeout(self, seconds: float) -> None:
+        """Set the driver-level page load timeout."""
+        ...
+
 
 class SeleniumDriver:
     """Browser driver backed by Selenium (requires the ``[web]`` extra)."""
@@ -284,6 +292,14 @@ class SeleniumDriver:
     def set_window_size(self, width: int, height: int) -> None:
         """Set the browser window size."""
         self._driver.set_window_size(width, height)
+
+    def implicitly_wait(self, seconds: float) -> None:
+        """Set the driver-level implicit wait for element lookups."""
+        self._driver.implicitly_wait(seconds)
+
+    def set_page_load_timeout(self, seconds: float) -> None:
+        """Set the driver-level page load timeout."""
+        self._driver.set_page_load_timeout(seconds)
 
 
 def get_driver(backend: str = "selenium", **kwargs: Any) -> BrowserDriver:

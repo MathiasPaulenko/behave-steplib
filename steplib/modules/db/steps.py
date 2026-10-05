@@ -58,7 +58,7 @@ def step_set_db_connection(context: Any, connection_string: str) -> None:
     "I execute the SQL query {query} without bind parameters",
     category="db",
     description="Execute a SQL query and store the result.",
-    example='When I execute the SQL query "SELECT * FROM users"',
+    example='When I execute the SQL query "SELECT * FROM users" without bind parameters',
     i18n={
         "es": "ejecuto la consulta SQL {query}",
         "pt": "executo a consulta SQL {query}",
@@ -432,7 +432,7 @@ def step_table_row_count(context: Any, table: str, count: int) -> None:
     description="Execute a SQL query with bind parameters and store the result.",
     example=(
         'When I execute the SQL query "SELECT * FROM users WHERE id = :id"'
-        " with params '{\"id\": 1}'"
+        " using params '{\"id\": 1}'"
     ),
     i18n={
         "es": "ejecuto la consulta SQL {query} con parámetros {params}",
@@ -471,9 +471,11 @@ def step_store_scalar(context: Any, query: str, variable: str) -> None:
 
 
 _ALL_STEPS = [
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text.
+    step_execute_query_with_params,
     step_set_db_connection,
     step_execute_query,
-    step_execute_query_with_params,
     step_query_row_count,
     step_column_equals,
     # Connection management

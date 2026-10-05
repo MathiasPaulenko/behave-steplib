@@ -34,6 +34,20 @@ class DatabaseClient:
         self._text = text
         self.engine = create_engine(connection_string)
         self.connection = self.engine.connect()
+        self._tx: Any = None
+
+    def _commit_if_no_explicit_tx(self) -> None:
+        """Commit the implicit transaction unless an explicit one is active.
+
+        SQLAlchemy 2.x ``engine.connect()`` connections autobegin and never
+        commit on their own, so statements would be rolled back when the
+        connection closes. Explicit transactions started via :meth:`begin`
+        are left alone — they commit/rollback through their own steps.
+        """
+        if self._tx is None or not self._tx.is_active:
+            commit = getattr(self.connection, "commit", None)
+            if callable(commit):
+                commit()
 
     def execute(self, query: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         """Execute a SQL query and return rows as a list of dicts.
@@ -48,7 +62,9 @@ class DatabaseClient:
         """
         result = self.connection.execute(self._text(query), params or {})
         columns = list(result.keys())
-        return [dict(zip(columns, row, strict=False)) for row in result.fetchall()]
+        rows = [dict(zip(columns, row, strict=False)) for row in result.fetchall()]
+        self._commit_if_no_explicit_tx()
+        return rows
 
     def execute_scalar(self, query: str, params: dict[str, Any] | None = None) -> Any:
         """Execute a SQL query and return a single scalar value.
@@ -62,16 +78,27 @@ class DatabaseClient:
 
         """
         result = self.connection.execute(self._text(query), params or {})
-        return result.scalar()
+        value = result.scalar()
+        self._commit_if_no_explicit_tx()
+        return value
 
     def begin(self) -> Any:
         """Begin a transaction on the underlying connection.
+
+        If the connection already has an open (implicit) transaction, that
+        transaction is returned instead of raising.
 
         Returns:
             The transaction object from SQLAlchemy.
 
         """
-        return self.connection.begin()
+        in_transaction = getattr(self.connection, "in_transaction", None)
+        get_transaction = getattr(self.connection, "get_transaction", None)
+        if callable(in_transaction) and in_transaction() and callable(get_transaction):
+            self._tx = get_transaction()
+        else:
+            self._tx = self.connection.begin()
+        return self._tx
 
     def close(self) -> None:
         """Close the connection and dispose the engine."""

@@ -619,16 +619,25 @@ def web_delete_cookie(web_ctx: WebContext, name: str) -> None:
 def web_set_implicit_wait(web_ctx: WebContext, seconds: float) -> None:
     """Set the implicit wait time.
 
+    Stored as the default timeout for explicit waits and also applied to
+    the active driver via ``implicitly_wait`` when one is configured.
+
     Args:
         web_ctx: The web context to operate on.
         seconds: The implicit wait in seconds.
 
     """
     web_ctx.implicit_wait = seconds
+    apply = getattr(web_ctx.driver, "implicitly_wait", None)
+    if callable(apply):
+        apply(seconds)
 
 
 def web_set_page_load_timeout(web_ctx: WebContext, seconds: float) -> None:
     """Set the page load timeout.
+
+    Applied to the active driver via ``set_page_load_timeout`` when one is
+    configured.
 
     Args:
         web_ctx: The web context to operate on.
@@ -636,6 +645,9 @@ def web_set_page_load_timeout(web_ctx: WebContext, seconds: float) -> None:
 
     """
     web_ctx.page_load_timeout = seconds
+    apply = getattr(web_ctx.driver, "set_page_load_timeout", None)
+    if callable(apply):
+        apply(seconds)
 
 
 def web_set_window_size(web_ctx: WebContext, width: int, height: int) -> None:

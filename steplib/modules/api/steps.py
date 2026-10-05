@@ -73,7 +73,13 @@ def _get_api(context: Any) -> ApiContext:
         )
     api = getattr(steplib, "api", None)
     if api is None:
-        api = ApiContext()
+        backend = getattr(steplib, "backends", {}).get("api")
+        if backend:
+            from steplib.modules.api.client import get_client
+
+            api = ApiContext(client=get_client(backend), backend=backend)
+        else:
+            api = ApiContext()
         steplib.api = api
     return api
 
@@ -148,7 +154,7 @@ def step_send_request(context: Any, method: str, url: str) -> None:
     "I send a {method} request with body to {url}",
     category="api",
     description="Send an HTTP request with a body from the step text.",
-    example='When I send a POST request to "/users" with body',
+    example='When I send a POST request with body to "/users"',
     i18n={
         "es": "envío una petición {method} a {url} con cuerpo",
         "pt": "envio uma requisição {method} para {url} com corpo",
@@ -483,9 +489,7 @@ def step_response_status_in(context: Any, statuses: str) -> None:
     try:
         codes = [int(s.strip()) for s in statuses.split(",")]
     except ValueError as exc:
-        raise AssertionError(
-            f"Invalid status code list '{statuses}': {exc}"
-        ) from exc
+        raise AssertionError(f"Invalid status code list '{statuses}': {exc}") from exc
     api_assert_status_in(_get_api(context), codes)
 
 
@@ -820,7 +824,7 @@ def step_response_header_not_exists(context: Any, name: str) -> None:
     "I send a {method} request with form data to {url}",
     category="api",
     description="Send an HTTP request with form-encoded data from the step table.",
-    example='When I send a POST request to "/login" with form data',
+    example='When I send a POST request with form data to "/login"',
     i18n={
         "es": "envío una petición {method} a {url} con datos de formulario",
         "pt": "envio uma requisição {method} para {url} com dados de formulário",
@@ -839,7 +843,7 @@ def step_send_form_data(context: Any, method: str, url: str) -> None:
     "I send a {method} request with JSON body to {url}",
     category="api",
     description="Send an HTTP request with a JSON body from the step text.",
-    example='When I send a POST request to "/users" with JSON body',
+    example='When I send a POST request with JSON body to "/users"',
     i18n={
         "es": "envío una petición {method} a {url} con cuerpo JSON",
         "pt": "envio uma requisição {method} para {url} com corpo JSON",
@@ -855,7 +859,7 @@ def step_send_json_body(context: Any, method: str, url: str) -> None:
     "I send a {method} request with query parameters to {url}",
     category="api",
     description="Send an HTTP request with query parameters from the step table.",
-    example='When I send a GET request to "/search" with query parameters',
+    example='When I send a GET request with query parameters to "/search"',
     i18n={
         "es": "envío una petición {method} a {url} con parámetros de consulta",
         "pt": "envio uma requisição {method} para {url} com parâmetros de consulta",
@@ -874,7 +878,7 @@ def step_send_with_params(context: Any, method: str, url: str) -> None:
     "I send a {method} request with headers to {url}",
     category="api",
     description="Send an HTTP request with extra headers from the step table.",
-    example='When I send a GET request to "/secure" with headers',
+    example='When I send a GET request with headers to "/secure"',
     i18n={
         "es": "envío una petición {method} a {url} con headers",
         "pt": "envio uma requisição {method} para {url} com headers",
@@ -920,7 +924,6 @@ def step_use_variable_as_header(context: Any, variable: str, name: str) -> None:
 def step_use_variable_as_param(context: Any, variable: str, name: str) -> None:
     """Set a query param from a stored variable."""
     api_use_variable_as_query_param(_get_api(context), name.strip('"'), variable.strip('"'))
-
 
 
 @step(
@@ -999,29 +1002,34 @@ _ALL_STEPS = [
     step_remove_header,
     step_clear_request_data,
     step_set_proxy,
-    step_send_request,
+    # NOTE: "send ... with ..." variants must register before the plain
+    # send step — in es/pt their translations are suffixes of the base
+    # pattern, whose {url} placeholder would swallow them otherwise.
     step_send_request_with_body,
     step_send_form_data,
     step_send_json_body,
     step_send_with_params,
     step_send_with_headers,
+    step_send_request,
     step_response_status,
     step_response_status_in,
     step_response_body_contains,
     step_response_body_not_contains,
     step_response_body_valid_json,
-    step_json_path_equals,
     step_json_path_not_equals,
+    step_json_path_equals,
     step_json_path_exists,
-    step_json_path_is_null,
     step_json_path_is_not_null,
+    step_json_path_is_null,
     step_json_path_contains,
     step_json_path_has_length,
     step_json_path_matches_regex,
     step_json_path_type,
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text.
+    step_response_header_not_equals,
     step_response_header_equals,
     step_response_header_contains,
-    step_response_header_not_equals,
     step_response_header_exists,
     step_response_header_not_exists,
     step_response_content_type,

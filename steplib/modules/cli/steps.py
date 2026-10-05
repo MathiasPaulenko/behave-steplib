@@ -52,7 +52,7 @@ def _strip_quotes(value: str) -> str:
     "I run the command {command} using the default timeout",
     category="cli",
     description="Run a shell command and store the exit code, stdout, and stderr.",
-    example='When I run the command "echo hello"',
+    example='When I run the command "echo hello" using the default timeout',
     i18n={
         "es": "Ejecuto el comando {command}",
         "pt": "Eu executo o comando {command}",
@@ -127,19 +127,15 @@ def step_stderr_contains(context: Any, text: str) -> None:
     "I run the command {command} using a timeout of {seconds:d} seconds",
     category="cli",
     description="Run a shell command with a custom timeout in seconds.",
-    example='When I run the command "sleep 1" with timeout 5',
+    example='When I run the command "sleep 1" using a timeout of 5 seconds',
     i18n={
         "es": "Ejecuto el comando {command} con tiempo límite {seconds:d}",
         "pt": "Eu executo o comando {command} com tempo limite {seconds:d}",
     },
 )
-def step_run_command_with_timeout(
-    context: Any, command: str, seconds: int
-) -> None:
+def step_run_command_with_timeout(context: Any, command: str, seconds: int) -> None:
     """Run a shell command with timeout."""
-    cli_run_command_with_timeout(
-        _get_cli(context), _strip_quotes(command), seconds
-    )
+    cli_run_command_with_timeout(_get_cli(context), _strip_quotes(command), seconds)
 
 
 @step(
@@ -207,6 +203,9 @@ def step_output_matches(context: Any, pattern: str) -> None:
 # ---------------------------------------------------------------------------
 
 _ALL_STEPS = [
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text.
+    step_run_command_with_timeout,
     step_run_command,
     step_exit_code_equals,
     step_output_contains,
@@ -214,7 +213,6 @@ _ALL_STEPS = [
     step_output_equals,
     step_output_matches,
     step_stderr_contains,
-    step_run_command_with_timeout,
     step_store_output,
     step_store_stderr,
 ]

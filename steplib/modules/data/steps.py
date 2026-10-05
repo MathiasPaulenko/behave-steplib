@@ -155,7 +155,7 @@ def step_load_yaml(context: Any, path: str, name: str) -> None:
     "I load the JSON file {path} and store it in the variable {name}",
     category="data",
     description="Load a JSON file and store the parsed content as a variable.",
-    example='Given I load the JSON file "data.json" into the variable "payload"',
+    example='Given I load the JSON file "data.json" and store it in the variable "payload"',
     i18n={
         "es": "cargo el archivo JSON {path} en la variable {name}",
         "pt": "carrego o arquivo JSON {path} na variável {name}",
@@ -480,9 +480,7 @@ def step_set_env_from_variable(context: Any, key: str, variable: str) -> None:
 )
 def step_variable_matches(context: Any, name: str, pattern: str) -> None:
     """Assert variable matches regex pattern."""
-    data_assert_variable_matches(
-        _get_data(context), name.strip('"'), pattern.strip('"')
-    )
+    data_assert_variable_matches(_get_data(context), name.strip('"'), pattern.strip('"'))
 
 
 @step(
@@ -497,9 +495,7 @@ def step_variable_matches(context: Any, name: str, pattern: str) -> None:
 )
 def step_variable_starts_with(context: Any, name: str, text: str) -> None:
     """Assert variable starts with text."""
-    data_assert_variable_starts_with(
-        _get_data(context), name.strip('"'), text.strip('"')
-    )
+    data_assert_variable_starts_with(_get_data(context), name.strip('"'), text.strip('"'))
 
 
 @step(
@@ -514,9 +510,7 @@ def step_variable_starts_with(context: Any, name: str, text: str) -> None:
 )
 def step_variable_ends_with(context: Any, name: str, text: str) -> None:
     """Assert variable ends with text."""
-    data_assert_variable_ends_with(
-        _get_data(context), name.strip('"'), text.strip('"')
-    )
+    data_assert_variable_ends_with(_get_data(context), name.strip('"'), text.strip('"'))
 
 
 @step(
@@ -546,9 +540,7 @@ def step_increment_variable(context: Any, name: str, amount: int) -> None:
 )
 def step_variable_greater_than(context: Any, name: str, value: str) -> None:
     """Assert variable is greater than value."""
-    data_assert_variable_greater_than(
-        _get_data(context), name.strip('"'), value.strip('"')
-    )
+    data_assert_variable_greater_than(_get_data(context), name.strip('"'), value.strip('"'))
 
 
 @step(
@@ -563,9 +555,7 @@ def step_variable_greater_than(context: Any, name: str, value: str) -> None:
 )
 def step_variable_less_than(context: Any, name: str, value: str) -> None:
     """Assert variable is less than value."""
-    data_assert_variable_less_than(
-        _get_data(context), name.strip('"'), value.strip('"')
-    )
+    data_assert_variable_less_than(_get_data(context), name.strip('"'), value.strip('"'))
 
 
 # --- Utility steps ---
@@ -587,44 +577,44 @@ def step_wait(context: Any, seconds: float) -> None:
 
 
 _ALL_STEPS = [
-    step_set_variable,
+    # NOTE: more specific patterns must come first — behave returns the
+    # first matcher whose pattern parses the step text. In es/pt the
+    # negated and "de entorno"/"de ambiente" variants contain the generic
+    # variable patterns as substrings, so they must register first.
+    # Env: negated first, then positive
+    step_env_not_equals,
+    step_env_not_exists,
+    step_env_equals,
+    step_env_exists,
+    step_set_env_var,
+    step_delete_env_var,
+    step_store_env_var,
+    step_load_env_file,
+    step_set_env_from_variable,
+    # Variable: specific and negated first
+    step_set_variable_json,
+    step_variable_not_equals,
+    step_variable_not_exists,
+    step_variable_is_not_empty,
     step_variable_equals,
     step_variable_exists,
-    step_variable_not_exists,
-    step_delete_variable,
-    step_load_yaml,
-    step_load_json_file,
-    step_extract_key_path,
-    # Extended variable assertions
-    step_variable_not_equals,
-    step_variable_contains,
     step_variable_is_empty,
-    step_variable_is_not_empty,
+    step_variable_contains,
     step_variable_has_length,
-    # Regex + string assertions
     step_variable_matches,
     step_variable_starts_with,
     step_variable_ends_with,
-    # Numeric assertions
     step_variable_greater_than,
     step_variable_less_than,
-    # Variable manipulation
+    step_set_variable,
+    step_delete_variable,
     step_copy_variable,
     step_clear_variables,
-    step_set_variable_json,
     step_increment_variable,
-    # Env
-    step_set_env_var,
-    step_delete_env_var,
-    step_env_equals,
-    step_env_exists,
-    step_store_env_var,
-    step_load_env_file,
-    # Extended env assertions
-    step_env_not_equals,
-    step_env_not_exists,
-    # Env from variable
-    step_set_env_from_variable,
+    # Files
+    step_load_yaml,
+    step_load_json_file,
+    step_extract_key_path,
     # Utility
     step_wait,
 ]
