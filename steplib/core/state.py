@@ -29,13 +29,21 @@ class SteplibState:
     Args:
         context: The behave context object.
         registry: The ``StepRegistry`` populated during autoload/load.
+        backends: Optional mapping of category → selected backend, used by
+            modules when lazily creating their clients (e.g. ``api``).
 
     """
 
-    def __init__(self, context: Any, registry: StepRegistry) -> None:
+    def __init__(
+        self,
+        context: Any,
+        registry: StepRegistry,
+        backends: dict[str, str] | None = None,
+    ) -> None:
         """Initialize state with a behave context and step registry."""
         self._context = context
         self._registry = registry
+        self.backends = dict(backends or {})
 
     @property
     def context(self) -> Any:

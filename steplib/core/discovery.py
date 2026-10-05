@@ -51,7 +51,10 @@ def autoload(
         categories: Optional list of categories to keep (e.g. ``["api"]``).
             When ``None``, all categories are loaded.
         backends: Optional mapping of category → backend to keep
-            (e.g. ``{"api": "httpx"}``). When ``None``, all backends are loaded.
+            (e.g. ``{"api": "httpx"}``). Steps without a ``backend`` value
+            are always kept; the mapping is stored on the returned state as
+            ``state.backends`` so modules can select the right client when
+            creating it lazily. When ``None``, all backends are loaded.
 
     Returns:
         A ``SteplibState`` holding the filtered registry.
@@ -61,7 +64,7 @@ def autoload(
     _load_entry_points(registry)
     _apply_filters(registry, categories, backends)
     registry.register_with_behave()
-    return SteplibState(context, registry)
+    return SteplibState(context, registry, backends=backends)
 
 
 def load(context: Any, *modules: str) -> SteplibState:
@@ -119,7 +122,9 @@ def _apply_filters(
             continue
         if backends is not None:
             desired = backends.get(info.category)
-            if desired is not None and info.backend != desired:
+            # Steps without a backend are always kept, per the documented
+            # contract — only explicitly backed steps are filtered out.
+            if desired is not None and info.backend is not None and info.backend != desired:
                 continue
         keep.append(info)
 

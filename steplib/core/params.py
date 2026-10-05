@@ -96,14 +96,22 @@ _DEFAULT_REGISTRY = TypeRegistry()
 def register_type(name: str, py_type: type[Any]) -> None:
     """Register a custom type usable in patterns as ``{value:Name}``.
 
-    Delegates to the default :class:`TypeRegistry` instance.
+    Delegates to the default :class:`TypeRegistry` instance and also
+    registers the type with behave's shared parse registry so that
+    ``{value:Name}`` placeholders actually convert matched text at runtime.
 
     Args:
         name: The type name to use in patterns.
-        py_type: The Python type the converter returns.
+        py_type: The Python type the converter returns; must be callable
+            with a single ``str`` argument.
 
     """
     _DEFAULT_REGISTRY.register(name, py_type)
+    try:
+        from behave import register_type as _behave_register_type
+    except ImportError:  # pragma: no cover
+        return
+    _behave_register_type(**{name: py_type})
 
 
 def resolve_type(type_ref: type[Any] | str) -> type[Any]:

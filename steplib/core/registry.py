@@ -235,42 +235,37 @@ class StepRegistry:
     # --- internals ---
 
     def _add_info(self, info: StepInfo, fn: Callable[..., Any]) -> None:
-        for _lang, pattern in expand_patterns(info):
+        expanded = expand_patterns(info)
+        for _lang, pattern in expanded:
             key = (pattern, info.backend)
             if key in self._patterns:
                 raise DuplicateStepError(pattern, info.backend)
             self._patterns[key] = info
         self._steps.append(info)
+        if self._auto_register:
+            for _lang, pattern in expanded:
+                self._register_with_behave(pattern, fn)
 
     def register_with_behave(self) -> None:
-        """Register the base pattern of every stored step with behave.
+        """Register every stored step pattern with behave.
 
-        Only the English base pattern is registered. Translations are kept in
-        the registry metadata for CLI/validation use but are not exposed to
-        behave's matcher, because mixed-language patterns often share prefixes
-        and cause ``AmbiguousStep`` errors.
+        All patterns are registered — the English base pattern and every i18n
+        translation — so feature files in ``es`` and ``pt`` work without a
+        language switch. ``SteplibMatcher``'s skeleton check prevents
+        ``AmbiguousStep`` errors between patterns that share prefixes, and
+        behave's own ``same_step_matcher`` dedup keeps registration
+        idempotent.
+
+        More specific patterns must be registered before their shorter
+        general forms: behave's ``find_match`` returns the *first* matcher
+        that parses the step text.
         """
         if self._registered_with_behave:
             return
-        seen: set[tuple[str, str | None]] = set()
-        for info in self._steps:
-            key = (info.pattern, info.backend)
-            if key in seen:
-                continue
-            seen.add(key)
-            self._register_with_behave(info.pattern, info.func)
-        self._registered_with_behave = True
-
-    @staticmethod
-    def _register_with_behave(pattern: str, fn: Callable[..., Any]) -> None:
-        """Register a single pattern with behave's global step registry.
-
-        Uses ``SteplibMatcher`` to avoid ``AmbiguousStep`` errors between
-        positive and negative forms that share the same fixed words.
-        """
         try:
             from behave import step as behave_step
             from behave.matchers import (
+                get_step_matcher_factory,
                 has_registered_step_matcher_class,
                 register_step_matcher_class,
                 use_step_matcher,
@@ -280,5 +275,44 @@ class StepRegistry:
 
         if not has_registered_step_matcher_class(SteplibMatcher.NAME):
             register_step_matcher_class(SteplibMatcher.NAME, SteplibMatcher)
+
+        # use_step_matcher() is global; restore the previously active matcher
+        # afterwards so user-defined steps keep their matcher semantics.
+        factory = get_step_matcher_factory()
+        previous_matcher = factory.current_matcher.NAME
         use_step_matcher(SteplibMatcher.NAME)
-        behave_step(pattern)(fn)
+        try:
+            seen: set[tuple[str, str | None]] = set()
+            for info in self._steps:
+                for _lang, pattern in expand_patterns(info):
+                    key = (pattern, info.backend)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    behave_step(pattern)(info.func)
+        finally:
+            use_step_matcher(previous_matcher)
+        self._registered_with_behave = True
+
+    def _register_with_behave(self, pattern: str, fn: Callable[..., Any]) -> None:
+        """Register a single expanded pattern with behave's global registry."""
+        try:
+            from behave import step as behave_step
+            from behave.matchers import (
+                get_step_matcher_factory,
+                has_registered_step_matcher_class,
+                register_step_matcher_class,
+                use_step_matcher,
+            )
+        except ImportError:  # pragma: no cover
+            return
+
+        if not has_registered_step_matcher_class(SteplibMatcher.NAME):
+            register_step_matcher_class(SteplibMatcher.NAME, SteplibMatcher)
+        factory = get_step_matcher_factory()
+        previous_matcher = factory.current_matcher.NAME
+        use_step_matcher(SteplibMatcher.NAME)
+        try:
+            behave_step(pattern)(fn)
+        finally:
+            use_step_matcher(previous_matcher)

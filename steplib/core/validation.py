@@ -58,6 +58,12 @@ def _check_param_names_match(info: StepInfo) -> list[str]:
             f"Step '{info.pattern}': parameters {missing_in_pattern} "
             f"are declared but not in the pattern."
         )
+    missing_in_params = pattern_placeholders - param_names
+    if missing_in_params:
+        errors.append(
+            f"Step '{info.pattern}': placeholders {missing_in_params} "
+            f"are in the pattern but have no declared Param."
+        )
     return errors
 
 

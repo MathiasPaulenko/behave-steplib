@@ -19,7 +19,7 @@ import re
 from typing import Any, cast
 
 import parse
-from behave.matchers import Match, Matcher
+from behave.matchers import Match, Matcher, ParseMatcher
 from behave.model_type import Argument
 
 _FIXED_RE = re.compile(r'"[^"]*"|\{[^}]+?\}')
@@ -36,7 +36,10 @@ class SteplibMatcher(Matcher):  # type: ignore[misc]
     """Parse-based matcher that resolves prefix/negative-form ambiguities."""
 
     NAME = "steplib"
-    TYPE_REGISTRY = Matcher.TYPE_REGISTRY
+    # Share ParseMatcher's type registry: Matcher.TYPE_REGISTRY is the
+    # TypeRegistryNotSupported sentinel, and types registered via
+    # behave.register_type() land on the current matcher class.
+    TYPE_REGISTRY = ParseMatcher.TYPE_REGISTRY
 
     def __init__(
         self,
@@ -48,7 +51,10 @@ class SteplibMatcher(Matcher):  # type: ignore[misc]
         """Create a matcher for a parsed step pattern."""
         super().__init__(func, pattern, step_type)
         self._skeleton = _skeleton(pattern)
-        self._parser = parse.Parser(pattern, extra_types=custom_types or {})
+        self._parser = parse.Parser(
+            pattern,
+            extra_types=custom_types if custom_types is not None else self.TYPE_REGISTRY,
+        )
 
     @property
     def regex_pattern(self) -> str:
