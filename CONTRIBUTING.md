@@ -88,7 +88,10 @@ steplib/                   # Source code
     ├── api/               # HTTP steps (httpx/requests/stdlib) (extra: api, requests)
     ├── web/               # selenium-based UI steps  (extra: web)
     ├── db/                # sqlalchemy DB steps      (extra: db)
-    └── kafka/             # kafka steps              (extra: kafka)
+    ├── kafka/             # kafka steps              (extra: kafka)
+    ├── data/              # variables and env var steps (always available)
+    ├── io/                # file/JSON/CSV/directory steps (extra: io for schemas)
+    └── cli/               # shell command steps      (always available)
 
 tests/
 ├── unit/                  # Unit tests

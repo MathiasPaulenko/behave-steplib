@@ -67,10 +67,13 @@ Queries
 
    * - Pattern
      - Description
-   * - ``I execute the SQL query {query}``
+   * - ``I execute the SQL query {query} without bind parameters``
      - Execute a SQL query and store the result in ``variables["_last_result"]``.
-   * - ``I execute the SQL query {query} with params {params}``
+   * - ``I execute the SQL query {query} using params {params}``
      - Execute a SQL query with bind parameters (JSON dict) and store the result.
+
+Statements auto-commit on execution unless an explicit transaction was
+started with ``I begin a database transaction``.
 
 Row count assertions
 ~~~~~~~~~~~~~~~~~~~~
@@ -165,7 +168,7 @@ Example
 
      Scenario: Users table has expected data
        Given the database connection string is "sqlite:///test.db"
-       When I execute the SQL query "SELECT * FROM users"
+       When I execute the SQL query "SELECT * FROM users" without bind parameters
        Then the query returns 3 rows
        And the column "name" in the first row equals "Ada"
 
@@ -180,9 +183,13 @@ engine and connection. They are created lazily by
 .. code-block:: python
 
    from steplib.modules.db.client import get_client
+   from steplib.modules.db.context import DbContext
 
    def before_all(context):
        context.steplib = autoload(context)
+       # DbContext is created lazily by the first db step; assign it
+       # explicitly if you want to pre-configure the connection.
+       context.steplib.db = DbContext()
        context.steplib.db.connection = get_client("sqlite:///test.db")
 
    def after_scenario(context, scenario):

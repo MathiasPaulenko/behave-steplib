@@ -36,7 +36,10 @@ Optional filters
 ``backends``
     A mapping of ``category → backend``. For each category present in the
     mapping, only steps whose ``backend`` matches the requested value are
-    kept. Steps without a ``backend`` are always kept.
+    kept. Steps without a ``backend`` are always kept. The mapping is also
+    stored on the state as ``context.steplib.backends`` — modules consult it
+    when lazily creating their clients, so ``backends={"api": "httpx"}``
+    makes the first API step use the ``httpx`` client.
 
 When both are ``None`` (the default), every installed plugin is loaded with
 every backend.

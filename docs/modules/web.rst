@@ -196,9 +196,13 @@ driver. It is created lazily and closed by ``cleanup()``:
 .. code-block:: python
 
    from steplib.modules.web.client import get_driver
+   from steplib.modules.web.context import WebContext
 
    def before_all(context):
        context.steplib = autoload(context)
+       # WebContext is created lazily by the first web step; assign it
+       # explicitly if you want to pre-configure the driver.
+       context.steplib.web = WebContext()
        context.steplib.web.driver = get_driver("selenium", browser="chrome", headless=True)
 
    def after_scenario(context, scenario):

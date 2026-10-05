@@ -165,6 +165,7 @@ Generate a ``features/environment.py`` scaffold with ``autoload(context)``.
 
    steplib init
    steplib init --path my_features/environment.py
+   steplib init --force   # overwrite an existing file
 
 The generated file:
 
@@ -190,6 +191,13 @@ Options
     Output path for ``environment.py``. Defaults to
     ``features/environment.py``. Parent directories are created
     automatically.
+
+``--force, -f``
+    Overwrite the output file when it already exists. Without it, ``init``
+    refuses to clobber an existing file and exits with code ``1``.
+
+``--json``
+    Output the result as JSON.
 
 ``steplib install``
 -------------------

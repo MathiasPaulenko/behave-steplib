@@ -33,9 +33,9 @@ You will receive a response within 48 hours. If the vulnerability is confirmed, 
 ### What behave-steplib does NOT do
 
 - Does not execute arbitrary code from feature files beyond behave's normal step execution
-- Does not modify files on disk (the CLI `init` command writes a single `environment.py` only when explicitly invoked)
+- Does not modify files on disk outside user-invoked steps (the CLI `init` command writes a single `environment.py` only when explicitly invoked, and `io` steps read/write/delete files only when a feature file calls them)
 - Does not make network requests on its own (network calls happen only inside user-invoked `api`/`web`/`kafka` steps)
-- Does not access environment variables or secrets
+- Does not access environment variables or secrets on its own; the `data` module offers steps to set/delete/read environment variables, which run only when a feature file calls them and are restored after each scenario
 
 ### Optional dependencies
 

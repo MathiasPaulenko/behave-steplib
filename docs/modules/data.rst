@@ -109,7 +109,7 @@ File loading
      - Description
    * - ``I load the YAML file {path} into the variable {name}``
      - Load a YAML file and store the parsed content as a variable.
-   * - ``I load the JSON file {path} into the variable {name}``
+   * - ``I load the JSON file {path} and store it in the variable {name}``
      - Load a JSON file and store the parsed content as a variable.
    * - ``I extract the key path {key_path} from the variable {name} as {target}``
      - Extract a value from a variable using dot-path navigation
@@ -187,7 +187,7 @@ Example
        When I wait for 0.5 seconds
 
      Scenario: Load and extract from JSON
-       Given I load the JSON file "data/user.json" into the variable "user"
+       Given I load the JSON file "data/user.json" and store it in the variable "user"
        When I extract the key path "address.city" from the variable "user" as "city"
        Then the variable "city" equals "Berlin"
 

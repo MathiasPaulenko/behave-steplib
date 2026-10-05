@@ -54,8 +54,8 @@ needs to keep the dependency surface small.
      - pytest, ruff, mypy, build, twine, pre-commit
      - Development and CI tools
    * - ``[docs]``
-     - sphinx, furo, myst-parser, sphinx-autodoc-typehints
-     - Documentation build tools
+     - sphinx, furo, myst-parser, sphinx-autodoc-typehints, sphinx-autobuild
+     - Documentation build tools (includes the ``make docs`` live server)
    * - ``[io]``
      - ``jsonschema``
      - File, JSON, CSV and directory operations with schema validation

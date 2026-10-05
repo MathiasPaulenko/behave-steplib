@@ -46,9 +46,9 @@ Command execution
 
    * - Pattern
      - Description
-   * - ``I run the command {command}``
+   * - ``I run the command {command} using the default timeout``
      - Run a shell command and store exit code, stdout and stderr.
-   * - ``I run the command {command} with timeout {timeout:d} seconds``
+   * - ``I run the command {command} using a timeout of {seconds:d} seconds``
      - Run a shell command with a timeout (raises on expiry).
 
 Exit code assertions
@@ -60,7 +60,7 @@ Exit code assertions
 
    * - Pattern
      - Description
-   * - ``the command exit code is {code:d}``
+   * - ``the command exit code equals {code:d}``
      - Assert that the last command's exit code equals a value.
 
 Stdout assertions
@@ -90,7 +90,7 @@ Stderr assertions
 
    * - Pattern
      - Description
-   * - ``the command stderr contains {text}``
+   * - ``the command error output contains {text}``
      - Assert that stderr contains the given text.
 
 Store operations
@@ -115,8 +115,8 @@ Example
    Feature: CLI command testing
 
      Scenario: Run and assert output
-       When I run the command "echo hello"
-       Then the command exit code is 0
+       When I run the command "echo hello" using the default timeout
+       Then the command exit code equals 0
        And the command output contains "hello"
        And the command output does not contain "error"
        And the command output matches the pattern "hell."
@@ -124,14 +124,14 @@ Example
        Then the variable "result" contains "hello"
 
      Scenario: Error output
-       When I run the command "echo error 1>&2"
-       Then the command exit code is 0
-       And the command stderr contains "error"
+       When I run the command "echo error 1>&2" using the default timeout
+       Then the command exit code equals 0
+       And the command error output contains "error"
        When I store the command error output as "errors"
        Then the variable "errors" contains "error"
 
      Scenario: Timeout
-       When I run the command "sleep 10" with timeout 1 seconds
+       When I run the command "sleep 10" using a timeout of 1 seconds
        # raises subprocess.TimeoutExpired
 
 API reference

@@ -52,7 +52,7 @@ Select a backend via ``autoload``:
 Steps
 -----
 
-The API module provides 55 steps organised into eight categories. All steps
+The API module provides 54 steps organised into eight categories. All steps
 have ``es`` and ``pt`` translations unless noted otherwise.
 
 Configuration
@@ -126,15 +126,17 @@ Requests
      - Description
    * - ``I send a {method} request to {url}``
      - Send an HTTP request and store the response.
-   * - ``I send a {method} request to {url} with body``
+   * - ``I send a {method} request with body to {url}``
      - Send a request with a body from the step's text (``context.text``).
-   * - ``I send a {method} request to {url} with form data``
+   * - ``I send a {method} request with form data to {url}``
      - Send a request with form-encoded data from the step table.
-   * - ``I send a {method} request to {url} with JSON body``
+   * - ``I send a {method} request with JSON body to {url}``
      - Send a request with a JSON body from the step's text.
-   * - ``I send a {method} request to {url} with query parameters``
-     - Send a request with query parameters from the step table.
-   * - ``I send a {method} request to {url} with headers``
+   * - ``I send a {method} request with query parameters to {url}``
+     - Send a request with query parameters from the step table. Per-request
+       params are merged with the defaults set by ``I set the query
+       parameter``.
+   * - ``I send a {method} request with headers to {url}``
      - Send a request with extra headers from the step table.
 
 The ``{method}`` placeholder accepts any HTTP method string (``GET``,
@@ -254,8 +256,6 @@ Store and extract
      - Set a header from a previously stored variable.
    * - ``I use the variable {variable} as the query parameter {name}``
      - Set a query parameter from a previously stored variable.
-   * - ``the variable {variable} equals {value}``
-     - Assert that a stored variable equals a value.
 
 Table comparison
 ~~~~~~~~~~~~~~~~
@@ -286,7 +286,7 @@ Example
 
      Scenario: POST creates a user
        Given the API base url is "https://api.example.com"
-       When I send a POST request to "/users" with body
+       When I send a POST request with body to "/users"
          """
          {"name": "Ada", "email": "ada@example.com"}
          """

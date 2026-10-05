@@ -76,10 +76,10 @@ Consume
 
    * - Pattern
      - Description
-   * - ``I consume messages from topic {topic}``
+   * - ``I consume messages from topic {topic} using the default timeout``
      - Consume messages from a Kafka topic and store them in
        ``variables["_last_messages"]``.
-   * - ``I consume messages from topic {topic} with timeout {timeout_ms:d} ms``
+   * - ``I consume messages from topic {topic} using a timeout of {timeout_ms:d} ms``
      - Consume messages from a Kafka topic with a custom timeout.
 
 Assertions
@@ -132,7 +132,7 @@ Example
      Scenario: Produce and consume a message
        Given the Kafka bootstrap servers are "localhost:9092"
        When I produce a message to topic "events" with key "id" and value "hello"
-       And I consume messages from topic "events"
+       And I consume messages from topic "events" using the default timeout
        Then the consumed messages count is 1
        And a consumed message contains "hello"
 

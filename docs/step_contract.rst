@@ -4,8 +4,10 @@ Step Contract
 A behave-steplib step is a regular Python function decorated with
 ``@steplib.step``. The decorator attaches structured metadata
 (:class:`~steplib.core.metadata.StepInfo`) used for documentation, validation
-and the CLI, while delegating to behave's native step registration under the
-hood.
+and the CLI. Registration with behave happens later, when the registry's
+``register_with_behave()`` is called during ``autoload``/``load`` — all
+patterns (base and translations) are registered with the ``steplib`` parse
+matcher.
 
 Design principles
 -----------------

@@ -63,11 +63,14 @@ Add three hooks to your `environment.py` and every installed step is wired autom
 # features/environment.py
 from steplib.behave import autoload
 
+
 def before_all(context):
     context.steplib = autoload(context)
 
+
 def before_scenario(context, scenario):
     context.steplib.reset()
+
 
 def after_scenario(context, scenario):
     context.steplib.cleanup()
@@ -86,6 +89,7 @@ Load only the modules you need by dotted path:
 ```python
 from steplib.behave import load
 
+
 def before_all(context):
     context.steplib = load(context, "steplib.modules.api.steps")
 ```
@@ -96,6 +100,7 @@ When multiple extras are installed, narrow which steps are active:
 
 ```python
 from steplib.behave import autoload
+
 
 def before_all(context):
     context.steplib = autoload(
@@ -136,12 +141,12 @@ Então o status da resposta é 200
 
 ### API
 
-HTTP API testing with stdlib (urllib), httpx or requests backends. **55 steps** covering configuration, authentication, SSL/redirects, requests (body, form, JSON, query params, headers), status/body/JSON Path/header/response-time assertions, store/extract, variable reuse and table comparison.
+HTTP API testing with stdlib (urllib), httpx or requests backends. **54 steps** covering configuration, authentication, SSL/redirects, requests (body, form, JSON, query params, headers), status/body/JSON Path/header/response-time assertions, store/extract, variable reuse and table comparison.
 
 ```gherkin
 Given the API base url is "https://api.example.com"
 And I set the bearer token to "eyJhbGciOi..."
-When I send a POST request to "/users" with JSON body
+When I send a POST request with JSON body to "/users"
   """
   {"name": "Ada", "email": "ada@example.com"}
   """
@@ -173,7 +178,7 @@ Database testing with SQLAlchemy (SQLite, PostgreSQL, MySQL, ...). **22 steps** 
 ```gherkin
 Given the database connection string is "sqlite:///test.db"
 When I connect to the database
-And I execute the SQL query "SELECT * FROM users"
+And I execute the SQL query "SELECT * FROM users" without bind parameters
 Then the query returns 3 rows
 And the column "name" in the first row equals "Ada"
 And the column "email" in the first row contains "@"
@@ -188,7 +193,7 @@ Kafka producer and consumer testing with kafka-python-ng. **20 steps** covering 
 Given the Kafka bootstrap servers are "localhost:9092"
 And the Kafka consumer group is "test-group"
 When I produce a message to topic "events" with key "id" and value "hello"
-And I consume messages from topic "events" with timeout 10000 ms
+And I consume messages from topic "events" using a timeout of 10000 ms
 Then the consumed messages count is 1
 And the message at index 0 has value "hello"
 And I store the message count as "total_messages"
@@ -202,7 +207,7 @@ Generic variable management and environment variable handling — cross-module v
 Given I set the variable "user_id" to "42"
 Then the variable "user_id" equals "42"
 And the variable "user_id" has length 2
-When I load the JSON file "data/user.json" into the variable "user"
+When I load the JSON file "data/user.json" and store it in the variable "user"
 And I extract the key path "address.city" from the variable "user" as "city"
 Then the variable "city" equals "Berlin"
 And the variable "email" matches the pattern ".*@.*\..*"
@@ -222,16 +227,13 @@ File, JSON, CSV and directory operations with optional JSON Schema validation. *
 Given I create the directory "output/logs"
 When I write "hello" to the file "output/logs/test.txt"
 Then the file "output/logs/test.txt" exists
-And the file size of "output/logs/test.txt" is greater than 0 bytes
 When I read the file "output/logs/test.txt" as lines into "lines"
 Then the variable "lines" has length 1
-Given I load the JSON file "data/config.json"
-Then the JSON path "$.version" equals "1.0"
+Given I load the JSON file "data/config.json" as the last JSON
+Then the JSON key path "version" equals "1.0"
 And the JSON matches the schema "schemas/config.json"
 And the last JSON is valid
-When I create the CSV file "output/data.csv" with header "name,age"
-And I write the CSV row "Alice,30" to the file "output/data.csv"
-And I save the CSV file
+When I create the CSV file "output/data.csv" from the data '[{"name":"Alice","age":30}]'
 Then the directory "output" exists
 When I delete the directory "output"
 Then the directory "output" does not exist
@@ -242,16 +244,16 @@ Then the directory "output" does not exist
 Shell command execution with subprocess, capturing exit code, stdout and stderr. **10 steps** covering command execution (with optional timeout), exit code assertions, stdout assertions (contains, not contains, equals, matches pattern), stderr assertions, and storing output (stdout and stderr) into variables.
 
 ```gherkin
-When I run the command "echo hello"
-Then the command exit code is 0
+When I run the command "echo hello" using the default timeout
+Then the command exit code equals 0
 And the command output contains "hello"
 And the command output does not contain "error"
 And the command output matches the pattern "hell."
 When I store the command output as "result"
 Then the variable "result" contains "hello"
-When I run the command "echo error 1>&2" with timeout 10 seconds
+When I run the command "echo error 1>&2" using a timeout of 10 seconds
 And I store the command error output as "errors"
-Then the command stderr contains "error"
+Then the command error output contains "error"
 ```
 
 ## CLI
@@ -314,12 +316,13 @@ Use the `@step` decorator to define your own steps with full metadata:
 ```python
 from steplib import Param, step
 
+
 @step(
     "the invoice total is {total:f}",
     category="invoice",
     description="Assert the invoice total matches.",
     parameters=[Param("total", type=float, required=True)],
-    example='Then the invoice total is 19.99',
+    example="Then the invoice total is 19.99",
     i18n={
         "es": "el total de la factura es {total:f}",
         "pt": "o total da fatura é {total:f}",
