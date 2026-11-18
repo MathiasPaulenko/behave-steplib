@@ -203,10 +203,9 @@ class UrllibHTTPClient:
             handlers.append(proxy_support)
         if not allow_redirects:
             handlers.append(NoRedirectHandler())
-        if handlers:
-            opener = urllib.request.build_opener(*handlers)
-        else:
-            opener = urllib.request.build_opener()
+        if ctx is not None:
+            handlers.append(urllib.request.HTTPSHandler(context=ctx))
+        opener = urllib.request.build_opener(*handlers)
 
         start = time.monotonic()
         try:

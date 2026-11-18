@@ -981,6 +981,8 @@ def step_response_matches_schema(context: Any) -> None:
         schema = _json.loads(schema_text)
     except _json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON schema in step text: {exc}") from exc
+    if not isinstance(schema, dict):
+        raise AssertionError(f"JSON schema must be an object, got: {schema!r}")
     api_assert_json_schema(_get_api(context), schema)
 
 

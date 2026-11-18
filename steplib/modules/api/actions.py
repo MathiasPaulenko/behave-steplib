@@ -127,6 +127,9 @@ def api_send(
 
     request_params = {**api_ctx.query_params, **(params or {})} or None
 
+    # Clear stale state before sending: a transport error must not leave a
+    # previous response visible to later assertions.
+    api_ctx.last_response = None
     response = api_ctx.client.request(
         method=req.method,
         url=req.url,
@@ -964,18 +967,18 @@ def api_send_json(
     api_ctx: ApiContext,
     method: str,
     url: str,
-    data: str | dict[str, Any],
+    data: str | dict[str, Any] | list[Any],
 ) -> Response:
     """Send an HTTP request with a JSON body.
 
-    Sets ``Content-Type: application/json``. If *data* is a dict, it is
-    serialized to JSON. If it is a string, it is sent as-is.
+    Sets ``Content-Type: application/json``. If *data* is a dict or a list,
+    it is serialized to JSON. If it is a string, it is sent as-is.
 
     Args:
         api_ctx: The API context to operate on.
         method: HTTP method.
         url: Target URL.
-        data: JSON body as a dict or pre-serialized string.
+        data: JSON body as a dict, list, or pre-serialized string.
 
     Returns:
         The ``Response`` object.
@@ -983,7 +986,7 @@ def api_send_json(
     """
     import json as _json
 
-    body = _json.dumps(data) if isinstance(data, dict) else data
+    body = _json.dumps(data) if isinstance(data, (dict, list)) else data
     return api_send(
         api_ctx,
         method,
@@ -1114,7 +1117,8 @@ def _validate_schema(
 
     errors: list[str] = []
 
-    # type
+    # type — a string or a list of acceptable type names (JSON Schema
+    # allows ``{"type": ["string", "null"]}``).
     expected_type = schema.get("type")
     if expected_type:
         type_checks: dict[str, tuple[type[Any], ...]] = {
@@ -1126,17 +1130,29 @@ def _validate_schema(
             "array": (list,),
             "null": (type(None),),
         }
-        if expected_type in type_checks:
-            # In Python, bool is a subclass of int, so we must explicitly
-            # exclude bool when checking for integer or number types.
-            if expected_type in ("integer", "number") and isinstance(data, bool):
-                errors.append(f"{path}: expected type '{expected_type}', got 'bool'")
-                return errors
-            if not isinstance(data, type_checks[expected_type]):
-                errors.append(
-                    f"{path}: expected type '{expected_type}', got '{type(data).__name__}'"
-                )
-                return errors
+        if isinstance(expected_type, str):
+            type_names = [expected_type]
+        elif isinstance(expected_type, list):
+            type_names = expected_type
+        else:
+            type_names = []
+        if not type_names or any(
+            not isinstance(name, str) or name not in type_checks for name in type_names
+        ):
+            errors.append(f"{path}: unknown schema type '{expected_type}'")
+            return errors
+        # In Python, bool is a subclass of int, so it must be explicitly
+        # excluded when checking for integer or number types.
+        matched = any(
+            not (name in ("integer", "number") and isinstance(data, bool))
+            and isinstance(data, type_checks[name])
+            for name in type_names
+        )
+        if not matched:
+            errors.append(
+                f"{path}: expected type '{expected_type}', got '{type(data).__name__}'"
+            )
+            return errors
 
     # enum
     if "enum" in schema and data not in schema["enum"]:

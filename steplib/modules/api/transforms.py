@@ -54,7 +54,8 @@ class Url:
     @staticmethod
     def _resolve(url: str, base_url: str) -> str:
         """Resolve *url* against *base_url* if *url* is relative."""
-        if url.startswith(("http://", "https://")):
+        lowered = url.lower()
+        if lowered.startswith(("http://", "https://")):
             return url
         if not base_url:
             return url
