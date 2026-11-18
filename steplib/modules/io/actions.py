@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -133,7 +134,8 @@ def io_move_file(io_ctx: IOContext, source: str, destination: str) -> None:
         raise FileNotFoundError(f"Source file not found: {source}")
     dst = Path(destination)
     dst.parent.mkdir(parents=True, exist_ok=True)
-    src.rename(dst)
+    # shutil.move handles cross-filesystem moves; Path.rename raises EXDEV.
+    shutil.move(src, dst)
 
 
 def io_rename_file(io_ctx: IOContext, path: str, new_path: str) -> None:
@@ -153,7 +155,7 @@ def io_rename_file(io_ctx: IOContext, path: str, new_path: str) -> None:
         raise FileNotFoundError(f"File not found: {path}")
     new = Path(new_path)
     new.parent.mkdir(parents=True, exist_ok=True)
-    file_path.rename(new)
+    shutil.move(file_path, new)
 
 
 def io_assert_file_exists(io_ctx: IOContext, path: str) -> None:
@@ -384,6 +386,8 @@ def io_update_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
     """
     if io_ctx._last_json is None:
         raise RuntimeError("No JSON loaded.")
+    if not key_path:
+        raise KeyError("Empty key_path is not allowed.")
     parts = key_path.split(".")
     current: Any = io_ctx._last_json
     for part in parts[:-1]:
@@ -437,6 +441,8 @@ def io_create_json_path(io_ctx: IOContext, key_path: str, value: str) -> None:
         raise RuntimeError("No JSON loaded.")
     if not isinstance(io_ctx._last_json, dict):
         raise RuntimeError("Loaded JSON is not a dict; cannot create key path.")
+    if not key_path:
+        raise KeyError("Empty key_path is not allowed.")
     parts = key_path.split(".")
     current: dict[str, Any] = io_ctx._last_json
     for part in parts[:-1]:
@@ -462,6 +468,8 @@ def io_delete_json_path(io_ctx: IOContext, key_path: str) -> None:
     """
     if io_ctx._last_json is None:
         raise RuntimeError("No JSON loaded.")
+    if not key_path:
+        raise KeyError("Empty key_path is not allowed.")
     parts = key_path.split(".")
     current: Any = io_ctx._last_json
     for part in parts[:-1]:
@@ -703,6 +711,8 @@ def io_create_csv_writer(
         fieldnames: List of column names.
 
     """
+    # Close any previously open writer so its file handle is not leaked.
+    io_ctx._close_csv()
     file_path = Path(path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
     f = file_path.open("w", encoding="utf-8", newline="")

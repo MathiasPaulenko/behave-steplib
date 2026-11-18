@@ -501,6 +501,8 @@ def step_create_csv(context: Any, path: str, data: str) -> None:
         rows = _json.loads(_strip_quotes(data))
     except _json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON data for CSV: {exc}") from exc
+    if not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows):
+        raise AssertionError("CSV data must be a JSON array of objects.")
     io_create_csv(_get_io(context), _strip_quotes(path), rows)
 
 
@@ -538,6 +540,8 @@ def step_write_csv_row(context: Any, row: str) -> None:
         data = _json.loads(_strip_quotes(row))
     except _json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON row for CSV: {exc}") from exc
+    if not isinstance(data, dict):
+        raise AssertionError(f"CSV row must be a JSON object, got: {data!r}")
     io_write_csv_row(_get_io(context), data)
 
 

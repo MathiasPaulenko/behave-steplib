@@ -39,6 +39,10 @@ class IOContext:
         self._close_csv()
 
     def _close_csv(self) -> None:
-        """Close the CSV file handle if open."""
-        if self._csv_file is not None and not self._csv_file.closed:
-            self._csv_file.close()
+        """Close the CSV file handle if open, dropping the references."""
+        try:
+            if self._csv_file is not None and not self._csv_file.closed:
+                self._csv_file.close()
+        finally:
+            self._csv_writer = None
+            self._csv_file = None
