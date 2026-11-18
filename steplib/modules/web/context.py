@@ -41,7 +41,14 @@ class WebContext:
         self.last_screenshot = ""
 
     def cleanup(self) -> None:
-        """Close the browser driver if it exists."""
-        if self.driver is not None and hasattr(self.driver, "quit"):
-            self.driver.quit()
-            self.driver = None
+        """Close the browser driver if it exists.
+
+        The driver reference is dropped even when ``quit()`` fails, so a
+        broken driver is never reused in the next scenario.
+        """
+        if self.driver is not None:
+            try:
+                if hasattr(self.driver, "quit"):
+                    self.driver.quit()
+            finally:
+                self.driver = None

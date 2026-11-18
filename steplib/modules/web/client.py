@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, ClassVar, Protocol
 
 from steplib.core.exceptions import MissingDependencyError
 
@@ -128,6 +128,28 @@ class SeleniumDriver:
     _driver: Any
     _By: Any
 
+    _BY_ALIASES: ClassVar[dict[str, str]] = {
+        "css": "CSS_SELECTOR",
+        "class": "CLASS_NAME",
+        "tag": "TAG_NAME",
+        "link": "LINK_TEXT",
+        "partial_link": "PARTIAL_LINK_TEXT",
+    }
+
+    def _resolve_by(self, by: str) -> Any:
+        """Map a locator strategy name to a Selenium ``By`` attribute.
+
+        Accepts canonical names (``"css_selector"``), spaced forms
+        (``"css selector"``), and common short aliases (``"css"``,
+        ``"class"``, ``"tag"``).
+        """
+        name = by.strip().upper().replace(" ", "_").replace("-", "_")
+        name = self._BY_ALIASES.get(name.lower(), name)
+        attr = getattr(self._By, name, None)
+        if attr is None:
+            raise ValueError(f"Unknown locator strategy: '{by}'")
+        return attr
+
     def __init__(self, browser: str = "chrome", headless: bool = True) -> None:
         """Initialize the Selenium driver, importing lazily.
 
@@ -176,7 +198,7 @@ class SeleniumDriver:
             The matched Selenium WebElement.
 
         """
-        return self._driver.find_element(getattr(self._By, by.upper()), value)
+        return self._driver.find_element(self._resolve_by(by), value)
 
     def find_elements(self, by: str, value: str) -> list[Any]:
         """Find multiple elements by *by* strategy and *value*.
@@ -189,7 +211,7 @@ class SeleniumDriver:
             A list of matched Selenium WebElements.
 
         """
-        return list(self._driver.find_elements(getattr(self._By, by.upper()), value))
+        return list(self._driver.find_elements(self._resolve_by(by), value))
 
     @property
     def current_url(self) -> str:
@@ -212,43 +234,43 @@ class SeleniumDriver:
 
     def click(self, by: str, value: str) -> None:
         """Click an element matching the locator."""
-        self._driver.find_element(getattr(self._By, by.upper()), value).click()
+        self._driver.find_element(self._resolve_by(by), value).click()
 
     def type_text(self, by: str, value: str, text: str) -> None:
         """Type text into an input element, clearing it first."""
-        el = self._driver.find_element(getattr(self._By, by.upper()), value)
+        el = self._driver.find_element(self._resolve_by(by), value)
         el.clear()
         el.send_keys(text)
 
     def clear_input(self, by: str, value: str) -> None:
         """Clear an input element."""
-        self._driver.find_element(getattr(self._By, by.upper()), value).clear()
+        self._driver.find_element(self._resolve_by(by), value).clear()
 
     def select_option(self, by: str, value: str, option: str) -> None:
         """Select an option from a <select> element by visible text."""
         from selenium.webdriver.support.ui import Select
 
-        el = self._driver.find_element(getattr(self._By, by.upper()), value)
+        el = self._driver.find_element(self._resolve_by(by), value)
         Select(el).select_by_visible_text(option)
 
     def is_element_visible(self, by: str, value: str) -> bool:
         """Check if an element is visible on the page."""
-        elements = self._driver.find_elements(getattr(self._By, by.upper()), value)
+        elements = self._driver.find_elements(self._resolve_by(by), value)
         return bool(elements) and elements[0].is_displayed()
 
     def is_element_enabled(self, by: str, value: str) -> bool:
         """Check if an element is enabled."""
-        el = self._driver.find_element(getattr(self._By, by.upper()), value)
+        el = self._driver.find_element(self._resolve_by(by), value)
         return bool(el.is_enabled())
 
     def get_element_text(self, by: str, value: str) -> str:
         """Get the text content of an element."""
-        el = self._driver.find_element(getattr(self._By, by.upper()), value)
+        el = self._driver.find_element(self._resolve_by(by), value)
         return str(el.text)
 
     def get_element_attribute(self, by: str, value: str, attr: str) -> str:
         """Get an attribute value from an element."""
-        el = self._driver.find_element(getattr(self._By, by.upper()), value)
+        el = self._driver.find_element(self._resolve_by(by), value)
         return el.get_attribute(attr) or ""
 
     def take_screenshot(self, path: str) -> None:
@@ -269,7 +291,7 @@ class SeleniumDriver:
 
     def switch_to_frame(self, by: str, value: str) -> None:
         """Switch to an iframe element."""
-        el = self._driver.find_element(getattr(self._By, by.upper()), value)
+        el = self._driver.find_element(self._resolve_by(by), value)
         self._driver.switch_to.frame(el)
 
     def switch_to_default(self) -> None:

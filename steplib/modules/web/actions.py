@@ -32,7 +32,7 @@ def web_navigate(web_ctx: WebContext, url: str) -> None:
     """
     if web_ctx.driver is None:
         raise RuntimeError("No browser driver configured in WebContext.")
-    if url.startswith(("http://", "https://")):
+    if url.lower().startswith(("http://", "https://")):
         web_ctx.driver.get(url)
     elif web_ctx.base_url:
         base = web_ctx.base_url.rstrip("/")
