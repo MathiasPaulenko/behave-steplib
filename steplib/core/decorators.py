@@ -61,13 +61,13 @@ def step(
             func=fn,
             backend=backend,
             description=description or fn.__doc__,
-            parameters=parameters or [],
+            parameters=list(parameters or []),
             example=example,
-            tags=tags or [],
+            tags=list(tags or []),
             version=version,
             deprecated=deprecated,
-            i18n=i18n or {},
-            requires=requires or [],
+            i18n=dict(i18n or {}),
+            requires=list(requires or []),
         )
         existing: list[StepInfo] = getattr(fn, _STEPLIB_ATTR, [])
         # Create a new list to avoid mutating a shared parent list.

@@ -8,7 +8,7 @@ from typing import Any, Protocol
 from steplib.core.decorators import get_step_infos
 from steplib.core.exceptions import DuplicateStepError, StepContractError
 from steplib.core.i18n import expand_patterns
-from steplib.core.matcher import SteplibMatcher
+from steplib.core.matcher import SteplibMatcher, _skeleton
 from steplib.core.metadata import StepInfo
 
 # User-facing decorator name used in error messages.
@@ -256,9 +256,10 @@ class StepRegistry:
         behave's own ``same_step_matcher`` dedup keeps registration
         idempotent.
 
-        More specific patterns must be registered before their shorter
-        general forms: behave's ``find_match`` returns the *first* matcher
-        that parses the step text.
+        More specific patterns are registered before their shorter general
+        forms automatically: behave's ``find_match`` returns the *first*
+        matcher that parses the step text, so patterns are sorted by the
+        number of fixed (non-placeholder) words, most specific first.
         """
         if self._registered_with_behave:
             return
@@ -282,14 +283,23 @@ class StepRegistry:
         previous_matcher = factory.current_matcher.NAME
         use_step_matcher(SteplibMatcher.NAME)
         try:
-            seen: set[tuple[str, str | None]] = set()
+            expanded: list[tuple[str, Callable[..., Any]]] = []
             for info in self._steps:
                 for _lang, pattern in expand_patterns(info):
-                    key = (pattern, info.backend)
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    behave_step(pattern)(info.func)
+                    expanded.append((pattern, info.func))
+            # behave's find_match returns the first matcher that parses a
+            # step text, so a general pattern registered first would shadow
+            # a more specific one (e.g. ``I consume messages from topic
+            # {topic}`` swallowing the ``... using a timeout of {n:d} ms``
+            # form). Register patterns with more fixed words first so the
+            # outcome never depends on the order modules listed their steps.
+            expanded.sort(key=lambda item: (-len(_skeleton(item[0])), -len(item[0])))
+            seen: set[str] = set()
+            for pattern, fn in expanded:
+                if pattern in seen:
+                    continue
+                seen.add(pattern)
+                behave_step(pattern)(fn)
         finally:
             use_step_matcher(previous_matcher)
         self._registered_with_behave = True

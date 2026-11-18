@@ -19,7 +19,7 @@ import re
 from typing import Any, cast
 
 import parse
-from behave.matchers import Match, Matcher, ParseMatcher
+from behave.matchers import Match, Matcher, MatchWithError, ParseMatcher
 from behave.model_type import Argument
 
 _FIXED_RE = re.compile(r'"[^"]*"|\{[^}]+?\}')
@@ -91,7 +91,13 @@ class SteplibMatcher(Matcher):  # type: ignore[misc]
         one that shares the same fixed words. Runtime matching uses
         :meth:`check_match` instead.
         """
+        if self.pattern == step_text:
+            return True
         if not set(_skeleton(step_text)).issubset(self._skeleton):
             return False
         matched = self.match(step_text)
-        return matched is not None and isinstance(matched, Match)
+        return (
+            matched is not None
+            and isinstance(matched, Match)
+            and not isinstance(matched, MatchWithError)
+        )

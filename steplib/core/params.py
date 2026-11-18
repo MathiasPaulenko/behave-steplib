@@ -108,10 +108,14 @@ def register_type(name: str, py_type: type[Any]) -> None:
     """
     _DEFAULT_REGISTRY.register(name, py_type)
     try:
-        from behave import register_type as _behave_register_type
+        from behave.matchers import ParseMatcher
     except ImportError:  # pragma: no cover
         return
-    _behave_register_type(**{name: py_type})
+    # Register directly on ParseMatcher's shared registry: behave's
+    # register_type() lands on the *current* matcher class, which may not
+    # support types (e.g. the "re" matcher) or may not be the one steplib
+    # uses at runtime.
+    ParseMatcher.register_type(**{name: py_type})
 
 
 def resolve_type(type_ref: type[Any] | str) -> type[Any]:

@@ -55,18 +55,35 @@ class SteplibState:
         """The step registry."""
         return self._registry
 
+    def _run_module_hooks(self, hook: str) -> None:
+        """Call *hook* on every module context, re-raising the first error.
+
+        A failing context must not prevent the remaining contexts from
+        running their lifecycle hook — otherwise one broken module leaks
+        the others' resources.
+        """
+        first_error: BaseException | None = None
+        for name in list(self.__dict__):
+            if name.startswith("_"):
+                continue
+            attr = getattr(self, name)
+            method = getattr(attr, hook, None)
+            if callable(method):
+                try:
+                    method()
+                except Exception as exc:
+                    if first_error is None:
+                        first_error = exc
+        if first_error is not None:
+            raise first_error
+
     def reset(self) -> None:
         """Reset per-scenario state.
 
         Called from ``before_scenario``. Iterates over all module-level
         attributes (non-underscore) and calls ``reset()`` if available.
         """
-        for name in list(self.__dict__):
-            if name.startswith("_"):
-                continue
-            attr = getattr(self, name)
-            if hasattr(attr, "reset") and callable(attr.reset):
-                attr.reset()
+        self._run_module_hooks("reset")
 
     def cleanup(self) -> None:
         """Close resources after a scenario.
@@ -74,9 +91,4 @@ class SteplibState:
         Called from ``after_scenario``. Iterates over all module-level
         attributes (non-underscore) and calls ``cleanup()`` if available.
         """
-        for name in list(self.__dict__):
-            if name.startswith("_"):
-                continue
-            attr = getattr(self, name)
-            if hasattr(attr, "cleanup") and callable(attr.cleanup):
-                attr.cleanup()
+        self._run_module_hooks("cleanup")
