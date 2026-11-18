@@ -19,6 +19,11 @@ def cli_run_command(cli_ctx: CLIContext, command: str) -> None:
         subprocess.TimeoutExpired: If the command times out.
 
     """
+    # Clear stale results first: a timeout must not leave a previous
+    # command's output visible to later assertions.
+    cli_ctx.exit_code = None
+    cli_ctx.stdout = ""
+    cli_ctx.stderr = ""
     result = subprocess.run(
         command,
         shell=True,
@@ -44,6 +49,9 @@ def cli_run_command_with_timeout(cli_ctx: CLIContext, command: str, seconds: int
         subprocess.TimeoutExpired: If the command times out.
 
     """
+    cli_ctx.exit_code = None
+    cli_ctx.stdout = ""
+    cli_ctx.stderr = ""
     result = subprocess.run(
         command,
         shell=True,

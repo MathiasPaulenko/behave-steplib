@@ -44,11 +44,28 @@ class KafkaContext:
         self.consumer_config = {}
 
     def cleanup(self) -> None:
-        """Close the producer and consumer if they exist."""
-        if self.producer is not None and hasattr(self.producer, "close"):
-            self.producer.close()
+        """Close the producer and consumer if they exist.
+
+        A failure closing one client must not prevent closing the other.
+        The first error is re-raised once both were attempted.
+        """
+        first_error: BaseException | None = None
+        if self.producer is not None:
+            try:
+                if hasattr(self.producer, "close"):
+                    self.producer.close()
+            except Exception as exc:
+                if first_error is None:
+                    first_error = exc
             self.producer = None
-        if self.consumer is not None and hasattr(self.consumer, "close"):
-            self.consumer.close()
+        if self.consumer is not None:
+            try:
+                if hasattr(self.consumer, "close"):
+                    self.consumer.close()
+            except Exception as exc:
+                if first_error is None:
+                    first_error = exc
             self.consumer = None
             self.consumer_topic = None
+        if first_error is not None:
+            raise first_error

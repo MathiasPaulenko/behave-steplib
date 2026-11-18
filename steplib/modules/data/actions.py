@@ -530,6 +530,8 @@ def data_load_env_file(data_ctx: DataContext, path: str) -> None:
             line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
+            if line.startswith("export "):
+                line = line[len("export ") :].lstrip()
             if "=" not in line:
                 continue
             key, _, value = line.partition("=")

@@ -155,4 +155,4 @@ def format_step_detail_json(info: StepInfo) -> str:
             for p in info.parameters
         ],
     }
-    return json.dumps(data, indent=2, ensure_ascii=False)
+    return json.dumps(data, indent=2, ensure_ascii=False, default=str)

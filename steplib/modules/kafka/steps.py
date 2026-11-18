@@ -155,6 +155,8 @@ def step_produce_json(context: Any, topic: str, key: str, payload: str) -> None:
         parsed = json.loads(payload.strip("'").strip('"'))
     except json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON payload: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise AssertionError(f"JSON payload must be an object, got: {parsed!r}")
     kafka_produce_json(
         _get_kafka(context),
         topic.strip('"'),
@@ -398,6 +400,8 @@ def step_set_producer_config(context: Any, config: str) -> None:
         parsed = json.loads(config.strip("'").strip('"'))
     except json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON config: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise AssertionError(f"Producer config must be a JSON object, got: {parsed!r}")
     kafka_set_producer_config(_get_kafka(context), parsed)
 
 
@@ -419,6 +423,8 @@ def step_set_consumer_config(context: Any, config: str) -> None:
         parsed = json.loads(config.strip("'").strip('"'))
     except json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON config: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise AssertionError(f"Consumer config must be a JSON object, got: {parsed!r}")
     kafka_set_consumer_config(_get_kafka(context), parsed)
 
 
