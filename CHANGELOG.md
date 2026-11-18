@@ -5,6 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-11-18
+
+### Fixed
+
+- `SteplibMatcher.matches()` no longer reports a match when the parse
+  result is a `MatchWithError`, which caused spurious `AmbiguousStep`
+  errors at registration time whenever a custom type converter failed.
+- Registered patterns are now sorted by specificity (most fixed words
+  first) and deduplicated by pattern text, so `find_match` resolution no
+  longer depends on the order modules list their steps.
+- `register_type()` now registers the converter directly on
+  `ParseMatcher`'s type registry, so `{value:Name}` conversion works
+  regardless of which step matcher is active when called.
+- `SteplibState.reset()`/`cleanup()` no longer abort on the first failing
+  module context; all contexts run their lifecycle hook and the first
+  error is re-raised afterwards.
+- The `@step` decorator copies caller-provided `parameters`, `tags`,
+  `requires` and `i18n` instead of sharing the mutable references.
+- API urllib backend: `verify=False` now actually installs an
+  `HTTPSHandler` with the relaxed SSL context — the flag was previously
+  built but never attached to the opener.
+- Absolute URLs are now detected case-insensitively (`HTTP://...`,
+  `Https://...`), both in API requests and web navigation.
+- A failed API request no longer leaves a stale `last_response`.
+- `api_send_json` serializes any JSON-compatible payload (lists,
+  scalars), not only dicts.
+- The JSON Schema subset validator supports `type` given as a list
+  (`["string", "null"]`) and reports an error for unknown types instead
+  of silently passing.
+- The response-schema step rejects non-object JSON schemas with a clear
+  `AssertionError` instead of an `AttributeError`.
+- DB module: `execute()`/`execute_scalar()` and the `db_query*` helpers
+  no longer call `keys()`/`fetchall()`/`scalar()` on non-row-producing
+  statements, which raised `ResourceClosedError` for `INSERT`/`UPDATE`/
+  DDL statements.
+- DB module: `DbContext.cleanup()`, `db_disconnect()` and
+  `DatabaseClient.close()` continue closing the connection, engine and
+  disposing resources even when an earlier cleanup step fails, then
+  re-raise the first error.
+- IO module: file moves use `shutil.move`, so `I move the file` and
+  `I rename the file` work across filesystems (EXDEV).
+- IO module: empty `key_path` values are rejected instead of silently
+  indexing/creating a `""` JSON key.
+- IO module: creating a second CSV writer closes the previous file
+  handle, and `IOContext` cleanup/reset closes any active CSV writer.
+- IO module: CSV steps reject JSON that decodes to non-object types
+  (`{"a": 1}` for the CSV create step, `[1, 2]` for a row) with a clear
+  `AssertionError`.
+- Web module: `SeleniumDriver` resolves common locator names
+  (`css`, `class`, `tag`, `css selector`, `link text`, ...) to the right
+  `selenium.webdriver.common.by.By` constants instead of crashing with
+  `AttributeError`.
+- Web module: a failing `driver.quit()` no longer leaves the driver
+  reference populated; cleanup still re-raises the error.
+- Kafka module: producer/consumer config steps reject JSON values that
+  are not objects, and cleanup closes both producer and consumer even
+  when the first close fails.
+- Data module: `.env` files now accept the optional `export` prefix
+  (`export KEY=value`).
+- CLI module: `cli_run_command`/`cli_run_command_with_timeout` clear
+  `exit_code`/`stdout`/`stderr` before running and on
+  `TimeoutExpired`, so a timed-out command no longer leaves stale state.
+- `steplib show --json` no longer crashes when a `Param` declares a
+  non-JSON-serializable `default` or `choices`.
+
+### Tests
+
+- Added 51 regression tests covering every fix above.
+- Full test suite: 1111 passing.
+
 ## [1.6.0] - 2026-10-05
 
 ### Fixed
