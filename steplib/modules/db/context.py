@@ -34,13 +34,36 @@ class DbContext:
         self.variables = {}
 
     def cleanup(self) -> None:
-        """Close the database connection if it exists."""
-        if self.transaction is not None and hasattr(self.transaction, "rollback"):
-            self.transaction.rollback()
+        """Close the database connection if it exists.
+
+        Each resource is released best-effort: a failing rollback or close
+        must not prevent the remaining resources from being released. The
+        first error is re-raised once everything was attempted.
+        """
+        first_error: BaseException | None = None
+        if self.transaction is not None:
+            try:
+                if hasattr(self.transaction, "rollback"):
+                    self.transaction.rollback()
+            except Exception as exc:
+                if first_error is None:
+                    first_error = exc
             self.transaction = None
-        if self.connection is not None and hasattr(self.connection, "close"):
-            self.connection.close()
+        if self.connection is not None:
+            try:
+                if hasattr(self.connection, "close"):
+                    self.connection.close()
+            except Exception as exc:
+                if first_error is None:
+                    first_error = exc
             self.connection = None
-        if self.engine is not None and hasattr(self.engine, "dispose"):
-            self.engine.dispose()
+        if self.engine is not None:
+            try:
+                if hasattr(self.engine, "dispose"):
+                    self.engine.dispose()
+            except Exception as exc:
+                if first_error is None:
+                    first_error = exc
             self.engine = None
+        if first_error is not None:
+            raise first_error

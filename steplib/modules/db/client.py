@@ -61,6 +61,11 @@ class DatabaseClient:
 
         """
         result = self.connection.execute(self._text(query), params or {})
+        # Statements without a result set (INSERT/UPDATE/DDL) have no keys
+        # or rows — reading them raises ResourceClosedError in SQLAlchemy.
+        if not getattr(result, "returns_rows", True):
+            self._commit_if_no_explicit_tx()
+            return []
         columns = list(result.keys())
         rows = [dict(zip(columns, row, strict=False)) for row in result.fetchall()]
         self._commit_if_no_explicit_tx()
@@ -78,6 +83,9 @@ class DatabaseClient:
 
         """
         result = self.connection.execute(self._text(query), params or {})
+        if not getattr(result, "returns_rows", True):
+            self._commit_if_no_explicit_tx()
+            return None
         value = result.scalar()
         self._commit_if_no_explicit_tx()
         return value
@@ -101,9 +109,23 @@ class DatabaseClient:
         return self._tx
 
     def close(self) -> None:
-        """Close the connection and dispose the engine."""
-        self.connection.close()
-        self.engine.dispose()
+        """Close the connection and dispose the engine.
+
+        A failure closing the connection must not prevent disposing the
+        engine. The first error is re-raised once both were attempted.
+        """
+        first_error: BaseException | None = None
+        try:
+            self.connection.close()
+        except Exception as exc:
+            first_error = exc
+        try:
+            self.engine.dispose()
+        except Exception as exc:
+            if first_error is None:
+                first_error = exc
+        if first_error is not None:
+            raise first_error
 
 
 def get_client(connection_string: str) -> DatabaseClient:

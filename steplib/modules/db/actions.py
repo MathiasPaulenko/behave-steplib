@@ -84,6 +84,9 @@ def db_query(db_ctx: DbContext, query: str) -> list[dict[str, Any]]:
     # DatabaseClient.execute() returns list[dict] directly.
     if isinstance(result, list):
         return result
+    # Statements without a result set (INSERT/UPDATE/DDL) have no rows.
+    if not getattr(result, "returns_rows", True):
+        return []
     # SQLAlchemy-like result: has keys() and fetchall().
     columns = list(result.keys())
     return [dict(zip(columns, row, strict=False)) for row in result.fetchall()]
@@ -178,19 +181,41 @@ def db_connect(db_ctx: DbContext) -> None:
 def db_disconnect(db_ctx: DbContext) -> None:
     """Close the database connection and dispose the engine.
 
+    Each resource is released best-effort: a failing rollback or close
+    must not prevent the remaining resources from being released. The
+    first error is re-raised once everything was attempted.
+
     Args:
         db_ctx: The DB context to operate on.
 
     """
-    if db_ctx.transaction is not None and hasattr(db_ctx.transaction, "rollback"):
-        db_ctx.transaction.rollback()
+    first_error: BaseException | None = None
+    if db_ctx.transaction is not None:
+        try:
+            if hasattr(db_ctx.transaction, "rollback"):
+                db_ctx.transaction.rollback()
+        except Exception as exc:
+            if first_error is None:
+                first_error = exc
         db_ctx.transaction = None
-    if db_ctx.connection is not None and hasattr(db_ctx.connection, "close"):
-        db_ctx.connection.close()
+    if db_ctx.connection is not None:
+        try:
+            if hasattr(db_ctx.connection, "close"):
+                db_ctx.connection.close()
+        except Exception as exc:
+            if first_error is None:
+                first_error = exc
         db_ctx.connection = None
-    if db_ctx.engine is not None and hasattr(db_ctx.engine, "dispose"):
-        db_ctx.engine.dispose()
+    if db_ctx.engine is not None:
+        try:
+            if hasattr(db_ctx.engine, "dispose"):
+                db_ctx.engine.dispose()
+        except Exception as exc:
+            if first_error is None:
+                first_error = exc
         db_ctx.engine = None
+    if first_error is not None:
+        raise first_error
 
 
 # --- Query with params ---
@@ -221,6 +246,8 @@ def db_query_with_params(
         result = db_ctx.connection.execute(query, params)
         if isinstance(result, list):
             return result
+        if not getattr(result, "returns_rows", True):
+            return []
         columns = list(result.keys())
         return [dict(zip(columns, row, strict=False)) for row in result.fetchall()]
     raise RuntimeError("Database connection does not support execute().")
@@ -254,7 +281,7 @@ def db_query_scalar(
         return db_ctx.connection.execute_scalar(query, params or {})
     if hasattr(db_ctx.connection, "execute"):
         result = db_ctx.connection.execute(query, params or {})
-        if hasattr(result, "scalar"):
+        if hasattr(result, "scalar") and getattr(result, "returns_rows", True):
             return result.scalar()
         if isinstance(result, list) and result:
             first = result[0]

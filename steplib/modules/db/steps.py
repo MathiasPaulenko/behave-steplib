@@ -448,6 +448,8 @@ def step_execute_query_with_params(context: Any, query: str, params: str) -> Non
         parsed = json.loads(params.strip("'").strip('"'))
     except json.JSONDecodeError as exc:
         raise AssertionError(f"Invalid JSON params: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise AssertionError(f"Query params must be a JSON object, got: {parsed!r}")
     result = db_query_with_params(db_ctx, query.strip('"'), parsed)
     db_ctx.variables["_last_result"] = result
 
